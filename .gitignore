@@ -1,24 +1,36 @@
-# Compiled class file
+# === Java / Maven 相關 (通用) ===
+target/
 *.class
-
-# Log file
-*.log
-
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
-*.jar
 *.war
-*.nar
 *.ear
-*.zip
-*.tar.gz
-*.rar
+*.jar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# === IntelliJ IDEA 相關 (Hank 的 IDE) ===
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# === Eclipse 相關 (隊友的 IDE) ===
+.settings/
+.project
+.classpath
+bin/
+.metadata/
+.recommenders/
+
+# === 作業系統相關 (Mac vs Windows) ===
+# Mac 產生的資料夾索引檔 (最常出現的垃圾)
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows 產生的縮圖與暫存檔
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# === 專案私密設定 (保護資料庫密碼) ===
+src/main/resources/config.properties
+.env
