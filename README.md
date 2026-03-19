@@ -4,7 +4,7 @@
 
 ## 🛠️ 技術棧 (Tech Stack)
 
-* **前端 (Frontend)**: HTML5, CSS3, JavaScript (jQuery), Bootstrap / SweetAlert (若有使用請列出)
+* **前端 (Frontend)**: HTML5, CSS3, JavaScript (jQuery)
 * **後端 (Backend)**: Java 17, Jakarta EE (Servlet / JSP), Tomcat 10
 * **資料庫 (Database)**: MS SQL Server
 * **建置工具 (Build Tool)**: Maven
