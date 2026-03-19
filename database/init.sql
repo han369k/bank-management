@@ -1,113 +1,115 @@
 CREATE TABLE [ADMINISTRATOR] (
-    [admin_id] int PRIMARY KEY IDENTITY(1, 1),
-    [username] nvarchar(255),
-    [password_hash] nvarchar(255),
-    [name] nvarchar(255),
-    [email] nvarchar(255),
-    [phone_number] nvarchar(255),
-    [role] nvarchar(255),
-    [status] nvarchar(255),
-    [created_at] datetime,
-    [updated_at] datetime
+    [admin_id] int PRIMARY KEY,
+    [username] varchar(50),
+    [password_hash] varchar(255),
+    [name] varchar(50),
+    [email] varchar(100),
+    [phone_number] varchar(20),
+    [role] varchar(20),
+    [status] varchar(10),
+    [created_at] datetime2,
+    [updated_at] datetime2
     )
     GO
 
 CREATE TABLE [ADMIN_LOG] (
-    [log_id] int PRIMARY KEY IDENTITY(1, 1),
+    [log_id] int PRIMARY KEY,
     [admin_id] int,
-    [action_type] nvarchar(255),
-    [target_table] nvarchar(255),
-    [target_record_id] nvarchar(255),
+    [action_type] varchar(20),
+    [target_table] varchar(50),
+    [target_record_id] varchar(50),
     [action_details] text,
-    [action_timestamp] datetime,
-    [ip_address] nvarchar(255)
+    [action_timestamp] datetime2,
+    [ip_address] varchar(50)
     )
     GO
 
 CREATE TABLE [CUSTOMER] (
-    [customer_id] nvarchar(255) PRIMARY KEY,
-    [id_number] nvarchar(255),
-    [name] nvarchar(255),
+    [customer_id] varchar(20) PRIMARY KEY,
+    [id_number] varchar(20),
+    [name] nvarchar(50),
     [date_of_birth] date,
-    [nationality] nvarchar(255),
-    [address] nvarchar,
-    [phone] nvarchar(255),
-    [email] nvarchar(255),
-    [income] decimal(15,2),
+    [nationality] varchar(50),
+    [address] nvarchar(255),
+    [phone] varchar(20),
+    [email] varchar(100),
+    [password_hash] varchar(255),
+    [failed_login_attempts] int,
+    [income] decimal(19,4),
     [credit_score] int,
-    [created_at] datetime,
-    [updated_at] datetime,
-    [status] nvarchar(255)
+    [created_at] datetime2,
+    [updated_at] datetime2,
+    [status] varchar(20)
     )
     GO
 
 CREATE TABLE [KYC_RECORD] (
-    [kyc_id] int PRIMARY KEY IDENTITY(1, 1),
-    [customer_id] nvarchar(255),
-    [document_type] nvarchar(255),
-    [document_number] nvarchar(255),
+    [kyc_id] int PRIMARY KEY,
+    [customer_id] varchar(20),
+    [document_type] varchar(20),
+    [document_number] varchar(50),
     [expiry_date] date,
-    [document_image_url] nvarchar(255),
-    [verification_status] nvarchar(255),
+    [document_image_url] varchar(255),
+    [verification_status] varchar(20),
     [verified_by_admin] int,
-    [submission_date] datetime,
-    [verification_date] datetime,
-    [comments] nvarchar
+    [submission_date] datetime2,
+    [verification_date] datetime2,
+    [comments] nvarchar(255)
     )
     GO
 
 CREATE TABLE [ACCOUNT] (
-    [account_number] nvarchar(255) PRIMARY KEY,
-    [customer_id] nvarchar(255),
-    [type] nvarchar(255),
-    [currency] nvarchar(255),
-    [balance] decimal(15,2),
-    [status] nvarchar(255),
-    [create_at] datetime,
-    [change_at] datetime
+    [account_number] varchar(20) PRIMARY KEY,
+    [customer_id] varchar(20),
+    [type] varchar(20),
+    [currency] varchar(3),
+    [balance] decimal(19,4),
+    [status] varchar(10),
+    [create_at] datetime2,
+    [change_at] datetime2
     )
     GO
 
 CREATE TABLE [TRANS_LOG] (
-    [trans_log_id] bigint PRIMARY KEY IDENTITY(1, 1),
-    [reference_id] nvarchar(255),
-    [amount] decimal(15,2),
-    [type] nvarchar(255),
-    [operation_account] nvarchar(255),
-    [other_account] nvarchar(255),
-    [balance] decimal(15,2),
-    [transaction_time] datetime,
-    [note] nvarchar
+    [trans_log_id] bigint PRIMARY KEY,
+    [reference_id] varchar(50),
+    [amount] decimal(19,4),
+    [type] varchar(20),
+    [operation_account] varchar(20),
+    [other_account] varchar(20),
+    [balance] decimal(19,4),
+    [transaction_time] datetime2,
+    [note] nvarchar(255)
     )
     GO
 
 CREATE TABLE [LOAN_APPLICATION] (
-    [application_id] nvarchar(255) PRIMARY KEY,
-    [customer_id] nvarchar(255),
-    [apply_amount] decimal(15,2),
+    [application_id] varchar(20) PRIMARY KEY,
+    [customer_id] varchar(20),
+    [apply_amount] decimal(19,4),
     [apply_period] int,
-    [approved_amount] decimal(15,2),
-    [approved_rate] decimal(5,2),
+    [approved_amount] decimal(19,4),
+    [approved_rate] decimal(5,4),
     [approved_period] int,
-    [status] nvarchar(255),
+    [status] varchar(20),
     [reviewer_id] int,
-    [review_time] datetime
+    [review_time] datetime2
     )
     GO
 
 CREATE TABLE [REPAYMENT_RECORD] (
-    [repayment_id] bigint PRIMARY KEY IDENTITY(1, 1),
-    [application_id] nvarchar(255),
-    [account_number] nvarchar(255),
+    [repayment_id] bigint PRIMARY KEY,
+    [application_id] varchar(20),
+    [account_number] varchar(20),
     [period] int,
-    [principal_paid] decimal(15,2),
-    [interest_paid] decimal(15,2),
-    [penalty_paid] decimal(15,2),
-    [payment_date] datetime
+    [principal_paid] decimal(19,4),
+    [interest_paid] decimal(19,4),
+    [penalty_paid] decimal(19,4),
+    [payment_date] datetime2
     )
     GO
 
-CREATE TABLE [CardTypes] (
+CREATE TABLE [CARD_TYPE] (
     [card_type_id] int PRIMARY KEY IDENTITY(1, 1),
     [card_type_name] nvarchar(50) NOT NULL,
     [brand] nvarchar(20) NOT NULL,
@@ -116,16 +118,16 @@ CREATE TABLE [CardTypes] (
     )
     GO
 
-CREATE TABLE [Merchants] (
+CREATE TABLE [MERCHANT] (
     [merchant_id] int PRIMARY KEY IDENTITY(1, 1),
     [merchant_name] nvarchar(100) NOT NULL,
     [merchant_category] nvarchar(50)
     )
     GO
 
-CREATE TABLE [CreditCards] (
+CREATE TABLE [CREDIT_CARD] (
     [card_id] int PRIMARY KEY IDENTITY(1, 1),
-    [customer_id] int NOT NULL,
+    [customer_id] varchar(20) NOT NULL,
     [card_type_id] int NOT NULL,
     [card_number] varchar(16) UNIQUE NOT NULL,
     [expiry_date] date NOT NULL,
@@ -136,7 +138,7 @@ CREATE TABLE [CreditCards] (
     )
     GO
 
-CREATE TABLE [CreditCardTransactions] (
+CREATE TABLE [CREDIT_CARD_TRANSACTION] (
     [txn_id] int PRIMARY KEY IDENTITY(1, 1),
     [card_id] int NOT NULL,
     [merchant_id] int NOT NULL,
@@ -147,7 +149,7 @@ CREATE TABLE [CreditCardTransactions] (
     )
     GO
 
-CREATE TABLE [CreditCardBills] (
+CREATE TABLE [CREDIT_CARD_BILL] (
     [bill_id] int PRIMARY KEY IDENTITY(1, 1),
     [card_id] int NOT NULL,
     [billing_month] varchar(7),
@@ -160,61 +162,53 @@ CREATE TABLE [CreditCardBills] (
     )
     GO
 
-CREATE TABLE [FUND_MASTER] (
-    [fund_id] nvarchar(255) PRIMARY KEY,
-    [issuer_name] nvarchar,
-    [fund_name] nvarchar,
-    [currency] nvarchar(255),
-    [latest_nav] decimal(15,4),
-    [risk_level] nvarchar(255),
-    [fee_rate] decimal(5,2),
-    [min_purchase_amount] decimal(15,2),
-    [fund_status] nvarchar(255),
-    [created_at] datetime,
-    [updated_at] datetime
+CREATE TABLE [STOCK_MASTER] (
+    [stock_symbol] varchar(10) PRIMARY KEY,
+    [company_name] varchar(100),
+    [market_type] varchar(20),
+    [current_price] decimal(10,2),
+    [opening_price] decimal(10,2),
+    [highest_price] decimal(10,2),
+    [lowest_price] decimal(10,2),
+    [trade_volume] bigint,
+    [fee_rate] decimal(5,4),
+    [status] varchar(20),
+    [created_at] datetime2,
+    [updated_at] datetime2
     )
     GO
 
-CREATE TABLE [CUSTOMER_FUND_HOLDING] (
-    [holding_id] bigint PRIMARY KEY IDENTITY(1, 1),
-    [customer_id] nvarchar(255),
-    [account_number] nvarchar(255),
-    [fund_id] nvarchar(255),
-    [total_units] decimal(15,4),
-    [average_cost] decimal(15,4),
-    [updated_at] datetime
+CREATE TABLE [CUSTOMER_STOCK_HOLDING] (
+    [holding_id] bigint PRIMARY KEY,
+    [customer_id] varchar(20),
+    [account_number] varchar(20),
+    [stock_symbol] varchar(10),
+    [total_shares] int,
+    [average_cost] decimal(10,2),
+    [updated_at] datetime2
     )
     GO
 
-CREATE TABLE [FUND_TRANSACTION_RECORD] (
-    [transaction_id] bigint PRIMARY KEY IDENTITY(1, 1),
-    [customer_id] nvarchar(255),
-    [account_number] nvarchar(255),
-    [fund_id] nvarchar(255),
-    [transaction_type] nvarchar(255),
-    [transaction_amount] decimal(15,2),
-    [transaction_units] decimal(15,4),
-    [deal_nav] decimal(15,4),
-    [fee_amount] decimal(15,2),
-    [transaction_status] nvarchar(255),
-    [created_at] datetime,
-    [completed_at] datetime
+CREATE TABLE [STOCK_TRANSACTION_RECORD] (
+    [transaction_id] bigint PRIMARY KEY,
+    [customer_id] varchar(20),
+    [account_number] varchar(20),
+    [stock_symbol] varchar(10),
+    [transaction_type] varchar(10),
+    [deal_price] decimal(10,2),
+    [shares] int,
+    [fee_amount] decimal(10,2),
+    [transaction_status] varchar(20),
+    [transaction_time] datetime2
     )
     GO
 
     EXEC sp_addextendedproperty
-    @name = N'Table_Description',
-    @value = '系統管理員/行員表',
+    @name = N'Column_Description',
+    @value = '行員編號 (PK)',
     @level0type = N'Schema', @level0name = 'dbo',
-    @level1type = N'Table',  @level1name = 'ADMINISTRATOR';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '行員編號 (主鍵/自動遞增)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ADMINISTRATOR',
-@level2type = N'Column', @level2name = 'admin_id';
+    @level1type = N'Table',  @level1name = 'ADMINISTRATOR',
+    @level2type = N'Column', @level2name = 'admin_id';
 GO
 
 EXEC sp_addextendedproperty
@@ -227,7 +221,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '登入密碼 (雜湊值)',
+@value = '登入密碼(Hash)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMINISTRATOR',
 @level2type = N'Column', @level2name = 'password_hash';
@@ -243,23 +237,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '電子郵件',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ADMINISTRATOR',
-@level2type = N'Column', @level2name = 'email';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '聯絡電話',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ADMINISTRATOR',
-@level2type = N'Column', @level2name = 'phone_number';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '角色權限 (如:一般行員/經理)',
+@value = '角色：MANAGER / CLERK',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMINISTRATOR',
 @level2type = N'Column', @level2name = 'role';
@@ -267,7 +245,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳號狀態 (正常/停權/離職)',
+@value = '狀態：ACTIVE / SUSPENDED',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMINISTRATOR',
 @level2type = N'Column', @level2name = 'status';
@@ -275,30 +253,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '建立時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ADMINISTRATOR',
-@level2type = N'Column', @level2name = 'created_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '最後更新時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ADMINISTRATOR',
-@level2type = N'Column', @level2name = 'updated_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '系統稽核與操作日誌',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ADMIN_LOG';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '日誌流水號 (主鍵/自動遞增)',
+@value = '日誌流水號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'log_id';
@@ -306,7 +261,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '操作的行員編號',
+@value = '操作行員 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'admin_id';
@@ -314,7 +269,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '操作類型 (新增/修改/刪除)',
+@value = '動作類型 (如: LOGIN, UPDATE)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'action_type';
@@ -322,7 +277,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '被異動的資料表名稱',
+@value = '異動資料表',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'target_table';
@@ -330,7 +285,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '被異動的資料主鍵ID',
+@value = '異動資料ID',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'target_record_id';
@@ -338,7 +293,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '操作詳細內容',
+@value = '詳細內容',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'action_details';
@@ -346,7 +301,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '操作發生時間',
+@value = '操作時間',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'action_timestamp';
@@ -354,22 +309,15 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '操作時的 IP 位址',
+@value = '操作IP',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ADMIN_LOG',
 @level2type = N'Column', @level2name = 'ip_address';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '顧客基本資料表 (CIF)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '顧客代號 (主鍵/自行編碼)',
+@value = '顧客系統代號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'CUSTOMER',
 @level2type = N'Column', @level2name = 'customer_id';
@@ -393,42 +341,18 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '出生年月日',
+@value = '網銀登入密碼',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'date_of_birth';
+@level2type = N'Column', @level2name = 'password_hash';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '國籍',
+@value = '登入失敗次數',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'nationality';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '通訊地址',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'address';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '聯絡電話',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'phone';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '電子郵件',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'email';
+@level2type = N'Column', @level2name = 'failed_login_attempts';
 GO
 
 EXEC sp_addextendedproperty
@@ -441,7 +365,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '內部信用評分',
+@value = '信用評分',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'CUSTOMER',
 @level2type = N'Column', @level2name = 'credit_score';
@@ -449,38 +373,15 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '建檔時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'created_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '最後修改時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER',
-@level2type = N'Column', @level2name = 'updated_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '顧客狀態 (正常/凍結/待審核)',
+@value = '狀態：PENDING / ACTIVE / FROZEN',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'CUSTOMER',
 @level2type = N'Column', @level2name = 'status';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '顧客 KYC 審查紀錄',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'KYC_RECORD';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = 'KYC紀錄流水號 (主鍵/自動遞增)',
+@value = '審查案件編號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'kyc_id';
@@ -488,7 +389,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '關聯顧客代號',
+@value = '顧客代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'customer_id';
@@ -496,7 +397,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '身分驗證文件類型',
+@value = '證件類型 (如: ID_CARD)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'document_type';
@@ -504,7 +405,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '身分驗證文件號碼',
+@value = '證件號碼',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'document_number';
@@ -512,7 +413,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '文件到期日',
+@value = '證件到期日',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'expiry_date';
@@ -520,7 +421,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '證件影像檔案路徑',
+@value = '證件影像路徑',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'document_image_url';
@@ -528,7 +429,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '審核狀態 (待審核/通過/退件)',
+@value = '審查狀態：PENDING / APPROVED',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'verification_status';
@@ -536,7 +437,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '負責審核的行員編號',
+@value = '審查行員代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'verified_by_admin';
@@ -544,7 +445,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '資料提交時間',
+@value = '送件時間',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'submission_date';
@@ -552,7 +453,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '主管審核時間',
+@value = '審核時間',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'KYC_RECORD',
 @level2type = N'Column', @level2name = 'verification_date';
@@ -567,15 +468,8 @@ EXEC sp_addextendedproperty
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '活存/外幣帳戶表',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ACCOUNT';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '銀行帳號 (主鍵/自行編碼)',
+@value = '銀行帳號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ACCOUNT',
 @level2type = N'Column', @level2name = 'account_number';
@@ -583,7 +477,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '所屬顧客代號',
+@value = '顧客代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ACCOUNT',
 @level2type = N'Column', @level2name = 'customer_id';
@@ -591,7 +485,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳戶類型 (活期/定期)',
+@value = '帳戶類型 (活存/定存)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ACCOUNT',
 @level2type = N'Column', @level2name = 'type';
@@ -599,7 +493,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '幣別 (如: TWD, USD)',
+@value = '幣別 (如: TWD)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ACCOUNT',
 @level2type = N'Column', @level2name = 'currency';
@@ -607,7 +501,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳戶目前餘額',
+@value = '帳戶餘額',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ACCOUNT',
 @level2type = N'Column', @level2name = 'balance';
@@ -615,7 +509,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳戶狀態 (正常/警示/凍結)',
+@value = '狀態：ACTIVE / FROZEN',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'ACCOUNT',
 @level2type = N'Column', @level2name = 'status';
@@ -623,30 +517,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '開戶時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ACCOUNT',
-@level2type = N'Column', @level2name = 'create_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '狀態最後變更時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'ACCOUNT',
-@level2type = N'Column', @level2name = 'change_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '帳戶資金進出明細',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'TRANS_LOG';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '交易流水號 (主鍵/自動遞增)',
+@value = '交易流水號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'TRANS_LOG',
 @level2type = N'Column', @level2name = 'trans_log_id';
@@ -670,7 +541,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易類型 (存款/提款/轉帳/扣款)',
+@value = '類型 (存款/提款/轉帳)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'TRANS_LOG',
 @level2type = N'Column', @level2name = 'type';
@@ -678,7 +549,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '發生交易的本行帳號',
+@value = '操作帳號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'TRANS_LOG',
 @level2type = N'Column', @level2name = 'operation_account';
@@ -686,7 +557,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '對方帳號 (轉帳時)',
+@value = '對手帳號',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'TRANS_LOG',
 @level2type = N'Column', @level2name = 'other_account';
@@ -694,7 +565,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易後的帳戶餘額',
+@value = '交易後餘額',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'TRANS_LOG',
 @level2type = N'Column', @level2name = 'balance';
@@ -710,22 +581,15 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易備註/摘要',
+@value = '備註/摘要',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'TRANS_LOG',
 @level2type = N'Column', @level2name = 'note';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '貸款申請與合約表',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'LOAN_APPLICATION';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '貸款案號 (主鍵/自行編碼)',
+@value = '申請案號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'application_id';
@@ -733,7 +597,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '申請顧客代號',
+@value = '顧客代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'customer_id';
@@ -741,7 +605,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '客戶申請金額',
+@value = '申請金額',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'apply_amount';
@@ -749,7 +613,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '客戶申請期數(月)',
+@value = '申請期數(月)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'apply_period';
@@ -757,7 +621,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '銀行核准金額',
+@value = '核准金額',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'approved_amount';
@@ -765,7 +629,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '銀行核准利率(%)',
+@value = '核准利率',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'approved_rate';
@@ -773,7 +637,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '銀行核准期數(月)',
+@value = '核准期數',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'approved_period';
@@ -781,7 +645,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '案件狀態 (審核中/已撥款/結案)',
+@value = '狀態：PENDING / APPROVED / REJECTED',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'status';
@@ -789,7 +653,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '負責審查的行員編號',
+@value = '審核行員代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'reviewer_id';
@@ -797,22 +661,15 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '審查完成時間',
+@value = '審核時間',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'LOAN_APPLICATION',
 @level2type = N'Column', @level2name = 'review_time';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '貸款每期還款紀錄',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'REPAYMENT_RECORD';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '還款流水號 (主鍵/自動遞增)',
+@value = '還款流水號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'repayment_id';
@@ -820,7 +677,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '關聯的貸款案號',
+@value = '對應貸款案號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'application_id';
@@ -828,7 +685,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '實際扣款的帳號',
+@value = '扣款帳號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'account_number';
@@ -836,7 +693,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '本次還款期數 (第 N 期)',
+@value = '期數 (第幾期)',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'period';
@@ -844,7 +701,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '本次償還本金',
+@value = '已還本金',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'principal_paid';
@@ -852,7 +709,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '本次償還利息',
+@value = '已繳利息',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'interest_paid';
@@ -860,7 +717,7 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '本次繳交違約金/滯納金',
+@value = '已繳違約金',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'penalty_paid';
@@ -868,260 +725,225 @@ GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '實際扣款/繳款時間',
+@value = '實際還款時間',
 @level0type = N'Schema', @level0name = 'dbo',
 @level1type = N'Table',  @level1name = 'REPAYMENT_RECORD',
 @level2type = N'Column', @level2name = 'payment_date';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '銀行發行的信用卡產品目錄',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CardTypes';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '卡種編號 (主鍵/自動遞增)',
+@value = '卡別ID(主鍵)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CardTypes',
+@level1type = N'Table',  @level1name = 'CARD_TYPE',
 @level2type = N'Column', @level2name = 'card_type_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '卡片名稱 (如: 現金回饋卡、旅遊卡)',
+@value = '卡別名稱 (例如: 現金回饋卡、旅遊卡)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CardTypes',
+@level1type = N'Table',  @level1name = 'CARD_TYPE',
 @level2type = N'Column', @level2name = 'card_type_name';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '發卡組織 (VISA/JCB/Mastercard)',
+@value = '卡片品牌 (VISA / Master / JCB)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CardTypes',
+@level1type = N'Table',  @level1name = 'CARD_TYPE',
 @level2type = N'Column', @level2name = 'brand';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '預設年費',
+@value = '年費',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CardTypes',
+@level1type = N'Table',  @level1name = 'CARD_TYPE',
 @level2type = N'Column', @level2name = 'annual_fee';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '現金回饋率(%)',
+@value = '回饋比例 (%)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CardTypes',
+@level1type = N'Table',  @level1name = 'CARD_TYPE',
 @level2type = N'Column', @level2name = 'cashback_rate';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '刷卡特約商店/商家資訊',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Merchants';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '商家編號 (主鍵/自動遞增)',
+@value = '商家ID(主鍵)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Merchants',
+@level1type = N'Table',  @level1name = 'MERCHANT',
 @level2type = N'Column', @level2name = 'merchant_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '請款商店名稱',
+@value = '商家名稱',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Merchants',
+@level1type = N'Table',  @level1name = 'MERCHANT',
 @level2type = N'Column', @level2name = 'merchant_name';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '商家類型 (餐飲/交通/購物等)',
+@value = '商家類型 (餐飲 / 交通 / 購物)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'Merchants',
+@level1type = N'Table',  @level1name = 'MERCHANT',
 @level2type = N'Column', @level2name = 'merchant_category';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '顧客持有的實體信用卡',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '信用卡內部流水號 (主鍵/自動遞增)',
+@value = '信用卡ID(主鍵)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'card_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '持卡人顧客代號',
+@value = '客戶ID (對應 CUSTOMER)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'customer_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '關聯的卡種編號',
+@value = '卡別ID (對應 CARD_TYPE)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'card_type_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '實體信用卡卡號 (16碼)',
+@value = '信用卡卡號',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'card_number';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '卡片有效期限',
+@value = '卡片到期日',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'expiry_date';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '該卡片專屬信用額度',
+@value = '信用額度',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'credit_limit';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '目前已刷未繳金額',
+@value = '目前已使用金額',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'current_balance';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '開卡日期/發卡時間',
+@value = '開卡日期',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'create_date';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '卡片狀態 (1:正常, 0:停卡/掛失)',
+@value = '卡片狀態 (1=正常 0=停卡)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCards',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD',
 @level2type = N'Column', @level2name = 'status';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '信用卡單筆刷卡明細',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '刷卡流水號 (主鍵/自動遞增)',
+@value = '交易ID(主鍵)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'txn_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '關聯的實體信用卡',
+@value = '信用卡ID',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'card_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '請款商家編號',
+@value = '商家ID (對應 MERCHANT)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'merchant_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '單筆刷卡金額',
+@value = '交易金額',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'txn_amount';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易類型 (PURCHASE/REFUND/PAYMENT)',
+@value = '交易類型 (PURCHASE / REFUND / PAYMENT)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'txn_type';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '實際刷卡時間',
+@value = '交易時間',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'txn_date';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '消費備註/說明',
+@value = '備註',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardTransactions',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_TRANSACTION',
 @level2type = N'Column', @level2name = 'description';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '信用卡每月帳單',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳單流水號 (主鍵/自動遞增)',
+@value = '帳單ID(主鍵)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'bill_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '關聯的實體信用卡',
+@value = '信用卡ID',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'card_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳單月份 (如: 2026-03)',
+@value = '帳單月份 (例如: 2026-03)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'billing_month';
 GO
 
@@ -1129,367 +951,322 @@ EXEC sp_addextendedproperty
 @name = N'Column_Description',
 @value = '帳單產生日期',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'bill_date';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '最後繳款截止日',
+@value = '繳款截止日',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'due_date';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '本期應繳總金額',
+@value = '帳單總金額',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'total_amount';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '本期最低應繳金額',
+@value = '最低應繳金額',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'minimum_payment';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '已繳納金額',
+@value = '已繳金額',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'paid_amount';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '帳單狀態 (UNPAID/PARTIAL/PAID)',
+@value = '帳單狀態 (UNPAID / PARTIAL / PAID)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CreditCardBills',
+@level1type = N'Table',  @level1name = 'CREDIT_CARD_BILL',
 @level2type = N'Column', @level2name = 'bill_status';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '基金商品目錄',
+@name = N'Column_Description',
+@value = '股票代碼 (PK)，如 2330',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'stock_symbol';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '基金代碼 (主鍵/自行編碼)',
+@value = '公司名稱',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'fund_id';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'company_name';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '發行機構/投信名稱',
+@value = '上市或上櫃',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'issuer_name';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'market_type';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '基金商品名稱',
+@value = '最新股價/收盤價',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'fund_name';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'current_price';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '計價幣別',
+@value = '開盤價',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'currency';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'opening_price';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '最新單位淨值',
+@value = '最高價',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'latest_nav';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'highest_price';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '風險等級 (RR1~RR5)',
+@value = '最低價',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'risk_level';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'lowest_price';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '申購手續費率(%)',
+@value = '成交股數',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'trade_volume';
+GO
+
+EXEC sp_addextendedproperty
+@name = N'Column_Description',
+@value = '手續費率',
+@level0type = N'Schema', @level0name = 'dbo',
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
 @level2type = N'Column', @level2name = 'fee_rate';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '單筆最低申購門檻',
+@value = '狀態：ACTIVE',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'min_purchase_amount';
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
+@level2type = N'Column', @level2name = 'status';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '商品狀態 (上架/下架)',
+@value = '報價更新時間',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'fund_status';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '產品上架時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
-@level2type = N'Column', @level2name = 'created_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '淨值最後更新時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_MASTER',
+@level1type = N'Table',  @level1name = 'STOCK_MASTER',
 @level2type = N'Column', @level2name = 'updated_at';
 GO
 
 EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '顧客持有的基金庫存',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING';
-GO
-
-EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '庫存流水號 (主鍵/自動遞增)',
+@value = '庫存流水號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
+@level1type = N'Table',  @level1name = 'CUSTOMER_STOCK_HOLDING',
 @level2type = N'Column', @level2name = 'holding_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '投資人顧客代號',
+@value = '顧客代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
+@level1type = N'Table',  @level1name = 'CUSTOMER_STOCK_HOLDING',
 @level2type = N'Column', @level2name = 'customer_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '贖回時預設匯入的帳號',
+@value = '扣款/入帳的活存帳號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
+@level1type = N'Table',  @level1name = 'CUSTOMER_STOCK_HOLDING',
 @level2type = N'Column', @level2name = 'account_number';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '持有的基金代碼',
+@value = '股票代碼 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
-@level2type = N'Column', @level2name = 'fund_id';
+@level1type = N'Table',  @level1name = 'CUSTOMER_STOCK_HOLDING',
+@level2type = N'Column', @level2name = 'stock_symbol';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '持有總單位數',
+@value = '總持有股數',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
-@level2type = N'Column', @level2name = 'total_units';
+@level1type = N'Table',  @level1name = 'CUSTOMER_STOCK_HOLDING',
+@level2type = N'Column', @level2name = 'total_shares';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '平均申購成本',
+@value = '平均成本價 (用來算損益)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
+@level1type = N'Table',  @level1name = 'CUSTOMER_STOCK_HOLDING',
 @level2type = N'Column', @level2name = 'average_cost';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '庫存最後更新時間',
+@value = '交易流水號 (PK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'CUSTOMER_FUND_HOLDING',
-@level2type = N'Column', @level2name = 'updated_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Table_Description',
-@value = '基金申購與贖回交易明細',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '基金交易流水號 (主鍵/自動遞增)',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
 @level2type = N'Column', @level2name = 'transaction_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '投資人顧客代號',
+@value = '顧客代號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
 @level2type = N'Column', @level2name = 'customer_id';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '實際扣款或匯入的帳號',
+@value = '活存帳號 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
 @level2type = N'Column', @level2name = 'account_number';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易的基金代碼',
+@value = '股票代碼 (FK)',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
-@level2type = N'Column', @level2name = 'fund_id';
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
+@level2type = N'Column', @level2name = 'stock_symbol';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易動作 (申購/贖回)',
+@value = 'BUY 或 SELL',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
 @level2type = N'Column', @level2name = 'transaction_type';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易總金額',
+@value = '實際成交價',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
-@level2type = N'Column', @level2name = 'transaction_amount';
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
+@level2type = N'Column', @level2name = 'deal_price';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '成交單位數',
+@value = '交易股數',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
-@level2type = N'Column', @level2name = 'transaction_units';
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
+@level2type = N'Column', @level2name = 'shares';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '成交當下淨值',
+@value = '手續費與證交稅總額',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
-@level2type = N'Column', @level2name = 'deal_nav';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '內扣或外加手續費',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
 @level2type = N'Column', @level2name = 'fee_amount';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '交易狀態 (處理中/已完成/失敗)',
+@value = '狀態：COMPLETED',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
 @level2type = N'Column', @level2name = 'transaction_status';
 GO
 
 EXEC sp_addextendedproperty
 @name = N'Column_Description',
-@value = '委託下單時間',
+@value = '成交時間',
 @level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
-@level2type = N'Column', @level2name = 'created_at';
-GO
-
-EXEC sp_addextendedproperty
-@name = N'Column_Description',
-@value = '交易完成/結算時間',
-@level0type = N'Schema', @level0name = 'dbo',
-@level1type = N'Table',  @level1name = 'FUND_TRANSACTION_RECORD',
-@level2type = N'Column', @level2name = 'completed_at';
+@level1type = N'Table',  @level1name = 'STOCK_TRANSACTION_RECORD',
+@level2type = N'Column', @level2name = 'transaction_time';
 GO
 
 ALTER TABLE [ADMIN_LOG] ADD FOREIGN KEY ([admin_id]) REFERENCES [ADMINISTRATOR] ([admin_id])
     GO
 
-ALTER TABLE [KYC_RECORD] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
-    GO
-
 ALTER TABLE [KYC_RECORD] ADD FOREIGN KEY ([verified_by_admin]) REFERENCES [ADMINISTRATOR] ([admin_id])
-    GO
-
-ALTER TABLE [ACCOUNT] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
-    GO
-
-ALTER TABLE [TRANS_LOG] ADD FOREIGN KEY ([operation_account]) REFERENCES [ACCOUNT] ([account_number])
-    GO
-
-ALTER TABLE [LOAN_APPLICATION] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
     GO
 
 ALTER TABLE [LOAN_APPLICATION] ADD FOREIGN KEY ([reviewer_id]) REFERENCES [ADMINISTRATOR] ([admin_id])
     GO
 
-ALTER TABLE [REPAYMENT_RECORD] ADD FOREIGN KEY ([application_id]) REFERENCES [LOAN_APPLICATION] ([application_id])
+ALTER TABLE [KYC_RECORD] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+    GO
+
+ALTER TABLE [ACCOUNT] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+    GO
+
+ALTER TABLE [LOAN_APPLICATION] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+    GO
+
+ALTER TABLE [CREDIT_CARD] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+    GO
+
+ALTER TABLE [CUSTOMER_STOCK_HOLDING] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+    GO
+
+ALTER TABLE [STOCK_TRANSACTION_RECORD] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+    GO
+
+ALTER TABLE [TRANS_LOG] ADD FOREIGN KEY ([operation_account]) REFERENCES [ACCOUNT] ([account_number])
     GO
 
 ALTER TABLE [REPAYMENT_RECORD] ADD FOREIGN KEY ([account_number]) REFERENCES [ACCOUNT] ([account_number])
     GO
 
-ALTER TABLE [CreditCards] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+ALTER TABLE [CUSTOMER_STOCK_HOLDING] ADD FOREIGN KEY ([account_number]) REFERENCES [ACCOUNT] ([account_number])
     GO
 
-ALTER TABLE [CreditCards] ADD FOREIGN KEY ([card_type_id]) REFERENCES [CardTypes] ([card_type_id])
+ALTER TABLE [STOCK_TRANSACTION_RECORD] ADD FOREIGN KEY ([account_number]) REFERENCES [ACCOUNT] ([account_number])
     GO
 
-ALTER TABLE [CreditCardTransactions] ADD FOREIGN KEY ([card_id]) REFERENCES [CreditCards] ([card_id])
+ALTER TABLE [REPAYMENT_RECORD] ADD FOREIGN KEY ([application_id]) REFERENCES [LOAN_APPLICATION] ([application_id])
     GO
 
-ALTER TABLE [CreditCardTransactions] ADD FOREIGN KEY ([merchant_id]) REFERENCES [Merchants] ([merchant_id])
+ALTER TABLE [CREDIT_CARD] ADD FOREIGN KEY ([card_type_id]) REFERENCES [CARD_TYPE] ([card_type_id])
     GO
 
-ALTER TABLE [CreditCardBills] ADD FOREIGN KEY ([card_id]) REFERENCES [CreditCards] ([card_id])
+ALTER TABLE [CREDIT_CARD_BILL] ADD FOREIGN KEY ([card_id]) REFERENCES [CREDIT_CARD] ([card_id])
     GO
 
-ALTER TABLE [CUSTOMER_FUND_HOLDING] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
+ALTER TABLE [CREDIT_CARD_TRANSACTION] ADD FOREIGN KEY ([card_id]) REFERENCES [CREDIT_CARD] ([card_id])
     GO
 
-ALTER TABLE [CUSTOMER_FUND_HOLDING] ADD FOREIGN KEY ([account_number]) REFERENCES [ACCOUNT] ([account_number])
+ALTER TABLE [CREDIT_CARD_TRANSACTION] ADD FOREIGN KEY ([merchant_id]) REFERENCES [MERCHANT] ([merchant_id])
     GO
 
-ALTER TABLE [CUSTOMER_FUND_HOLDING] ADD FOREIGN KEY ([fund_id]) REFERENCES [FUND_MASTER] ([fund_id])
+ALTER TABLE [CUSTOMER_STOCK_HOLDING] ADD FOREIGN KEY ([stock_symbol]) REFERENCES [STOCK_MASTER] ([stock_symbol])
     GO
 
-ALTER TABLE [FUND_TRANSACTION_RECORD] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
-    GO
-
-ALTER TABLE [FUND_TRANSACTION_RECORD] ADD FOREIGN KEY ([account_number]) REFERENCES [ACCOUNT] ([account_number])
-    GO
-
-ALTER TABLE [FUND_TRANSACTION_RECORD] ADD FOREIGN KEY ([fund_id]) REFERENCES [FUND_MASTER] ([fund_id])
+ALTER TABLE [STOCK_TRANSACTION_RECORD] ADD FOREIGN KEY ([stock_symbol]) REFERENCES [STOCK_MASTER] ([stock_symbol])
     GO
