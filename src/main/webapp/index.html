@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>銀行管理系統</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 960px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: 300px;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .account-details {
+            background-color: #e9f7ff;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>銀行管理系統</h1>
+    </header>
+
+    <main>
+        <section id="account-lookup">
+            <h2>帳戶查詢</h2>
+            <form id="lookup-form" class="form-group">
+                <label for="account-id">請輸入帳號：</label>
+                <input type="text" id="account-id" name="accountId" placeholder="例如：110-223-5566" required>
+                <button type="submit">查詢</button>
+            </form>
+        </section>
+
+        <section id="account-details-section" class="hidden">
+            <h2>帳戶詳情</h2>
+            <div id="account-details" class="account-details">
+                <!-- JavaScript 會將帳戶資料填充到這裡 -->
+            </div>
+        </section>
+
+        <section id="transaction-history-section" class="hidden">
+            <h2>交易紀錄</h2>
+            <table>
+                <thead>
+                <tr>
+                    <th>交易時間</th>
+                    <th>類型</th>
+                    <th>金額</th>
+                    <th>交易後餘額</th>
+                    <th>備註</th>
+                </tr>
+                </thead>
+                <tbody id="transaction-log">
+                <!-- JavaScript 會將交易紀錄填充到這裡 -->
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+
+<script>
+    // 取得頁面上的重要元素
+    const lookupForm = document.getElementById('lookup-form');
+    const accountDetailsSection = document.getElementById('account-details-section');
+    const transactionHistorySection = document.getElementById('transaction-history-section');
+    const accountDetailsDiv = document.getElementById('account-details');
+    const transactionLogTbody = document.getElementById('transaction-log');
+
+    // 監聽表單的提交事件
+    lookupForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // 防止頁面重新整理
+
+        const accountId = event.target.elements.accountId.value;
+        if (!accountId) return;
+
+        // 顯示區塊並載入資料 (這裡先用假資料做示範)
+        // 之後的版本會在這裡呼叫真實的後端 API
+        loadAccountData(accountId);
+    });
+
+    // 載入帳戶資料和交易紀錄的函式
+    function loadAccountData(accountId) {
+        // --- 顯示帳戶詳情 (假資料) ---
+        accountDetailsDiv.innerHTML = `
+            <p><strong>帳號:</strong> ${accountId}</p>
+            <p><strong>幣別:</strong> TWD</p>
+            <p><strong>餘額:</strong> 1,234,567 元</p>
+            <p><strong>狀態:</strong> <span style="color: green;">正常</span></p>
+        `;
+        accountDetailsSection.classList.remove('hidden');
+
+        // --- 顯示交易紀錄 (假資料) ---
+        transactionLogTbody.innerHTML = `
+            <tr>
+                <td>2024-05-21 15:30:05</td>
+                <td>提款</td>
+                <td style="color: red;">- 5,000</td>
+                <td>1,234,567</td>
+                <td>ATM提款</td>
+            </tr>
+            <tr>
+                <td>2024-05-20 10:02:11</td>
+                <td>存款</td>
+                <td style="color: green;">+ 20,000</td>
+                <td>1,239,567</td>
+                <td>臨櫃存款</td>
+            </tr>
+        `;
+        transactionHistorySection.classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>

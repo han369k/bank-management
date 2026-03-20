@@ -1,6 +1,6 @@
 CREATE TABLE [ADMINISTRATOR] (
     [admin_id] int PRIMARY KEY,
-    [username] varchar(50),
+    [username] nvarchar(50),
     [password_hash] varchar(255),
     [name] varchar(50),
     [email] varchar(100),
@@ -18,7 +18,7 @@ CREATE TABLE [ADMIN_LOG] (
     [action_type] varchar(20),
     [target_table] varchar(50),
     [target_record_id] varchar(50),
-    [action_details] text,
+    [action_details] NVARCHAR(MAX),
     [action_timestamp] datetime2,
     [ip_address] varchar(50)
     )
