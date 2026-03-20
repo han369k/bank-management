@@ -15,20 +15,36 @@
     </tr>
     <tbody id="stockTableBody">
     </tbody>
-
 </table>
 <script>
     function searchStock() {
-        const stockId = document.getElementById('stockIdInput').value;
-        fetch(`/stocks/${stockId}`)
-            .then(response => response.json())
-            .then(stock => {
-                const tableBody = document.getElementById('stockTableBody');
-                tableBody.innerHTML = ''; // 清空表格
-                const row = `<tr><td>${stock.name}</td><td>${stock.id}</td></tr>`;
-                tableBody.innerHTML += row; // 添加新行
+        const id = document.getElementById("stockIdInput").value;
+        fetch(`../GetStock?stockId=${id}`)
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不成功");
+                return response.json(); // 將接收到的資料轉成 JS 物件/陣列
             })
-            .catch(error => console.error('Error fetching stock:', error));
-    }</script>
+            .then(stockData => {
+                console.log(stockData);
+                const tr = document.createElement("tr");
+                const tbody = document.getElementById("stockTableBody");
+                tbody.innerHTML = "";
+                const nameTd = document.createElement("td");
+                nameTd.textContent = stockData.stockName;
+
+                const codeTd = document.createElement("td");
+                codeTd.textContent = stockData.stockId;
+
+                tr.appendChild(nameTd);
+                tr.appendChild(codeTd);
+
+                tbody.appendChild(tr);
+            })
+            .catch(error => {
+                console.error("發生錯誤:", error);
+                alert("資料載入失敗，請檢查控制台");
+            });
+    }
+</script>
 </body>
 </html>

@@ -13,35 +13,36 @@
     </tr>
     <tbody id="stockTableBody">
     </tbody>
-    
+
 </table>
 <script>
     // 當網頁載入完成後執行
     window.onload = function () {
         // 1. 呼叫你的 Java Servlet 網址
-        fetch('/java_bank_management_war_exploded/GetAllStock')
+        fetch('../GetAllStock')
             .then(response => {
                 if (!response.ok) throw new Error("網路回應不成功");
                 return response.json(); // 將接收到的資料轉成 JS 物件/陣列
             })
-            .then(voList => {
-                console.table(voList);
+            .then(stockList => {
+                console.table(stockList);
                 const tbody = document.getElementById("stockTableBody");
                 tbody.innerHTML = "";
                 // 2. 將接收到的資料動態加入到 HTML 表格中
-                voList.forEach(stock => {
-                     const tr = document.createElement("tr");
+                stockList.forEach(stock => {
+                    const tr = document.createElement("tr");
 
-                const nameTd = document.createElement("td");
-                nameTd.textContent = stock.stockName; //
+                    const nameTd = document.createElement("td");
+                    nameTd.textContent = stock.stockName;
 
-                const codeTd = document.createElement("td");
-                codeTd.textContent = stock.stockId; // 
+                    const codeTd = document.createElement("td");
+                    codeTd.textContent = stock.stockId;
 
-                tr.appendChild(nameTd);
-                tr.appendChild(codeTd);
+                    tr.appendChild(nameTd);
+                    tr.appendChild(codeTd);
 
-                tbody.appendChild(tr);});
+                    tbody.appendChild(tr);
+                });
             })
             .catch(error => {
                 console.error("發生錯誤:", error);
