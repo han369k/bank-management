@@ -12,7 +12,7 @@ import java.util.List;
 
 public class StockInfoDao {
 
-    public List<StockInfoEntity> GetAll() {
+    public List<StockInfoEntity> GetAll() {//查詢全部
         String sql = "select stock_id, stock_name from stock_info";
         List<StockInfoEntity> list = new ArrayList<>();
 
@@ -32,7 +32,7 @@ public class StockInfoDao {
         return list;
     }
 
-    public StockInfoEntity GetById(int id) {
+    public StockInfoEntity GetById(int id) {//查詢單筆
         String sql = "select stock_id, stock_name from stock_info where stock_id = ?";
         StockInfoEntity stockInfo = new StockInfoEntity();
         try (Connection conn = ConnUtil.getConn();
@@ -49,5 +49,19 @@ public class StockInfoDao {
             throw new RuntimeException(e);
         }
         return stockInfo;
+    }
+
+    public void InsertStockInfo(StockInfoEntity stockInfo) {//新增單筆
+        String sql = "insert into stock_info (stock_id, stock_name) values (?, ?)";
+        try (Connection conn = ConnUtil.getConn();
+             PreparedStatement ps = conn.prepareStatement(sql);
+        ) {
+            ps.setInt(1, stockInfo.getStockId());
+            ps.setString(2, stockInfo.getStockName());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 }

@@ -26,7 +26,7 @@ public class GetAllStocks extends HttpServlet {
                 .map(StockInfoDto::ConvertEntityToDto)
                 .toList();
 
-        //voList 轉成 JSON
+        //DtoList 轉成 JSON
         JsonUtil.writeJson(resp, DtoList);
 
     }
