@@ -6,13 +6,14 @@
 </head>
 <body>
 <header><h2>股票資訊</h2></header>
-<table>
+<table id="stockTable">
     <tr>
         <th>股名</th>
         <th>股號</th>
     </tr>
-    <tr>
-    </tr>
+    <tbody id="stockTableBody">
+    </tbody>
+    
 </table>
 <script>
     // 當網頁載入完成後執行
@@ -25,6 +26,22 @@
             })
             .then(voList => {
                 console.table(voList);
+                const tbody = document.getElementById("stockTableBody");
+                tbody.innerHTML = "";
+                // 2. 將接收到的資料動態加入到 HTML 表格中
+                voList.forEach(stock => {
+                     const tr = document.createElement("tr");
+
+                const nameTd = document.createElement("td");
+                nameTd.textContent = stock.stockName; //
+
+                const codeTd = document.createElement("td");
+                codeTd.textContent = stock.stockId; // 
+
+                tr.appendChild(nameTd);
+                tr.appendChild(codeTd);
+
+                tbody.appendChild(tr);});
             })
             .catch(error => {
                 console.error("發生錯誤:", error);

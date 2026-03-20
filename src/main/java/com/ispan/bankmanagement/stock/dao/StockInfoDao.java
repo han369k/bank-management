@@ -14,7 +14,7 @@ public class StockInfoDao {
 
     public List<StockInfoEntity> GetAll() {
         String sql = "select stock_id, stock_name from stock_info";
-        ArrayList<StockInfoEntity> list = new ArrayList<>();
+        List<StockInfoEntity> list = new ArrayList<>();
 
         try (Connection conn = ConnUtil.getConn();
              PreparedStatement ps = conn.prepareStatement(sql);
@@ -30,5 +30,24 @@ public class StockInfoDao {
             throw new RuntimeException(e);
         }
         return list;
+    }
+
+    public StockInfoEntity GetById(int id) {
+        String sql = "select stock_id, stock_name from stock_info where stock_id = ?";
+        StockInfoEntity stockInfo = new StockInfoEntity();
+        try (Connection conn = ConnUtil.getConn();
+             PreparedStatement ps = conn.prepareStatement(sql);
+        ) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery();) {
+                if (rs.next()) {
+                    stockInfo.setStockId(rs.getInt("stock_id"));
+                    stockInfo.setStockName(rs.getString("stock_name"));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return stockInfo;
     }
 }
