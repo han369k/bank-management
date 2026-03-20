@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>股票資訊</title>
+</head>
+<body>
+<header><h2>股票資訊</h2></header>
+<table>
+    <tr>
+        <th>股名</th>
+        <th>股號</th>
+    </tr>
+    <tr>
+    </tr>
+</table>
+<script>
+    // 當網頁載入完成後執行
+    window.onload = function () {
+        // 1. 呼叫你的 Java Servlet 網址
+        fetch('/java_bank_management_war_exploded/GetAllStock')
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不成功");
+                return response.json(); // 將接收到的資料轉成 JS 物件/陣列
+            })
+            .then(voList => {
+                console.table(voList);
+            })
+            .catch(error => {
+                console.error("發生錯誤:", error);
+                alert("資料載入失敗，請檢查控制台");
+            });
+    };
+</script>
+</body>
+</html>

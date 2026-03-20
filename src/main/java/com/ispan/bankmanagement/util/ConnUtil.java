@@ -32,7 +32,7 @@ public class ConnUtil {
             // 防呆 trim 避免前有有空格導致格式不合法
             if(prop.getProperty(key) == null || prop.getProperty(key).trim().isEmpty()){
                 // 明確指出是哪裡出問題
-                throw new RuntimeException("db.properties 內容不合法: " + key );
+                throw new RuntimeException("config.properties 內容不合法: " + key );
             }
         }
     }
@@ -43,10 +43,10 @@ public class ConnUtil {
         Properties prop = new Properties();
 
         try (InputStream inputStream = ConnUtil.class.getClassLoader()
-                .getResourceAsStream("db.properties")) {
+                .getResourceAsStream("config.properties")) {
             // 確認檔案路徑是否存在
             if(inputStream == null){
-                throw new RuntimeException("db.properties 檔案不存在，請確認檔案是否在src/main/resources 下");
+                throw new RuntimeException("config.properties 檔案不存在，請確認檔案是否在src/main/resources 下");
             }
 
             // 讀取+檢查
@@ -75,7 +75,7 @@ public class ConnUtil {
             Runtime.getRuntime().addShutdownHook(new Thread(ConnUtil::shutdown));
 
         } catch (IOException e) {
-            logger.error("讀取 db.properties 失敗，請確認檔案格式或權限。", e);
+            logger.error("讀取 config.properties 失敗，請確認檔案格式或權限。", e);
             throw new RuntimeException("設定檔讀取失敗",e);
         } catch (IllegalArgumentException e ){
             logger.error("HikariCP 設定參數有誤！請檢查 jdbc.url 或 driver 名稱。", e);
@@ -147,14 +147,14 @@ public class ConnUtil {
         }
     }
 
-    public static void main(String[] args) {
-        try {
-            Connection conn = ConnUtil.getConn();
-            System.out.println(!conn.isClosed());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
+//    public static void main(String[] args) {
+//        try {
+//            Connection conn = ConnUtil.getConn();
+//            System.out.println(!conn.isClosed());
+//        } catch (SQLException e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//    }
 
 }
