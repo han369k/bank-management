@@ -51,7 +51,7 @@ public class AccountService {
     }
 
     // 用帳號查
-    public AccountEntity searchAccountByAccount(String account) {
+    public AccountEntity getAccountByAccount(String account) {
         try (Connection conn = ConnUtil.getConn()) {
             AccountEntity acc = accountDAO.findByAccount(conn, account);
 
@@ -74,7 +74,7 @@ public class AccountService {
     //public AccountEntity searchAccountByCustormerName(){}
 
     // 查全部
-    public List<AccountEntity> searchAllAccount(AccountEntity accountEntity) {
+    public List<AccountEntity> getAllAccount(AccountEntity accountEntity) {
         try (Connection conn = ConnUtil.getConn()) {
             List<AccountEntity> list = accountDAO.query(conn, accountEntity);
 
