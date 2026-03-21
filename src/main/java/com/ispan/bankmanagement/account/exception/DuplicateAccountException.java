@@ -1,4 +1,4 @@
-package com.ispan.bankmanagement.exception;
+package com.ispan.bankmanagement.account.exception;
 
 /**
  * 當嘗試新增一個已存在的帳戶時拋出的例外。

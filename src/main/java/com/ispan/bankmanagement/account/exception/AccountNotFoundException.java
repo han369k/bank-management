@@ -1,4 +1,4 @@
-package com.ispan.bankmanagement.exception;
+package com.ispan.bankmanagement.account.exception;
 
 /**
  * 當業務邏輯預期要找到一個帳戶，但根據提供的條件在資料庫中找不到時，所拋出的例外。
