@@ -12,7 +12,7 @@ public class TransLogDAO {
 
     private static final Logger logger = LoggerFactory.getLogger(TransLogDAO.class);
 
-    // 把 ResultSet 轉換成 Java 物件的共用方法
+    // 把 ResultSet 轉換成共用的方法
     private TransLogEntity mapRow(ResultSet rs) throws SQLException {
         TransLogEntity vo = new TransLogEntity();
         vo.setTransLogId(rs.getLong("trans_log_id"));
@@ -28,7 +28,7 @@ public class TransLogDAO {
     }
 
     // 新增交易紀錄
-    // 注意: trans_log_id 通常是 DB 自動遞增，所以不寫入 INSERT 語句中
+    // 注意: trans_log_id 是 identity，會自動遞增，所以不寫入 INSERT 語句中
     public void insert(Connection conn, TransLogEntity log) throws SQLException {
         String sql = "INSERT INTO trans_log (reference_id, amount, type, operation_account, other_account, balance, transaction_time, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
@@ -79,7 +79,7 @@ public class TransLogDAO {
     }
 
     // 修改交易紀錄的備註
-    // (專題用。實務上金融業嚴格禁止修改交易金額或時間，最多只能改備註)
+    // 專題用。實務上金融業嚴格禁止修改交易金額或時間，最多只能改備註
     public boolean updateNote(Connection conn, Long transLogId, String newNote) throws SQLException {
         String sql = "UPDATE trans_log SET note = ? WHERE trans_log_id = ?";
 
