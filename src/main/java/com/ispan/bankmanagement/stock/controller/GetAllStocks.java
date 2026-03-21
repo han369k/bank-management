@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 
 @WebServlet("/GetAllStock")
@@ -19,7 +20,12 @@ public class GetAllStocks extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         //拿到資料庫原始資料
-        List<StockInfoEntity> daoList = stockInfoDao.GetAll();
+        List<StockInfoEntity> daoList = null;
+        try {
+            daoList = stockInfoDao.GetAll();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
         //完成整份清單的轉換 (Mapping) 將daoList (Stream)，全部轉成 (Map) VO，最後包成一個 List。」
         List<StockInfoDto> DtoList = daoList.stream()

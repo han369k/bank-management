@@ -13,24 +13,28 @@ import java.io.IOException;
 
 import static com.ispan.bankmanagement.stock.entity.StockInfoEntity.ConvertDtoToEntity;
 
-@WebServlet("/InsertStock")
-public class InsertStock extends HttpServlet {
+//測試Service用
+@WebServlet("/TestService")
+public class TestService extends HttpServlet {
     StockInfoDto stockInfoDto = new StockInfoDto();
+    StockInfoDto stockInfoDto2 = new StockInfoDto();
 
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        super.doGet(req, resp);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("text/plain; charset=UTF-8");
-
         stockInfoDto.setStockId(Integer.parseInt(req.getParameter("stockId")));
         stockInfoDto.setStockName(req.getParameter("stockName"));
-        StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
         StockInfoService stockInfoService = new StockInfoService();
-        stockInfoService.TestInsertStockInfoService(stockInfoEntity);
-
-
-    }
-
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doGet(request, response);
+        stockInfoDto2.setStockId(Integer.parseInt(req.getParameter("stockId"))+1);
+        stockInfoDto2.setStockName(req.getParameter("stockName")+"_copy");
+        StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
+        StockInfoEntity stockInfoEntity2 = ConvertDtoToEntity(stockInfoDto2);
+        stockInfoService.UpdateTwoStockInfoService(stockInfoEntity, stockInfoEntity2);
     }
 }

@@ -146,15 +146,4 @@ public class ConnUtil {
             // logger.info("資料庫連線池已關閉");
         }
     }
-
-    public static void main(String[] args) {
-        try {
-            Connection conn = ConnUtil.getConn();
-            System.out.println(!conn.isClosed());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
 }

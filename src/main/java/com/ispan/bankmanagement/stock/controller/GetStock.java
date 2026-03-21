@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.SQLException;
 
 import static com.ispan.bankmanagement.stock.dto.StockInfoDto.ConvertEntityToDto;
 
@@ -19,7 +20,12 @@ public class GetStock extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String idParam = req.getParameter("stockId");//查詢參數
         int stockId = Integer.parseInt(idParam);//轉型
-        StockInfoDto stockInfoDto = ConvertEntityToDto(stockInfoDao.GetById(stockId));//執行SQL 包成傳給前端的Dto
+        StockInfoDto stockInfoDto = null;//執行SQL 包成傳給前端的Dto
+        try {
+            stockInfoDto = StockInfoDto.ConvertEntityToDto(stockInfoDao.GetById(stockId));
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
         JsonUtil.writeJson(resp, stockInfoDto);//轉成json格式
     }
 
