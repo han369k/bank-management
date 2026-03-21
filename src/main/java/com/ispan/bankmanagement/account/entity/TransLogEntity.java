@@ -1,9 +1,9 @@
-package com.ispan.bankmanagement.account.vo;
+package com.ispan.bankmanagement.account.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class TransLog {
+public class TransLogEntity {
 
     private Long transLogId;
     private String referenceId;
@@ -15,7 +15,7 @@ public class TransLog {
     private LocalDateTime transactionTime;
     private String note;
 
-    public TransLog() {
+    public TransLogEntity() {
     }
 
     public Long getTransLogId() {
@@ -92,7 +92,7 @@ public class TransLog {
 
     @Override
     public String toString() {
-        return "TransLog{" +
+        return "TransLogEntity{" +
                 "transLogId=" + transLogId +
                 ", referenceId='" + referenceId + '\'' +
                 ", amount=" + amount +

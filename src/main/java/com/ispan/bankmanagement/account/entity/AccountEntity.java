@@ -1,9 +1,9 @@
-package com.ispan.bankmanagement.account.vo;
+package com.ispan.bankmanagement.account.entity;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
-public class Account {
+public class AccountEntity {
     private String account;
     private String customerId;
     private String type;
@@ -13,7 +13,7 @@ public class Account {
     private LocalDateTime createAt;
     private LocalDateTime changeAt;
 
-    public Account() {
+    public AccountEntity() {
     }
 
     public String getAccount() {
@@ -82,7 +82,7 @@ public class Account {
 
     @Override
     public String toString() {
-        return "Account{" +
+        return "AccountEntity{" +
                 "account='" + account + '\'' +
                 ", customerId='" + customerId + '\'' +
                 ", type='" + type + '\'' +

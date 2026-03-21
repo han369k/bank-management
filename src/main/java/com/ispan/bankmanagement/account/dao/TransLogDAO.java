@@ -1,6 +1,6 @@
 package com.ispan.bankmanagement.account.dao;
 
-import com.ispan.bankmanagement.account.vo.TransLog;
+import com.ispan.bankmanagement.account.entity.TransLogEntity;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,8 +13,8 @@ public class TransLogDAO {
     private static final Logger logger = LoggerFactory.getLogger(TransLogDAO.class);
 
     // 把 ResultSet 轉換成 Java 物件的共用方法
-    private TransLog mapRow(ResultSet rs) throws SQLException {
-        TransLog vo = new TransLog();
+    private TransLogEntity mapRow(ResultSet rs) throws SQLException {
+        TransLogEntity vo = new TransLogEntity();
         vo.setTransLogId(rs.getLong("trans_log_id"));
         vo.setReferenceId(rs.getString("reference_id"));
         vo.setAmount(rs.getBigDecimal("amount"));
@@ -29,7 +29,7 @@ public class TransLogDAO {
 
     // 新增交易紀錄
     // 注意: trans_log_id 通常是 DB 自動遞增，所以不寫入 INSERT 語句中
-    public void insert(Connection conn, TransLog log) throws SQLException {
+    public void insert(Connection conn, TransLogEntity log) throws SQLException {
         String sql = "INSERT INTO trans_log (reference_id, amount, type, operation_account, other_account, balance, transaction_time, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -48,7 +48,7 @@ public class TransLogDAO {
     }
 
     // 透過流水號 (PK) 查詢單筆交易紀錄
-    public TransLog findById(Connection conn, Long transLogId) throws SQLException {
+    public TransLogEntity findById(Connection conn, Long transLogId) throws SQLException {
         String sql = "SELECT * FROM trans_log WHERE trans_log_id = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -63,9 +63,9 @@ public class TransLogDAO {
     }
 
     // 查詢特定帳戶的所有交易紀錄 (依時間由新到舊排序)
-    public List<TransLog> findByOperationAccount(Connection conn, String operationAccount) throws SQLException {
+    public List<TransLogEntity> findByOperationAccount(Connection conn, String operationAccount) throws SQLException {
         String sql = "SELECT * FROM trans_log WHERE operation_account = ? ORDER BY transaction_time DESC";
-        List<TransLog> list = new ArrayList<>();
+        List<TransLogEntity> list = new ArrayList<>();
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, operationAccount);

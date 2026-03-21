@@ -1,6 +1,6 @@
 package com.ispan.bankmanagement.account.dao;
 
-import com.ispan.bankmanagement.account.vo.Account;
+import com.ispan.bankmanagement.account.entity.AccountEntity;
 
 // 導入 SLF4J 套件 準備記錄底層執行的軌跡
 import org.slf4j.Logger;
@@ -17,19 +17,19 @@ public class AccountDAO {
 
     // 查詢用 將DB回傳的rs物件接到Java物件
     // 寫成共用方法
-    private Account mapRow(ResultSet rs) throws SQLException {
-        Account account = new Account();
-        account.setAccount(rs.getString("account"));
-        account.setCustomerId(rs.getString("customer_id"));
-        account.setType(rs.getString("type"));
-        account.setCurrency(rs.getString("currency"));
-        account.setBalance(rs.getBigDecimal("balance"));
-        account.setStatus(rs.getString("status"));
-        account.setCreateAt(rs.getTimestamp("create_at").toLocalDateTime());
+    private AccountEntity mapRow(ResultSet rs) throws SQLException {
+        AccountEntity accountEntity = new AccountEntity();
+        accountEntity.setAccount(rs.getString("accountEntity"));
+        accountEntity.setCustomerId(rs.getString("customer_id"));
+        accountEntity.setType(rs.getString("type"));
+        accountEntity.setCurrency(rs.getString("currency"));
+        accountEntity.setBalance(rs.getBigDecimal("balance"));
+        accountEntity.setStatus(rs.getString("status"));
+        accountEntity.setCreateAt(rs.getTimestamp("create_at").toLocalDateTime());
         if (rs.getTimestamp("change_at") != null) {
-            account.setChangeAt(rs.getTimestamp("change_at").toLocalDateTime());
+            accountEntity.setChangeAt(rs.getTimestamp("change_at").toLocalDateTime());
         }
-        return account;
+        return accountEntity;
     }
 
     // 新增帳戶 用 "service" 傳來的conn
@@ -41,21 +41,21 @@ public class AccountDAO {
      * 以此來滿足於資料的原子性與一致性
      */
 
-    public void insert(Connection conn, Account account) throws SQLException {
+    public void insert(Connection conn, AccountEntity accountEntity) throws SQLException {
         String sql = "INSERT INTO account (account, customer_id, type, currency, balance, status, create_at, change_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         // 只有 pstmt 需要放在 try-with-resources 自動關閉，conn 絕對不能在這裡關 誰開的誰關
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, account.getAccount());
-            pstmt.setString(2, account.getCustomerId());
-            pstmt.setString(3, account.getType());
-            pstmt.setString(4, account.getCurrency());
-            pstmt.setBigDecimal(5, account.getBalance());
-            pstmt.setString(6, account.getStatus());
-            pstmt.setTimestamp(7, Timestamp.valueOf(account.getCreateAt()));
+            pstmt.setString(1, accountEntity.getAccount());
+            pstmt.setString(2, accountEntity.getCustomerId());
+            pstmt.setString(3, accountEntity.getType());
+            pstmt.setString(4, accountEntity.getCurrency());
+            pstmt.setBigDecimal(5, accountEntity.getBalance());
+            pstmt.setString(6, accountEntity.getStatus());
+            pstmt.setTimestamp(7, Timestamp.valueOf(accountEntity.getCreateAt()));
 
-            if (account.getChangeAt() != null) {
-                pstmt.setTimestamp(8, Timestamp.valueOf(account.getChangeAt()));
+            if (accountEntity.getChangeAt() != null) {
+                pstmt.setTimestamp(8, Timestamp.valueOf(accountEntity.getChangeAt()));
             } else {
                 pstmt.setNull(8, Types.TIMESTAMP);
             }
@@ -64,12 +64,12 @@ public class AccountDAO {
             pstmt.executeUpdate();
 
             // 寫入成功後留個 log 紀錄 證明資料有吃進去
-            logger.debug("成功新增帳戶, account: {}, customerId: {}", account.getAccount(), account.getCustomerId());
+            logger.debug("成功新增帳戶, accountEntity: {}, customerId: {}", accountEntity.getAccount(), accountEntity.getCustomerId());
         }
     }
 
     // 查詢單筆帳戶
-    public Account findByAccount(Connection conn, String account) throws SQLException {
+    public AccountEntity findByAccount(Connection conn, String account) throws SQLException {
         String sql = "SELECT * FROM account WHERE account = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -86,33 +86,33 @@ public class AccountDAO {
     }
 
     // 多條件動態查詢
-    public List<Account> query(Connection conn, Account account) throws SQLException {
+    public List<AccountEntity> query(Connection conn, AccountEntity accountEntity) throws SQLException {
         // 透過StringBuilder 實做動態拼接SQL條件 用 1=1 來做連接 (永遠為true)
-        StringBuilder sql = new StringBuilder("SELECT * FROM account WHERE 1=1");
+        StringBuilder sql = new StringBuilder("SELECT * FROM accountEntity WHERE 1=1");
 
         List<Object> params = new ArrayList<>();
 
         // 擋 null, 完全空的字串, 只有空白的字串
-        if (account.getAccount() != null && !account.getAccount().trim().isEmpty()) {
-            sql.append(" AND account = ?");
-            params.add(account.getAccount().trim());
+        if (accountEntity.getAccount() != null && !accountEntity.getAccount().trim().isEmpty()) {
+            sql.append(" AND accountEntity = ?");
+            params.add(accountEntity.getAccount().trim());
         }
-        if (account.getCustomerId() != null && !account.getCustomerId().trim().isEmpty()) {
+        if (accountEntity.getCustomerId() != null && !accountEntity.getCustomerId().trim().isEmpty()) {
             sql.append(" AND customer_id = ?");
-            params.add(account.getCustomerId().trim());
+            params.add(accountEntity.getCustomerId().trim());
         }
-        if (account.getType() != null && !account.getType().trim().isEmpty()) {
+        if (accountEntity.getType() != null && !accountEntity.getType().trim().isEmpty()) {
             sql.append(" AND type = ?");
-            params.add(account.getType().trim());
+            params.add(accountEntity.getType().trim());
         }
-        if (account.getStatus() != null && !account.getStatus().trim().isEmpty()) {
+        if (accountEntity.getStatus() != null && !accountEntity.getStatus().trim().isEmpty()) {
             sql.append(" AND status = ?");
-            params.add(account.getStatus().trim());
+            params.add(accountEntity.getStatus().trim());
         }
 
         sql.append(" ORDER BY create_at DESC");
 
-        List<Account> list = new ArrayList<>();
+        List<AccountEntity> list = new ArrayList<>();
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
             for (int i = 0; i < params.size(); i++) {

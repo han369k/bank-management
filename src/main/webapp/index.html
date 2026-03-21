@@ -63,7 +63,7 @@
         th {
             background-color: #f2f2f2;
         }
-        .account-details {
+        .accountEntity-details {
             background-color: #e9f7ff;
             border-left: 5px solid #007bff;
             padding: 15px;
@@ -82,18 +82,18 @@
     </header>
 
     <main>
-        <section id="account-lookup">
+        <section id="accountEntity-lookup">
             <h2>帳戶查詢</h2>
             <form id="lookup-form" class="form-group">
-                <label for="account-id">請輸入帳號：</label>
-                <input type="text" id="account-id" name="accountId" placeholder="例如：110-223-5566" required>
+                <label for="accountEntity-id">請輸入帳號：</label>
+                <input type="text" id="accountEntity-id" name="accountId" placeholder="例如：110-223-5566" required>
                 <button type="submit">查詢</button>
             </form>
         </section>
 
-        <section id="account-details-section" class="hidden">
+        <section id="accountEntity-details-section" class="hidden">
             <h2>帳戶詳情</h2>
-            <div id="account-details" class="account-details">
+            <div id="accountEntity-details" class="accountEntity-details">
                 <!-- JavaScript 會將帳戶資料填充到這裡 -->
             </div>
         </section>
@@ -121,9 +121,9 @@
 <script>
     // 取得頁面上的重要元素
     const lookupForm = document.getElementById('lookup-form');
-    const accountDetailsSection = document.getElementById('account-details-section');
+    const accountDetailsSection = document.getElementById('accountEntity-details-section');
     const transactionHistorySection = document.getElementById('transaction-history-section');
-    const accountDetailsDiv = document.getElementById('account-details');
+    const accountDetailsDiv = document.getElementById('accountEntity-details');
     const transactionLogTbody = document.getElementById('transaction-log');
 
     // 監聽表單的提交事件
