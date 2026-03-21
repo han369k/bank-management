@@ -59,7 +59,7 @@ CREATE TABLE [KYC_RECORD] (
     GO
 
 CREATE TABLE [ACCOUNT] (
-    [account_number] varchar(20) PRIMARY KEY,
+    [account_number] varchar(12) PRIMARY KEY,
     [customer_id] varchar(20),
     [type] varchar(20),
     [currency] varchar(3),
