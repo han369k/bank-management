@@ -62,6 +62,21 @@ public class TransLogDAO {
         return null;
     }
 
+    // 透過 Reference ID 查詢單筆交易紀錄 (Reference ID 應該是唯一的)
+    public TransLogEntity findByReferenceId(Connection conn, String referenceId) throws SQLException {
+        String sql = "SELECT * FROM trans_log WHERE reference_id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, referenceId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        }
+        return null;
+    }
+
     // 查詢特定帳戶的所有交易紀錄 (依時間由新到舊排序)
     public List<TransLogEntity> findByOperationAccount(Connection conn, String operationAccount) throws SQLException {
         String sql = "SELECT * FROM trans_log WHERE operation_account = ? ORDER BY transaction_time DESC";
@@ -77,6 +92,27 @@ public class TransLogDAO {
         }
         return list;
     }
+
+    // 透過 Customer ID 查詢其名下所有帳戶的交易紀錄
+    public List<TransLogEntity> findByCustomerId(Connection conn, String customerId) throws SQLException {
+        // 使用 JOIN 查詢，連接 trans_log 和 account 兩個表
+        String sql = "SELECT t.* FROM trans_log t " +
+                     "JOIN account a ON t.operation_account = a.account " +
+                     "WHERE a.customer_id = ? " +
+                     "ORDER BY t.transaction_time DESC";
+        List<TransLogEntity> list = new ArrayList<>();
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, customerId);
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapRow(rs));
+                }
+            }
+        }
+        return list;
+    }
+
 
     // 修改交易紀錄的備註
     // 專題用。實務上金融業嚴格禁止修改交易金額或時間，最多只能改備註
@@ -107,6 +143,22 @@ public class TransLogDAO {
             int affectedRows = pstmt.executeUpdate();
             if (affectedRows > 0) {
                 logger.warn("警告: 實體刪除了一筆交易紀錄, transLogId: {}", transLogId);
+                return true;
+            }
+            return false;
+        }
+    }
+
+    // 透過 Reference ID 實體刪除交易紀錄 (專題用)
+    public boolean deleteByReferenceId(Connection conn, String referenceId) throws SQLException {
+        String sql = "DELETE FROM trans_log WHERE reference_id = ?";
+
+        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, referenceId);
+
+            int affectedRows = pstmt.executeUpdate();
+            if (affectedRows > 0) {
+                logger.warn("警告: 透過 Reference ID 實體刪除了一筆交易紀錄, referenceId: {}", referenceId);
                 return true;
             }
             return false;
