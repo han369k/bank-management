@@ -2,6 +2,7 @@ package com.ispan.bankmanagement.stock.controller;
 
 import com.ispan.bankmanagement.stock.dao.StockInfoDao;
 import com.ispan.bankmanagement.stock.dto.StockInfoDto;
+import com.ispan.bankmanagement.stock.service.StockInfoService;
 import com.ispan.bankmanagement.util.JsonUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,13 +21,12 @@ public class GetStock extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String idParam = req.getParameter("stockId");//查詢參數
         int stockId = Integer.parseInt(idParam);//轉型
-        StockInfoDto stockInfoDto = null;//執行SQL 包成傳給前端的Dto
-        try {
-            stockInfoDto = StockInfoDto.ConvertEntityToDto(stockInfoDao.GetById(stockId));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-        JsonUtil.writeJson(resp, stockInfoDto);//轉成json格式
+        StockInfoService stockInfoService = new StockInfoService();
+        //包成傳給前端的Dto
+        StockInfoDto stockInfoDto = stockInfoService.GetStockInfoService(stockId);
+
+        //轉成json格式
+        JsonUtil.writeJson(resp, stockInfoDto);
     }
 
     @Override

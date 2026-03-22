@@ -3,6 +3,7 @@ package com.ispan.bankmanagement.stock.controller;
 import com.ispan.bankmanagement.stock.dao.StockInfoDao;
 import com.ispan.bankmanagement.stock.dto.StockInfoDto;
 import com.ispan.bankmanagement.stock.entity.StockInfoEntity;
+import com.ispan.bankmanagement.stock.service.StockInfoService;
 import com.ispan.bankmanagement.util.JsonUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -17,25 +18,17 @@ import java.util.List;
 @WebServlet("/GetAllStock")
 public class GetAllStocks extends HttpServlet {
     StockInfoDao stockInfoDao = new StockInfoDao();
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        //拿到資料庫原始資料
-        List<StockInfoEntity> daoList = null;
-        try {
-            daoList = stockInfoDao.GetAll();
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
 
-        //完成整份清單的轉換 (Mapping) 將daoList (Stream)，全部轉成 (Map) VO，最後包成一個 List。」
-        List<StockInfoDto> DtoList = daoList.stream()
-                .map(StockInfoDto::ConvertEntityToDto)
-                .toList();
+        StockInfoService stockInfoService = new StockInfoService();
 
-        //DtoList 轉成 JSON
-        JsonUtil.writeJson(resp, DtoList);
+        //回傳出來的List 轉成 JSON
+        JsonUtil.writeJson(resp, stockInfoService.GetAllStocksInfoService());
 
     }
+
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         doGet(req, resp);

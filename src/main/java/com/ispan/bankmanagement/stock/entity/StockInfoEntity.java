@@ -24,6 +24,7 @@ public class StockInfoEntity {
     public int getStockId() {
         return stockId;
     }
+
     public String getStockName() {
         return stockName;
     }

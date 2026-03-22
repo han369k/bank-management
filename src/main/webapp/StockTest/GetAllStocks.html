@@ -8,8 +8,8 @@
 <header><h2>股票資訊</h2></header>
 <table id="stockTable">
     <tr>
-        <th>股名</th>
         <th>股號</th>
+        <th>股名</th>
     </tr>
     <tbody id="stockTableBody">
     </tbody>
@@ -31,17 +31,58 @@
                 // 2. 將接收到的資料動態加入到 HTML 表格中
                 stockList.forEach(stock => {
                     const tr = document.createElement("tr");
-
-                    const nameTd = document.createElement("td");
-                    nameTd.textContent = stock.stockName;
-
+                    const td = document.createElement("td");
+                    //號碼
                     const codeTd = document.createElement("td");
                     codeTd.textContent = stock.stockId;
+                    //名稱
+                    const nameTd = document.createElement("td");
+                    const nameInput = document.createElement("input");
+                    nameInput.value = stock.stockName;
+                    nameTd.appendChild(nameInput);
 
-                    tr.appendChild(nameTd);
+                    const delBtn = document.createElement("button");
+                    delBtn.textContent = "刪除"
+                    const updateBtn = document.createElement("button");
+                    updateBtn.textContent = "修改"
+                    td.appendChild(delBtn);
+                    td.appendChild(updateBtn);
                     tr.appendChild(codeTd);
-
+                    tr.appendChild(nameTd);
+                    tr.appendChild(td);
                     tbody.appendChild(tr);
+
+                    delBtn.addEventListener("click", () => {
+
+                        fetch('../DeleteStock', {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                            },
+                            body: new URLSearchParams({'stockId': stock.stockId})
+                        }).then(response => {
+                            if (response.ok) {
+                                location.reload(); // 重新整理，看到最新的股票清單
+                            }
+                        })
+                    })
+                    updateBtn.addEventListener("click", () => {
+                        const updatedData = {
+                            stockId: stock.stockId,
+                            stockName: nameInput.value
+                        };
+                        fetch('../UpdateStock', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json; charset=UTF-8"
+                            },
+                            body: JSON.stringify(updatedData)
+                        }).then(response => {
+                            if (response.ok) {
+                                location.reload(); // 重新整理，看到最新的股票清單
+                            }
+                        })
+                    })
                 });
             })
             .catch(error => {

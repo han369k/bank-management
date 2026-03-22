@@ -18,10 +18,10 @@ public class BaseDao {
 
     //<T>宣告使用泛型 回傳List<T>
     //Object... params 能夠接受不限定數量的參數 對應SQL語句的「?」(包括0個 也就是只填sql跟rowMapper兩個參數)
-    protected <T> List<T> Query(String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
+    protected <T> List<T> Query(Connection conn, String sql, RowMapper<T> rowMapper, Object... params) throws SQLException {
         List<T> list = new ArrayList<>();
-        try (Connection conn = ConnUtil.getConn();
-             PreparedStatement ps = conn.prepareStatement(sql);
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql);
         ) {
             for (int i = 0; i < params.length; i++) {
                 ps.setObject(i + 1, params[i]);
@@ -37,10 +37,10 @@ public class BaseDao {
 
     //增刪改都通用 因為他們都是用PreparedStatement.executeUpdate()操作SQL
     //回傳int 表示異動了多少筆資料
-    protected int Update(Connection conn,String sql, Object... params) throws SQLException {
+    protected int Update(Connection conn, String sql, Object... params) throws SQLException {
 
         try (
-             PreparedStatement ps = conn.prepareStatement(sql);) {
+                PreparedStatement ps = conn.prepareStatement(sql);) {
             if (params != null) {
                 for (int i = 0; i < params.length; i++) {
                     ps.setObject(i + 1, params[i]);

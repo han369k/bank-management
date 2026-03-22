@@ -23,10 +23,9 @@ public class InsertStock extends HttpServlet {
 
         stockInfoDto.setStockId(Integer.parseInt(req.getParameter("stockId")));
         stockInfoDto.setStockName(req.getParameter("stockName"));
-        StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
-        StockInfoService stockInfoService = new StockInfoService();
-        stockInfoService.TestInsertStockInfoService(stockInfoEntity);
 
+        StockInfoService stockInfoService = new StockInfoService();
+        stockInfoService.InsertStockInfoService(stockInfoDto);
 
     }
 
