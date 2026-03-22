@@ -8,9 +8,11 @@ import com.ispan.bankmanagement.util.ConnUtil;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 import static com.ispan.bankmanagement.stock.entity.StockInfoEntity.ConvertDtoToEntity;
 import static com.ispan.bankmanagement.util.ConnUtil.closeResource;
+import static com.ispan.bankmanagement.util.ConnUtil.getConn;
 
 public class StockInfoService {
     private final StockInfoDao stockInfoDao = new StockInfoDao();
@@ -39,25 +41,25 @@ public class StockInfoService {
     }
 
     //新增單筆股票基本資訊
-    public void InsertStockInfoService(StockInfoDto stockInfoDto) {
-        Connection conn = null;
-        try {
-            conn = ConnUtil.getConn();
-            conn.setAutoCommit(false);//關閉自動提交
-            StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
-            stockInfoDao.InsertStockInfo(conn, stockInfoEntity);
-            conn.commit();
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                throw new RuntimeException("新增單筆失敗", e);
+    public boolean InsertStockInfoService(StockInfoDto stockInfoDto) {
+        // 防呆：如果前端傳來空物件，直接回傳 false，不執行資料庫操作
+        if (stockInfoDto == null) {
+            return false;
+        }
+        try (Connection conn = ConnUtil.getConn()) {
+            try {
+                conn.setAutoCommit(false);//關閉自動提交
+                StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
+                int row = stockInfoDao.InsertStockInfo(conn, stockInfoEntity);
+                conn.commit();
+                return row > 0;
+            } catch (SQLException e) {
+                conn.rollback();// 發生 SQL 錯誤（如重複 ID）則回滾
+                throw e;
             }
-        } finally {
-            closeResource(conn);
+        } catch (SQLException e) {
+            // 這裡會處理連線錯誤或內層丟出的錯誤
+            throw new RuntimeException("新增股票資訊失敗，ID: " + stockInfoDto.getStockId(), e);
         }
     }
 
@@ -80,41 +82,41 @@ public class StockInfoService {
     public StockInfoDto GetStockInfoService(int id) {
         try (Connection conn = ConnUtil.getConn();) {
             StockInfoEntity stockInfoEntity = stockInfoDao.GetById(conn, id);
+            if (stockInfoEntity == null) {
+                return null;
+            }
             return StockInfoDto.ConvertEntityToDto(stockInfoEntity);
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("查詢股票資訊時發生資料庫錯誤，ID: " + id, e);
         }
     }
 
     //依據id刪除股票資訊
-    public void DeleteStockInfoService(int id) {
+    public boolean DeleteStockInfoService(int id) {
         try (Connection conn = ConnUtil.getConn();) {
-            stockInfoDao.DeleteById(conn, id);
+            int rows = stockInfoDao.DeleteById(conn, id);
+            return rows > 0;// 如果有刪到(>0)就回傳 true，沒刪到(==0)就回傳 false
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new RuntimeException("刪除股票資訊時發生資料庫錯誤，ID: " + id, e);
         }
     }
 
     //依據id更新資料
-    public void UpdateStockInfoService(StockInfoDto stockInfoDto) {
-        Connection conn = null;
-        try {
-            conn = ConnUtil.getConn();
-            conn.setAutoCommit(false);
-            StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
-            stockInfoDao.UpdateStockInfo(conn, stockInfoEntity);
-            conn.commit();
-        } catch (SQLException e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
-                }
-                throw new RuntimeException("修改單筆失敗", e);
+    public boolean UpdateStockInfoService(StockInfoDto stockInfoDto) {
+
+        try (Connection conn = ConnUtil.getConn();) {
+            try {
+                conn.setAutoCommit(false);
+                StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
+                int row = stockInfoDao.UpdateStockInfo(conn, stockInfoEntity);
+                conn.commit();
+                return row > 0;
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
             }
-        } finally {
-            closeResource(conn);
+        } catch (SQLException e) {
+            throw new RuntimeException("修改單筆資料失敗，ID: " + stockInfoDto.getStockId(), e);
         }
     }
 }

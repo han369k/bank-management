@@ -30,20 +30,21 @@ public class StockInfoDao extends BaseDao {
     }
 
     //新增單筆
-    public void InsertStockInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
+    public int InsertStockInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
         String insert = "insert into stock_info (stock_id, stock_name) values (?, ?)";
-        Update(conn, insert, stockInfo.getStockId(), stockInfo.getStockName());
+        return Update(conn, insert, stockInfo.getStockId(), stockInfo.getStockName());
     }
 
     //依據id刪除
-    public void DeleteById(Connection conn, int id) throws SQLException {
+    public int DeleteById(Connection conn, int id) throws SQLException {
         String delete = "delete from stock_info where stock_id = ?";
-        Update(conn, delete, id);
+        return Update(conn, delete, id);
     }
 
     //依據更新資料
-    public void UpdateStockInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
+    public int UpdateStockInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
         String update = "update stock_info set stock_name = ? where stock_id = ?";
-        Update(conn, update, stockInfo.getStockName(), stockInfo.getStockId());
+        return Update(conn, update, stockInfo.getStockName(), stockInfo.getStockId());
+
     }
 }

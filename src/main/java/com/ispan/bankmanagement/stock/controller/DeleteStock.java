@@ -15,7 +15,8 @@ public class DeleteStock extends HttpServlet {
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         resp.setContentType("text/plain; charset=UTF-8");
-        int stockId = Integer.parseInt(req.getParameter("stockId"));
+        String idStr = req.getParameter("stockId");
+        int stockId = Integer.parseInt(idStr);
         StockInfoService stockInfoService = new StockInfoService();
         stockInfoService.DeleteStockInfoService(stockId);
     }

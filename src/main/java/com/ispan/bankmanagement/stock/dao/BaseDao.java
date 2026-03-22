@@ -23,8 +23,10 @@ public class BaseDao {
         try (
                 PreparedStatement ps = conn.prepareStatement(sql);
         ) {
-            for (int i = 0; i < params.length; i++) {
-                ps.setObject(i + 1, params[i]);
+            if (params != null) {
+                for (int i = 0; i < params.length; i++) {
+                    ps.setObject(i + 1, params[i]);
+                }
             }
             try (ResultSet rs = ps.executeQuery();) {
                 while (rs.next()) {
