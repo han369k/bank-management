@@ -28,7 +28,7 @@ public class LoanApplyDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("查詢貸款資料失敗", e);
+            throw new RuntimeException("查詢貸款申請資料失敗", e);
         }
 
         return list;
@@ -50,6 +50,7 @@ public class LoanApplyDao {
         StringBuilder sql = new StringBuilder(
                 "SELECT * FROM LOAN_APPLICATION WHERE 1=1 "
         );
+
         // 🔹 status 條件（支援多個）
         if (statusList != null && !statusList.isEmpty()) {
             sql.append("AND status IN (");
@@ -140,25 +141,14 @@ public class LoanApplyDao {
     }
 
     // ===============================
-    // 🔹 4. 核准 & 銀行方案給客戶確認
+    // 🔹 4. 銀行直接核准
     // ===============================
-    public void submitApproval(LoanApplyBean loan, boolean autoApprove) {
+    public void approveDirectly(LoanApplyBean loan) {
 
-        String sql;
-
-        if (autoApprove){
-            // 直接核准
-            sql = "UPDATE LOAN_APPLICATION SET " +
-                    "approved_amount=?, approved_rate=?, approved_period=?, " +
-                    "status='APPROVED', reviewer_id=?, review_time=GETDATE() " +
-                    "WHERE application_id=? AND status='PENDING'";
-        } else {
-            // 需客戶確認
-            sql = "UPDATE LOAN_APPLICATION SET " +
-                    "approved_amount=?, approved_rate=?, approved_period=?, " +
-                    "status='PENDING_CONFIRM', reviewer_id=?, review_time=GETDATE() " +
-                    "WHERE application_id=? AND status='PENDING'";
-        }
+        String sql = "UPDATE LOAN_APPLICATION SET " +
+                "approved_amount=?, approved_rate=?, approved_period=?, " +
+                "status='APPROVED', reviewer_id=?, review_time=GETDATE() " +
+                "WHERE application_id=? AND status='PENDING'";
 
         try (Connection conn = ConnUtil.getConn();
              PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -169,15 +159,71 @@ public class LoanApplyDao {
             ps.setInt(4, loan.getReviewerId());
             ps.setString(5, loan.getApplicationId());
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("狀態錯誤，無法直接核准");
+            }
 
         } catch (SQLException e) {
-            throw new RuntimeException("送出核准失敗", e);
+            throw new RuntimeException("直接核准失敗", e);
         }
     }
 
     // ===============================
-    // 🔹 5. 銀行拒絕
+    // 🔹 5. 銀行方案給客戶確認
+    // ===============================
+    public void submitForConfirmation(LoanApplyBean loan) {
+
+        String sql = "UPDATE LOAN_APPLICATION SET " +
+                "approved_amount=?, approved_rate=?, approved_period=?, " +
+                "status='PENDING_CONFIRM', reviewer_id=?, review_time=GETDATE() " +
+                "WHERE application_id=? AND status='PENDING'";
+
+        try (Connection conn = ConnUtil.getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setBigDecimal(1, loan.getApprovedAmount());
+            ps.setBigDecimal(2, loan.getApprovedRate());
+            ps.setInt(3, loan.getApprovedPeriod());
+            ps.setInt(4, loan.getReviewerId());
+            ps.setString(5, loan.getApplicationId());
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("狀態錯誤，無法送出確認");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("送出核准修改方案失敗", e);
+        }
+    }
+
+    // ===============================
+    // 🔹 6. 客戶確認（最終核准）
+    // ===============================
+    public void confirmApproval(String applicationId) {
+
+        String sql = "UPDATE LOAN_APPLICATION SET " +
+                "status='APPROVED' " +
+                "WHERE application_id=? AND status='PENDING_CONFIRM'";
+
+        try (Connection conn = ConnUtil.getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, applicationId);
+
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("狀態錯誤，無法確認核准");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("客戶確認失敗", e);
+        }
+    }
+
+    // ===============================
+    // 🔹 7. 銀行拒絕
     // ===============================
     public void rejectByBank(String applicationId, Integer reviewerId) {
 
@@ -191,14 +237,18 @@ public class LoanApplyDao {
             ps.setInt(1, reviewerId);
             ps.setString(2, applicationId);
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("狀態錯誤，無法銀行端拒絕");
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("銀行拒絕貸款", e);
         }
     }
+
     // ===============================
-    // 🔹 6. 銀行方案被客戶拒絕
+    // 🔹 8. 銀行方案被客戶拒絕
     // ===============================
     public void rejectByCustomer(String applicationId) {
 
@@ -211,7 +261,10 @@ public class LoanApplyDao {
 
             ps.setString(1, applicationId);
 
-            ps.executeUpdate();
+            int rows = ps.executeUpdate();
+            if (rows == 0) {
+                throw new RuntimeException("狀態錯誤，無法客戶端拒絕");
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException("客戶拒絕失敗", e);
@@ -219,7 +272,7 @@ public class LoanApplyDao {
     }
 
     // ===============================
-    // 🔹 7. 共用 mapping
+    // 🔹 9. 共用 mapping
     // ===============================
     private LoanApplyBean mapRow(ResultSet rs) throws SQLException {
 
