@@ -96,7 +96,7 @@ public class TransLogDAO {
 
         // 如果提供了 customerId，則需要與 account 表進行 JOIN
         if (customerId != null && !customerId.trim().isEmpty()) {
-            sql.append("JOIN account a ON t.operation_account = a.account WHERE a.customer_id = ?");
+            sql.append("JOIN account a ON t.operation_account = a.account_number WHERE a.customer_id = ?");
             params.add(customerId.trim());
         } else {
             sql.append("WHERE 1=1");
@@ -153,7 +153,7 @@ public class TransLogDAO {
         List<Object> params = new ArrayList<>();
 
         if (customerId != null && !customerId.trim().isEmpty()) {
-            sql.append("JOIN account a ON t.operation_account = a.account WHERE a.customer_id = ?");
+            sql.append("JOIN account a ON t.operation_account = a.account_number WHERE a.customer_id = ?");
             params.add(customerId.trim());
         } else {
             sql.append("WHERE 1=1");

@@ -26,7 +26,7 @@ public class AccountDAO {
      */
     private AccountEntity mapRow(ResultSet rs) throws SQLException {
         AccountEntity accountEntity = new AccountEntity();
-        accountEntity.setAccount(rs.getString("account"));
+        accountEntity.setAccount(rs.getString("account_number"));
         accountEntity.setCustomerId(rs.getString("customer_id"));
         accountEntity.setType(rs.getString("type"));
         accountEntity.setCurrency(rs.getString("currency"));
@@ -47,7 +47,7 @@ public class AccountDAO {
      * @throws SQLException 如果 SQL 執行失敗
      */
     public void insert(Connection conn, AccountEntity accountEntity) throws SQLException {
-        String sql = "INSERT INTO account (account, customer_id, type, currency, balance, status, create_at, change_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO account (account_number, customer_id, type, currency, balance, status, create_at, change_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         // 使用 try-with-resources 自動關閉 PreparedStatement
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -79,7 +79,7 @@ public class AccountDAO {
      * @throws ResourceNotFoundException 如果找不到該帳號
      */
     public AccountEntity findByAccount(Connection conn, String account) throws SQLException {
-        String sql = "SELECT * FROM account WHERE account = ?";
+        String sql = "SELECT * FROM account WHERE account_number = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account);
@@ -109,7 +109,7 @@ public class AccountDAO {
 
         // 逐一檢查傳入的條件，如果不為 null 或空，就加入 SQL 查詢中
         if (accountEntity != null && accountEntity.getAccount() != null && !accountEntity.getAccount().trim().isEmpty()) {
-            sql.append(" AND account = ?");
+            sql.append(" AND account_number = ?");
             params.add(accountEntity.getAccount().trim());
         }
         if (accountEntity != null && accountEntity.getCustomerId() != null && !accountEntity.getCustomerId().trim().isEmpty()) {
@@ -152,7 +152,7 @@ public class AccountDAO {
      * @throws ResourceNotFoundException 如果找不到該帳號 (更新了 0 行)
      */
     public void updateBalance(Connection conn, String account, java.math.BigDecimal amountChange) throws SQLException {
-        String sql = "UPDATE account SET balance = balance + ?, change_at = ? WHERE account = ?";
+        String sql = "UPDATE account SET balance = balance + ?, change_at = ? WHERE account_number = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setBigDecimal(1, amountChange);
@@ -178,7 +178,7 @@ public class AccountDAO {
      * @throws ResourceNotFoundException 如果找不到該帳號 (更新了 0 行)
      */
     public void updateStatus(Connection conn, String account, String status) throws SQLException {
-        String sql = "UPDATE account SET status = ?, change_at = ? WHERE account = ?";
+        String sql = "UPDATE account SET status = ?, change_at = ? WHERE account_number = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, status);
@@ -203,7 +203,7 @@ public class AccountDAO {
      * @throws ResourceNotFoundException 如果找不到該帳號 (刪除了 0 行)
      */
     public void deleteByAccount(Connection conn, String account) throws SQLException {
-        String sql = "DELETE FROM account WHERE account = ?";
+        String sql = "DELETE FROM account WHERE account_number = ?";
 
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, account);
