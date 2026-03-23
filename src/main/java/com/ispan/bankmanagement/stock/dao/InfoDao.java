@@ -6,7 +6,7 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
-public class StockInfoDao extends BaseDao {
+public class InfoDao extends BaseDao {
 
     //lambda語法
     private final RowMapper<StockInfoEntity> rowMapper = rs -> {
@@ -30,7 +30,7 @@ public class StockInfoDao extends BaseDao {
     }
 
     //新增單筆
-    public int InsertStockInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
+    public int InsertInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
         String insert = "insert into stock_info (stock_id, stock_name) values (?, ?)";
         return Update(conn, insert, stockInfo.getStockId(), stockInfo.getStockName());
     }
@@ -42,7 +42,7 @@ public class StockInfoDao extends BaseDao {
     }
 
     //依據更新資料
-    public int UpdateStockInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
+    public int UpdateInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
         String update = "update stock_info set stock_name = ? where stock_id = ?";
         return Update(conn, update, stockInfo.getStockName(), stockInfo.getStockId());
 

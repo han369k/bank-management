@@ -24,14 +24,15 @@
         const stockId = document.getElementById('stockId').value;
         const stockName = document.getElementById('stockName').value;
 
-        const params = new URLSearchParams();
-        params.append('stockId', stockId);
-        params.append('stockName', stockName);
+        const params = JSON.stringify({
+            stockId: stockId,
+            stockName: stockName,
+        })
 
-        fetch('../InsertStock', {
+        fetch('../Stock?method=Insert', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                'Content-Type': 'application/json; charset=UTF-8'
             },
             body: params
         })

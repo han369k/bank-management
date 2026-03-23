@@ -18,8 +18,9 @@ public class StockServlet extends BaseServlet {
     }
 
     protected void Search(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        String idParam = req.getParameter("stockId");//查詢參數
-        int stockId = Integer.parseInt(idParam);//轉型
+        // String idParam = req.getParameter("stockId");//查詢參數
+        // int stockId = Integer.parseInt(idParam);//轉型
+        int stockId= JsonUtil.readJson(req);
         //包成傳給前端的Dto
         StockInfoDto stockInfoDto = stockInfoService.GetStockInfoService(stockId);
 
@@ -33,15 +34,15 @@ public class StockServlet extends BaseServlet {
         stockInfoService.DeleteStockInfoService(stockId);
     }
 
-    protected void insert(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+    protected void Insert(HttpServletRequest req, HttpServletResponse resp) throws Exception {
         StockInfoDto stockInfoDto = JsonUtil.readJson(req, StockInfoDto.class);
-        stockInfoDto.setStockId(Integer.parseInt(req.getParameter("stockId")));
-        stockInfoDto.setStockName(req.getParameter("stockName"));
+        //stockInfoDto.setStockId(Integer.parseInt(req.getParameter("stockId")));
+        //stockInfoDto.setStockName(req.getParameter("stockName"));
         stockInfoService.InsertStockInfoService(stockInfoDto);
     }
 
-    protected void update(HttpServletRequest req, HttpServletResponse resp) throws Exception {
-        StockInfoDto stockInfoDto = JsonUtil.readJson(req,StockInfoDto.class);
+    protected void Update(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+        StockInfoDto stockInfoDto = JsonUtil.readJson(req, StockInfoDto.class);
         stockInfoService.UpdateStockInfoService(stockInfoDto);
     }
 }

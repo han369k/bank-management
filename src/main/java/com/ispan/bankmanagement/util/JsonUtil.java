@@ -1,6 +1,7 @@
 package com.ispan.bankmanagement.util;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -39,6 +40,15 @@ public class JsonUtil {
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("JSON 泛型反序列化失敗", e);
+        }
+    }
+
+    public static int readJson(HttpServletRequest req) {
+        try {
+            JsonNode rootNode = mapper.readTree(req.getInputStream());
+            return rootNode.path("stockId").asInt();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 }

@@ -19,7 +19,7 @@
     // 當網頁載入完成後執行
     window.onload = function () {
         // 1. 呼叫你的 Java Servlet 網址
-        fetch('../GetAllStock')
+        fetch('../Stock?method=GetAll')
             .then(response => {
                 if (!response.ok) throw new Error("網路回應不成功");
                 return response.json(); // 將接收到的資料轉成 JS 物件/陣列
@@ -54,7 +54,7 @@
 
                     delBtn.addEventListener("click", () => {
 
-                        fetch('../DeleteStock', {
+                        fetch('../Stock?method=Delete', {
                             method: "POST",
                             headers: {
                                 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
@@ -71,7 +71,7 @@
                             stockId: stock.stockId,
                             stockName: nameInput.value
                         };
-                        fetch('../UpdateStock', {
+                        fetch('../Stock?method=Update', {
                             method: "POST",
                             headers: {
                                 "Content-Type": "application/json; charset=UTF-8"

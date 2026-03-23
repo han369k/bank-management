@@ -19,7 +19,13 @@
 <script>
     function searchStock() {
         const id = document.getElementById("stockIdInput").value;
-        fetch(`../GetStock?stockId=${id}`)
+        fetch('../Stock?method=Search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({stockId: id})
+        })
             .then(response => {
                 if (!response.ok) throw new Error("網路回應不成功");
                 return response.json(); // 將接收到的資料轉成 JS 物件/陣列
