@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>帳戶狀態管理</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="#"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link" href="account-list.html">帳戶列表</a>
+      <a class="nav-link" href="account-create.html">新增帳戶</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="page-title">帳戶狀態管理</div>
+
+  <div id="msg"></div>
+
+  <div class="card" style="max-width:500px">
+    <div class="card-header">查詢帳戶</div>
+    <div class="card-body">
+      <div class="row g-2 align-items-end">
+        <div class="col">
+          <label>帳號</label>
+          <input id="f-account" class="form-control" type="text" placeholder="輸入 12 碼帳號">
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary" onclick="lookupAccount()">
+            <i class="bi bi-search me-1"></i>查詢
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="result-card" style="max-width:500px; display:none">
+    <div class="card-header">帳戶資訊</div>
+    <div class="card-body">
+      <div id="account-info" class="mb-4"></div>
+
+      <hr class="my-3">
+      <label>更新為新狀態</label>
+      <div class="row g-2 align-items-end mt-1">
+        <div class="col">
+          <select id="new-status" class="form-select">
+            <option value="ACTIVE">ACTIVE（正常）</option>
+            <option value="FROZEN">FROZEN（凍結）</option>
+            <option value="CLOSED">CLOSED（註銷）</option>
+          </select>
+        </div>
+        <div class="col-auto">
+          <button class="btn btn-primary" onclick="doUpdate()">
+            <i class="bi bi-check-lg me-1"></i>確認更新
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ctx = '/bank-management';
+let currentAccount = null;
+
+function showMsg(text, type='danger') {
+  document.getElementById('msg').innerHTML =
+    `<div class="alert alert-${type} alert-dismissible" role="alert">
+       ${text}
+       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+     </div>`;
+}
+
+function statusBadge(s) {
+  const cls = s === 'ACTIVE' ? 'badge-active' : s === 'FROZEN' ? 'badge-frozen' : 'badge-closed';
+  return `<span class="badge-status ${cls}">${s}</span>`;
+}
+
+async function lookupAccount() {
+  const account = document.getElementById('f-account').value.trim();
+  if (!account) { showMsg('請輸入帳號'); return; }
+  try {
+    const res  = await fetch(`${ctx}/account?action=get&account=${encodeURIComponent(account)}`);
+    const data = await res.json();
+    if (!res.ok) {
+      showMsg(data.error);
+      document.getElementById('result-card').style.display = 'none';
+      return;
+    }
+    currentAccount = data.account;
+    document.getElementById('account-info').innerHTML = `
+      <table class="info-table">
+        <tr><td>帳號</td>    <td><span style="font-family:monospace">${data.account}</span></td></tr>
+        <tr><td>客戶 ID</td> <td>${data.customerId}</td></tr>
+        <tr><td>餘額</td>    <td><strong>${Number(data.balance).toLocaleString()}</strong></td></tr>
+        <tr><td>目前狀態</td><td>${statusBadge(data.status)}</td></tr>
+      </table>`;
+    document.getElementById('new-status').value = data.status;
+    document.getElementById('result-card').style.display = '';
+    document.getElementById('msg').innerHTML = '';
+  } catch(e) {
+    showMsg('網路錯誤：' + e.message);
+  }
+}
+
+async function doUpdate() {
+  if (!currentAccount) return;
+  const status = document.getElementById('new-status').value;
+  try {
+    const res  = await fetch(`${ctx}/account?action=updateStatus`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ account: currentAccount, status })
+    });
+    const data = await res.json();
+    if (!res.ok) { showMsg(data.error); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+    lookupAccount();
+  } catch(e) {
+    showMsg('網路錯誤：' + e.message);
+  }
+}
+
+const pre = new URLSearchParams(location.search).get('account');
+if (pre) { document.getElementById('f-account').value = pre; lookupAccount(); }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>帳戶列表</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="#"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link active" href="account-list.html">帳戶列表</a>
+      <a class="nav-link" href="account-create.html">新增帳戶</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="page-title">帳戶列表</div>
+
+  <div id="msg"></div>
+
+  <div class="card">
+    <div class="card-header">條件篩選</div>
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-sm-3">
+          <label>帳號</label>
+          <input id="f-account" class="form-control" type="text" placeholder="留空查全部">
+        </div>
+        <div class="col-sm-3">
+          <label>客戶 ID</label>
+          <input id="f-customer" class="form-control" type="text" placeholder="留空查全部">
+        </div>
+        <div class="col-sm-2">
+          <label>類型</label>
+          <input id="f-type" class="form-control" type="text" placeholder="CHECKING / SAVINGS">
+        </div>
+        <div class="col-sm-2">
+          <label>狀態</label>
+          <select id="f-status" class="form-select">
+            <option value="">全部</option>
+            <option value="ACTIVE">ACTIVE</option>
+            <option value="FROZEN">FROZEN</option>
+            <option value="CLOSED">CLOSED</option>
+          </select>
+        </div>
+        <div class="col-sm-2 d-flex gap-2">
+          <button class="btn btn-primary" onclick="loadAccounts()"><i class="bi bi-search me-1"></i>查詢</button>
+          <button class="btn btn-outline-secondary" onclick="clearFilter()">清除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-wrapper">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>帳號</th>
+              <th>客戶 ID</th>
+              <th>類型</th>
+              <th>幣別</th>
+              <th>餘額</th>
+              <th>狀態</th>
+              <th>建立時間</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="empty" class="empty-state" style="display:none"><i class="bi bi-inbox me-2"></i>查無資料</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ctx = '/bank-management';
+
+function statusBadge(s) {
+  const cls = s === 'ACTIVE' ? 'badge-active' : s === 'FROZEN' ? 'badge-frozen' : 'badge-closed';
+  return `<span class="badge-status ${cls}">${s}</span>`;
+}
+
+function showMsg(text, type='danger') {
+  document.getElementById('msg').innerHTML =
+    `<div class="alert alert-${type} alert-dismissible" role="alert">
+       ${text}
+       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+     </div>`;
+}
+
+function clearFilter() {
+  ['f-account','f-customer','f-type'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-status').value = '';
+  loadAccounts();
+}
+
+async function loadAccounts() {
+  const params = new URLSearchParams({ action: 'getAll' });
+  const v = id => document.getElementById(id).value.trim();
+  if (v('f-account'))  params.set('account',    v('f-account'));
+  if (v('f-customer')) params.set('customerId', v('f-customer'));
+  if (v('f-type'))     params.set('type',       v('f-type'));
+  if (v('f-status'))   params.set('status',     v('f-status'));
+
+  try {
+    const res  = await fetch(`${ctx}/account?${params}`);
+    const data = await res.json();
+    if (!res.ok) { showMsg(data.error || '查詢失敗'); return; }
+
+    const tbody = document.getElementById('tbody');
+    const empty = document.getElementById('empty');
+    tbody.innerHTML = '';
+
+    if (!data.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+
+    data.forEach(a => {
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td><span style="font-family:monospace;font-weight:500">${a.account}</span></td>
+          <td>${a.customerId}</td>
+          <td>${a.type ?? '-'}</td>
+          <td>${a.currency ?? '-'}</td>
+          <td><strong>${Number(a.balance).toLocaleString()}</strong></td>
+          <td>${statusBadge(a.status)}</td>
+          <td>${a.createAt ? a.createAt.replace('T',' ').slice(0,16) : '-'}</td>
+          <td>
+            <a href="account-detail.html?account=${a.account}" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-arrow-right"></i> 詳情
+            </a>
+          </td>
+        </tr>`);
+    });
+  } catch(e) {
+    showMsg('網路錯誤：' + e.message);
+  }
+}
+
+loadAccounts();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
