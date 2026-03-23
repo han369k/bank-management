@@ -1,5 +1,6 @@
 package com.ispan.bankmanagement.loan.controller;
 
+import com.ispan.bankmanagement.loan.dao.LoanApplyDao;
 import com.ispan.bankmanagement.loan.service.LoanApplyService;
 import com.ispan.bankmanagement.loan.vo.LoanApplyBean;
 
@@ -9,33 +10,32 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
 
 @WebServlet("/loanApply")
 public class LoanApplyServlet extends HttpServlet {
 
-    private LoanApplyService loanApplyService = new LoanApplyService();
+    private LoanApplyDao loanDao = new LoanApplyDao();
+    private LoanApplyService loanService = new LoanApplyService();
 
     // ===============================
-    // 🔹 GET（查詢 / 導頁）
+    // 📌 查詢列表（後台頁面）
     // ===============================
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        String action = req.getParameter("action");
+        List<LoanApplyBean> list = loanDao.getAll();
 
-        if (action == null || "list".equals(action)) {
+        req.setAttribute("list", list);
 
-            req.setAttribute("list",
-                    loanApplyService.getLoans(null, null, null, null));
-
-            req.getRequestDispatcher("/LoanApply.jsp")
-                    .forward(req, resp);
-        }
+        // 👉 對應你的 JSP 檔名
+        req.getRequestDispatcher("/loanApply.jsp").forward(req, resp);
     }
 
     // ===============================
-    // 🔹 POST（新增 / 審核 / 操作）
+    // 📌 所有操作入口
     // ===============================
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp)
@@ -44,98 +44,161 @@ public class LoanApplyServlet extends HttpServlet {
         req.setCharacterEncoding("UTF-8");
 
         String action = req.getParameter("action");
-        if (action == null) {
-            resp.sendRedirect(req.getContextPath() + "/loanApply?action=list");
-            return;
-        }
 
-        switch (action) {
+        try {
 
-            case "apply":
-                applyLoan(req, resp);
-                break;
+            if (action == null || action.isEmpty()) {
+                insertLoan(req, resp); // 預設：新增申請
+                return;
+            }
 
-            case "approve":
-                processApproval(req, resp);
-                break;
+            switch (action) {
 
-            case "confirm":
-                confirm(req, resp);
-                break;
+                case "approve":
+                    approve(req);
+                    break;
 
-            case "rejectByBank":
-                rejectByBank(req, resp);
-                break;
+                case "approveDirect":
+                    approveDirect(req);
+                    break;
 
-            case "rejectByCustomer":
-                rejectByCustomer(req, resp);
-                break;
+                case "rejectByBank":
+                    rejectByBank(req);
+                    break;
+
+                case "confirm":
+                    confirm(req);
+                    break;
+
+                case "rejectByCustomer":
+                    rejectByCustomer(req);
+                    break;
+
+                default:
+                    insertLoan(req, resp);
+                    return;
+            }
+
+            // 👉 操作完成後回列表
+            resp.sendRedirect("loanApply");
+
+        } catch (Exception e) {
+            throw new ServletException(e);
         }
     }
 
     // ===============================
-    // 🔹 方法區
+    // 🆕 新增貸款申請
     // ===============================
-
-    private void applyLoan(HttpServletRequest req, HttpServletResponse resp)
+    private void insertLoan(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
+        String customerId = req.getParameter("customerId");
+        String applyType = req.getParameter("applyType");
+        String amountStr = req.getParameter("applyAmount");
+        String periodStr = req.getParameter("applyPeriod");
+
+        Long applyAmount = (amountStr == null || amountStr.isEmpty())
+                ? null
+                : Long.parseLong(amountStr);
+
+        Integer applyPeriod = (periodStr == null || periodStr.isEmpty())
+                ? null
+                : Integer.parseInt(periodStr);
+
+        BigDecimal rate = loanService.calculateRate(applyType, applyPeriod);
+
         LoanApplyBean loan = new LoanApplyBean();
+        loan.setApplicationId(UUID.randomUUID().toString());
+        loan.setCustomerId(customerId);
+        loan.setApplyType(applyType);
+        loan.setApplyAmount(applyAmount);
+        loan.setApplyPeriod(applyPeriod);
+        loan.setRate(rate);
 
-        loan.setApplicationId(req.getParameter("applicationId"));
-        loan.setCustomerId(req.getParameter("customerId"));
-        loan.setApplyAmount(new BigDecimal(req.getParameter("applyAmount")));
-        loan.setApplyPeriod(Integer.parseInt(req.getParameter("applyPeriod")));
+        loanDao.insert(loan);
 
-        loanApplyService.applyLoan(loan);
+        resp.setContentType("application/json;charset=UTF-8");
 
-        resp.sendRedirect(req.getContextPath() + "/loanApply?action=list");
+        String json = String.format(
+                "{\"status\":\"success\",\"rate\":%s}",
+                rate.toString()
+        );
+
+        resp.getWriter().write(json);
     }
 
-    private void processApproval(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
+    // ===============================
+    // 🟦 送客戶確認
+    // ===============================
+    private void approve(HttpServletRequest req) {
 
         LoanApplyBean loan = new LoanApplyBean();
 
         loan.setApplicationId(req.getParameter("applicationId"));
-        loan.setApprovedAmount(new BigDecimal(req.getParameter("approvedAmount")));
-        loan.setApprovedRate(new BigDecimal(req.getParameter("approvedRate")));
+        loan.setApprovedAmount(Long.parseLong(req.getParameter("approvedAmount")));
         loan.setApprovedPeriod(Integer.parseInt(req.getParameter("approvedPeriod")));
         loan.setReviewerId(Integer.parseInt(req.getParameter("reviewerId")));
 
-        loanApplyService.processApproval(loan);
+        // 👉 重新計算利率（用核准條件）
+        BigDecimal rate = loanService.calculateRate(
+                null,
+                loan.getApprovedPeriod()
+        );
+        loan.setApprovedRate(rate);
 
-        resp.sendRedirect(req.getContextPath() + "/loanApply?action=list");
+        loanDao.submitForConfirm(loan);
     }
 
-    private void confirm(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
+    // ===============================
+    // 🟩 直接核准
+    // ===============================
+    private void approveDirect(HttpServletRequest req) {
 
-        String id = req.getParameter("applicationId");
+        LoanApplyBean loan = new LoanApplyBean();
 
-        loanApplyService.confirmApproval(id);
+        loan.setApplicationId(req.getParameter("applicationId"));
+        loan.setApprovedAmount(Long.parseLong(req.getParameter("approvedAmount")));
+        loan.setApprovedPeriod(Integer.parseInt(req.getParameter("approvedPeriod")));
+        loan.setReviewerId(Integer.parseInt(req.getParameter("reviewerId")));
 
-        resp.sendRedirect(req.getContextPath() + "/loanApply?action=list");
+        BigDecimal rate = loanService.calculateRate(
+                null,
+                loan.getApprovedPeriod()
+        );
+        loan.setApprovedRate(rate);
+
+        loanDao.approveDirectly(loan);
     }
 
-    private void rejectByBank(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
+    // ===============================
+    // 🟥 銀行拒絕
+    // ===============================
+    private void rejectByBank(HttpServletRequest req) {
 
-        String id = req.getParameter("applicationId");
+        String applicationId = req.getParameter("applicationId");
         Integer reviewerId = Integer.parseInt(req.getParameter("reviewerId"));
 
-        loanApplyService.rejectByBank(id, reviewerId);
-
-        resp.sendRedirect(req.getContextPath() + "/loanApply?action=list");
+        loanDao.rejectByBank(applicationId, reviewerId);
     }
 
-    private void rejectByCustomer(HttpServletRequest req, HttpServletResponse resp)
-            throws IOException {
+    // ===============================
+    // 🟨 客戶同意
+    // ===============================
+    private void confirm(HttpServletRequest req) {
 
-        String id = req.getParameter("applicationId");
+        String applicationId = req.getParameter("applicationId");
 
-        loanApplyService.rejectByCustomer(id);
+        loanDao.confirmApproval(applicationId);
+    }
 
-        resp.sendRedirect(req.getContextPath() + "/loanApply?action=list");
+    // ===============================
+    // 🟪 客戶拒絕
+    // ===============================
+    private void rejectByCustomer(HttpServletRequest req) {
+
+        String applicationId = req.getParameter("applicationId");
+
+        loanDao.rejectByCustomer(applicationId);
     }
 }

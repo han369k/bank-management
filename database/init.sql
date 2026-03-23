@@ -86,14 +86,20 @@ CREATE TABLE [TRANS_LOG] (
 CREATE TABLE [LOAN_APPLICATION] (
     [application_id] varchar(20) PRIMARY KEY,
     [customer_id] varchar(20),
-    [apply_amount] decimal(19,4),
+
+    [apply_type] varchar(20),
+    [apply_amount] bigint,
     [apply_period] int,
-    [approved_amount] decimal(19,4),
-    [approved_rate] decimal(5,4),
+    [rate] decimal(4,2),
+    [create_time] datetime2(2),
+
+    [approved_amount] bigint,
     [approved_period] int,
+    [approved_rate] decimal(4,2),
+
     [status] varchar(20),
     [reviewer_id] int,
-    [review_time] datetime2
+    [review_time] datetime2(2)
     )
     GO
 
