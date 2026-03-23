@@ -1,6 +1,6 @@
 package com.ispan.bankmanagement.stock.service;
 
-import com.ispan.bankmanagement.stock.dao.StockInfoDao;
+import com.ispan.bankmanagement.stock.dao.InfoDao;
 import com.ispan.bankmanagement.stock.dto.StockInfoDto;
 import com.ispan.bankmanagement.stock.entity.StockInfoEntity;
 import com.ispan.bankmanagement.util.ConnUtil;
@@ -8,14 +8,26 @@ import com.ispan.bankmanagement.util.ConnUtil;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Optional;
 
-import static com.ispan.bankmanagement.stock.entity.StockInfoEntity.ConvertDtoToEntity;
 import static com.ispan.bankmanagement.util.ConnUtil.closeResource;
-import static com.ispan.bankmanagement.util.ConnUtil.getConn;
 
 public class StockInfoService {
-    private final StockInfoDao stockInfoDao = new StockInfoDao();
+    private final InfoDao stockInfoDao = new InfoDao();
+
+    public static StockInfoEntity ConvertToEntity(StockInfoDto stockInfoDto) {
+        StockInfoEntity stockInfoEntity = new StockInfoEntity();
+        stockInfoEntity.setStockId(stockInfoDto.getStockId());
+        stockInfoEntity.setStockName(stockInfoDto.getStockName());
+        return stockInfoEntity;
+    }
+
+    public static StockInfoDto ConvertToDto(StockInfoEntity stockInfoEntity) {
+        StockInfoDto stockInfoDto = new StockInfoDto();
+        stockInfoDto.setStockId(stockInfoEntity.getStockId());
+        stockInfoDto.setStockName(stockInfoEntity.getStockName());
+
+        return stockInfoDto;
+    }
 
     //同時新增兩筆股票資料
     public void UpdateTwoStockInfoService(StockInfoEntity stockInfoEntity1, StockInfoEntity stockInfoEntity2) {
@@ -23,8 +35,8 @@ public class StockInfoService {
         try {
             conn = ConnUtil.getConn();
             conn.setAutoCommit(false);//關閉自動提交
-            stockInfoDao.InsertStockInfo(conn, stockInfoEntity1);
-            stockInfoDao.InsertStockInfo(conn, stockInfoEntity2);
+            stockInfoDao.InsertInfo(conn, stockInfoEntity1);
+            stockInfoDao.InsertInfo(conn, stockInfoEntity2);
             conn.commit();
         } catch (Exception e) {
             if (conn != null) {
@@ -49,8 +61,8 @@ public class StockInfoService {
         try (Connection conn = ConnUtil.getConn()) {
             try {
                 conn.setAutoCommit(false);//關閉自動提交
-                StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
-                int row = stockInfoDao.InsertStockInfo(conn, stockInfoEntity);
+                StockInfoEntity stockInfoEntity = ConvertToEntity(stockInfoDto);
+                int row = stockInfoDao.InsertInfo(conn, stockInfoEntity);
                 conn.commit();
                 return row > 0;
             } catch (SQLException e) {
@@ -69,9 +81,9 @@ public class StockInfoService {
             //拿到資料庫原始資料
             List<StockInfoEntity> daoList = stockInfoDao.GetAll(conn);
 
-            //完成整份清單的轉換 (Mapping) 將daoList (Stream)，全部轉成 (Map) VO，最後包成一個 List。」
+            //完成整份清單的轉換 (Mapping) 將daoList (Stream)，全部轉成 (Map) dto，最後包成一個 List。」
             return daoList.stream()
-                    .map(StockInfoDto::ConvertEntityToDto)
+                    .map(StockInfoService::ConvertToDto)
                     .toList();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -85,7 +97,7 @@ public class StockInfoService {
             if (stockInfoEntity == null) {
                 return null;
             }
-            return StockInfoDto.ConvertEntityToDto(stockInfoEntity);
+            return ConvertToDto(stockInfoEntity);
         } catch (SQLException e) {
             throw new RuntimeException("查詢股票資訊時發生資料庫錯誤，ID: " + id, e);
         }
@@ -107,8 +119,8 @@ public class StockInfoService {
         try (Connection conn = ConnUtil.getConn();) {
             try {
                 conn.setAutoCommit(false);
-                StockInfoEntity stockInfoEntity = ConvertDtoToEntity(stockInfoDto);
-                int row = stockInfoDao.UpdateStockInfo(conn, stockInfoEntity);
+                StockInfoEntity stockInfoEntity = ConvertToEntity(stockInfoDto);
+                int row = stockInfoDao.UpdateInfo(conn, stockInfoEntity);
                 conn.commit();
                 return row > 0;
             } catch (SQLException e) {
