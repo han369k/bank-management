@@ -31,45 +31,53 @@
         <th>修改</th>
         <th>刪除</th>
     </tr>
-    <c:forEach var="card" items="${cardList}">
-<tr>
-    <td class="card-id">${card.cardId}</td>
-    
-    <td>
-        <input type="text" name="customerId" value="${card.customerId}" class="edit-field" disabled>
-    </td>
+<c:forEach var="card" items="${cardList}">
+    <tr>
+        <form action="${pageContext.request.contextPath}/card" method="post" class="card-edit-form">
+            <input type="hidden" name="action" value="update">
+            <input type="hidden" name="cardId" value="${card.cardId}">
 
-    <td>
-        <input type="text" name="cardTypeId" value="${card.cardTypeId}" class="edit-field" disabled>
-    </td>
+            <td>${card.cardId}</td>
+            
+            <td>
+                <input type="text" name="customerId" value="${card.customerId}" class="edit-field" disabled>
+            </td>
 
-    <td>
-        **** **** **** ${fn:substring(card.cardNumber, fn:length(card.cardNumber)-4, fn:length(card.cardNumber))}
-        <input type="hidden" name="cardNumber" value="${card.cardNumber}">
-    </td>
+            <td>
+                <input type="text" name="cardTypeId" value="${card.cardTypeId}" class="edit-field" disabled>
+            </td>
 
-    <td>
-        <input type="date" name="expiryDate" value="${card.expiryDate}" class="edit-field" disabled>
-    </td>
+            <td>
+                **** **** **** ${fn:substring(card.cardNumber, fn:length(card.cardNumber)-4, fn:length(card.cardNumber))}
+                <input type="hidden" name="cardNumber" value="${card.cardNumber}">
+            </td>
 
-    <td>
-        <select name="cardStatus" class="edit-field" disabled>
-            <option value="ACTIVE" ${card.status == 'ACTIVE' ? 'selected' : ''}>有效</option>
-            <option value="INACTIVE" ${card.status == 'INACTIVE' ? 'selected' : ''}>尚未啟用</option>
-            <option value="BLOCKED" ${card.status == 'BLOCKED' ? 'selected' : ''}>已停用</option>
-        </select>
-    </td>
+            <td>
+                <input type="date" name="expiryDate" value="${card.expiryDate}" class="edit-field" disabled>
+            </td>
 
-    <td>
-        <button type="button" class="edit-btn">修改</button>
-        <button type="button" class="save-btn" style="display:none;" 
-                onclick="submitUpdate(this, '${card.cardId}')">儲存</button>
-    </td>
-    
-    <td>
-        <button type="button" class="delete-btn" onclick="confirmDelete('${card.cardId}')">刪除</button>
-    </td>
-</tr>
+            <td>
+                <select name="cardStatus" class="edit-field" disabled>
+                    <option value="ACTIVE" ${card.status == 'ACTIVE' ? 'selected' : ''}>有效</option>
+                    <option value="INACTIVE" ${card.status == 'INACTIVE' ? 'selected' : ''}>尚未啟用</option>
+                    <option value="BLOCKED" ${card.status == 'BLOCKED' ? 'selected' : ''}>已停用</option>
+                </select>
+            </td>
+
+            <td>
+                <button type="button" class="edit-btn">修改</button>
+                <button type="submit" class="save-btn" style="display:none;">儲存</button>
+            </td>
+        </form>
+
+        <td>
+            <form action="${pageContext.request.contextPath}/card" method="post">
+                <input type="hidden" name="action" value="delete">
+                <input type="hidden" name="cardId" value="${card.cardId}">
+                <button type="button" class="delete-btn">刪除</button>
+            </form>
+        </td>
+    </tr>
 </c:forEach>
 
 
@@ -85,7 +93,7 @@
 <a href="${pageContext.request.contextPath}/creditCardHome">回首頁</a>
 
 <script>
-// 1. 必須先初始化 Toast
+// 必須先初始化 Toast
 const Toast = Swal.mixin({
     toast: true,
     position: 'top-end',
@@ -94,55 +102,55 @@ const Toast = Swal.mixin({
     timerProgressBar: true
 });
 
-// 2. 修改按鈕：解鎖欄位並切換按鈕
+// 修改按鈕：解鎖該列的輸入框
 document.querySelectorAll('.edit-btn').forEach(btn => {
     btn.addEventListener('click', function () {
         const tr = this.closest('tr');
-        // 僅解鎖該列的輸入框與下拉選單
+        // 找出該列所有 class 為 edit-field 的東西 (包含 expiryDate)
         tr.querySelectorAll('.edit-field').forEach(el => {
-            el.disabled = false;
+            el.disabled = false; // 解鎖！
         });
-        // 切換顯示「儲存」按鈕
-        this.style.display = 'none';
-        tr.querySelector('.save-btn').style.display = 'inline';
+        this.style.display = 'none'; // 隱藏自己
+        tr.querySelector('.save-btn').style.display = 'inline'; // 顯示儲存
     });
 });
 
-// 3. 儲存按鈕
-document.querySelectorAll('.save-btn').forEach(btn => {
-    btn.addEventListener('click', function (e) {
-        const tr = this.closest('tr');
-        const form = tr.querySelector('form');
+// 儲存表單送出：確保解鎖並跳通知
+document.querySelectorAll('.card-edit-form').forEach(form => {
+    form.addEventListener('submit', function (e) {
+        // 先暫停送出，為了做最後檢查與跳通知
+        e.preventDefault(); 
 
-        // 再次確認欄位已解鎖，否則後端收不到值
-        tr.querySelectorAll('.edit-field').forEach(el => {
+        // 重要：再次確保所有 edit-field 是啟用狀態，否則後端 getParameter 會拿到 null
+        this.querySelectorAll('.edit-field').forEach(el => {
             el.disabled = false;
         });
 
         Toast.fire({
             icon: 'info',
-            title: '正在儲存中...'
+            title: '正在儲存資料...'
         });
-        
-        
+
+        // 延遲 0.5 秒再正式送出，讓使用者看得到通知
+        setTimeout(() => {
+            this.submit(); 
+        }, 500);
     });
 });
 
-// 4. 刪除確認 
+// 刪除確認
 document.querySelectorAll('.delete-btn').forEach(btn => {
-    btn.addEventListener('click', function (e) {
-        e.preventDefault();
+    btn.addEventListener('click', function () {
         const form = this.closest('form');
-
         Swal.fire({
-            title: '確認刪除',
-            text: '確定要刪除這張信用卡嗎？',
+            title: '確定刪除？',
+            text: "刪除後資料無法復原！",
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonText: '取消',
-            confirmButtonText: '確定刪除'
-        }).then(result => {
+            confirmButtonText: '確定刪除',
+            cancelButtonText: '取消'
+        }).then((result) => {
             if (result.isConfirmed) {
                 form.submit();
             }
@@ -150,7 +158,7 @@ document.querySelectorAll('.delete-btn').forEach(btn => {
     });
 });
 
-// 5. 提示訊息處理 
+// 提示訊息處理 
 const successMsg = "${msg}";
 if (successMsg && successMsg !== "null" && successMsg.trim() !== "") {
     Toast.fire({ icon: 'success', title: successMsg });

@@ -42,15 +42,13 @@ public class CardTypeDao {
                 ct.setBrand(rs.getString("brand"));
                 ct.setAnnualFee(rs.getBigDecimal("annual_fee"));
                 ct.setCashbackRate(rs.getBigDecimal("cashback_rate"));
-                list.add(ct);
-								
+                list.add(ct);								
 			}
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return list;
-		
+		return list;		
 	}//查全部end
 	//修改卡別
 	public void updateCardType(CardTypes cardTypes) {
@@ -66,8 +64,7 @@ public class CardTypeDao {
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}	
 	}//修改卡別end
 	//刪除卡別
 	public void deleteCardType(int id) {
