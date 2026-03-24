@@ -29,28 +29,7 @@ public class StockInfoService {
         return stockInfoDto;
     }
 
-    //同時新增兩筆股票資料
-    public void UpdateTwoStockInfoService(StockInfoEntity stockInfoEntity1, StockInfoEntity stockInfoEntity2) {
-        Connection conn = null;
-        try {
-            conn = ConnUtil.getConn();
-            conn.setAutoCommit(false);//關閉自動提交
-            stockInfoDao.InsertInfo(conn, stockInfoEntity1);
-            stockInfoDao.InsertInfo(conn, stockInfoEntity2);
-            conn.commit();
-        } catch (Exception e) {
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                    System.err.println("新增失敗，已執行回滾，資料庫不會有任何變動。");
-                } catch (SQLException e1) {
-                    e1.printStackTrace();
-                } finally {
-                    closeResource(conn);
-                }
-            }
-        }
-    }
+
 
     //新增單筆股票基本資訊
     public boolean InsertStockInfoService(StockInfoDto stockInfoDto) {
