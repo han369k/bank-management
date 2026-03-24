@@ -16,7 +16,7 @@ public class ConnUtil {
 
     // 用來記錄錯誤的log
     private static final Logger logger = LoggerFactory.getLogger(ConnUtil.class);
-    
+
     // DataSource 連線池
     private static final HikariDataSource dataSource;
 
