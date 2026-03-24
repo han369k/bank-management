@@ -71,7 +71,7 @@ CREATE TABLE [ACCOUNT] (
     GO
 
 CREATE TABLE [TRANS_LOG] (
-    [trans_log_id] bigint PRIMARY KEY,
+    [trans_log_id] INT IDENTITY(1,1) PRIMARY KEY,
     [reference_id] varchar(50),
     [amount] decimal(19,4),
     [type] varchar(20),

@@ -179,22 +179,36 @@ async function search(page) {
     empty.style.display = 'none';
 
     data.forEach(log => {
-      const time   = log.transactionTime ? log.transactionTime.replace('T',' ').slice(0,16) : '-';
+      // ✅ 強化日期防護：檢查多種可能的 Key，並確保它是字串才執行 slice
+      const rawTime = log.transactionTime || log.transaction_time || '';
+      let time = '-';
+      if (rawTime && typeof rawTime === 'string') {
+        time = rawTime.replace('T', ' ').slice(0, 16);
+      } else if (rawTime) {
+        // 如果是數字或其他格式，嘗試轉成字串處理
+        time = String(rawTime).slice(0, 16);
+      }
+
       const amount = Number(log.amount);
-      const amtHtml = `<span class="${amount >= 0 ? 'amount-pos' : 'amount-neg'}">${amount >= 0 ? '+' : ''}${amount.toLocaleString()}</span>`;
+      const amtHtml = `<span class="${amount >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">${amount >= 0 ? '+' : ''}${amount.toLocaleString()}</span>`;
+
+      // ✅ 強化 ID 防護
+      const refId = log.referenceId || log.trans_log_id || 'N/A';
+      const shortId = String(refId).length > 8 ? String(refId).slice(0, 8) + '…' : refId;
+
       tbody.insertAdjacentHTML('beforeend', `
         <tr>
-          <td><span class="ref-id" title="${log.referenceId}">${log.referenceId.slice(0,8)}…</span></td>
-          <td>${time}</td>
-          <td>${typeBadge(log.type)}</td>
-          <td><span style="font-family:monospace;font-size:12px">${log.operationAccount}</span></td>
-          <td><span style="font-family:monospace;font-size:12px">${log.otherAccount ?? '-'}</span></td>
-          <td>${amtHtml}</td>
-          <td>${Number(log.balance).toLocaleString()}</td>
+          <td><span class="ref-id font-monospace text-muted" title="${refId}">${shortId}</span></td>
+          <td class="small">${time}</td>
+          <td>${typeBadge(log.type || 'UNKNOWN')}</td>
+          <td><span style="font-family:monospace;font-size:12px">${log.operationAccount || log.operation_account || '-'}</span></td>
+          <td><span style="font-family:monospace;font-size:12px">${log.otherAccount || log.other_account || '-'}</span></td>
+          <td class="text-end pe-4">${amtHtml}</td>
+          <td class="text-end pe-4">${Number(log.balance || 0).toLocaleString()}</td>
           <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${log.note ?? ''}">${log.note ?? '-'}</td>
-          <td>
-            <button class="btn btn-sm btn-outline-danger" onclick="doDelete('${log.referenceId}')">
-              <i class="bi bi-trash"></i>
+          <td class="text-center">
+            <button class="btn btn-sm btn-outline-danger" style="padding: 2px 5px;" onclick="doDelete('${refId}')">
+              <i class="bi bi-trash" style="font-size:12px"></i>
             </button>
           </td>
         </tr>`);
