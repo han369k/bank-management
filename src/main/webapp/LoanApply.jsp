@@ -85,6 +85,55 @@
             font-size: 10px;
             margin-left: 4px;
         }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4);
+            z-index: 999;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-overlay.active {
+            display: flex;
+        }
+        .modal-box {
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            min-width: 320px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .modal-box h3 {
+            margin-top: 0;
+            margin-bottom: 16px;
+        }
+        .modal-box .form-group {
+            margin: 10px 0;
+        }
+        .modal-box label {
+            display: inline-block;
+            width: 80px;
+        }
+        .modal-box input, .modal-box select {
+            width: 160px;
+            padding: 4px;
+        }
+        .modal-box .modal-btns {
+            margin-top: 16px;
+            text-align: right;
+        }
+        .modal-box .modal-btns button {
+            padding: 6px 14px;
+            margin-left: 8px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-submit { background: #0097e6; color: white; }
+        .btn-cancel { background: #dcdde1; color: #333; }
     </style>
 
 </head>
@@ -211,22 +260,10 @@
 
             <% if ("PENDING".equals(loan.getStatus())) { %>
 
-            <!-- 🔵 修改方案 / 送客戶確認 -->
-            <form action="${pageContext.request.contextPath}/LoanApply" method="post">
-                <input type="hidden" name="filterStatus" value="<%= selectedStatus != null ? selectedStatus : "" %>">
-                <input type="hidden" name="action" value="approve">
-                <input type="hidden" name="applicationId" value="<%= loan.getApplicationId() %>">
-                <input type="hidden" name="applyType" value="<%= loan.getApplyType() %>">
+            審核人 <input type="number" id="reviewer_<%= loan.getApplicationId() %>" value="1" style="width:50px;">
 
-                金額 <input type="number" name="approvedAmount" required style="width:80px;">
-                期數 <select name="approvedPeriod" class="period-select"
-                             data-type="<%= loan.getApplyType() %>"
-                             style="width:80px;"></select>
-
-                審核人 <input type="number" name="reviewerId" value="1" style="width:60px;">
-
-                <button class="btn edit">送出方案</button>
-            </form>
+            <!-- 🔵 修改方案 -->
+            <button class="btn edit" onclick="openModal('<%= loan.getApplicationId() %>', '<%= loan.getApplyType() %>')">修改方案</button>
 
             <!-- 🟢 直接核准 -->
             <form action="${pageContext.request.contextPath}/LoanApply" method="post" style="display:inline;">
@@ -236,9 +273,8 @@
                 <input type="hidden" name="applyType" value="<%= loan.getApplyType() %>">
                 <input type="hidden" name="approvedAmount" value="<%= loan.getApplyAmount() %>">
                 <input type="hidden" name="approvedPeriod" value="<%= loan.getApplyPeriod() %>">
-                審核人 <input type="number" name="reviewerId" value="1" style="width:60px;">
-
-                <button class="btn approve">直接核准</button>
+                <input type="hidden" name="reviewerId" class="reviewer-hidden" data-source="reviewer_<%= loan.getApplicationId() %>">
+                <button class="btn approve" type="submit" onclick="this.form.reviewerId.value=document.getElementById('reviewer_<%= loan.getApplicationId() %>').value">直接核准</button>
             </form>
 
             <!-- 🔴 拒絕 -->
@@ -246,9 +282,8 @@
                 <input type="hidden" name="filterStatus" value="<%= selectedStatus != null ? selectedStatus : "" %>">
                 <input type="hidden" name="action" value="rejectByBank">
                 <input type="hidden" name="applicationId" value="<%= loan.getApplicationId() %>">
-                審核人 <input type="number" name="reviewerId" value="1" style="width:60px;">
-
-                <button class="btn reject">拒絕</button>
+                <input type="hidden" name="reviewerId" class="reviewer-hidden" data-source="reviewer_<%= loan.getApplicationId() %>">
+                <button class="btn reject" type="submit" onclick="this.form.reviewerId.value=document.getElementById('reviewer_<%= loan.getApplicationId() %>').value">拒絕</button>
             </form>
 
             <% } else { %>
@@ -272,6 +307,31 @@
     %>
 
 </table>
+
+<!-- 🔵 修改方案 Modal -->
+<div class="modal-overlay" id="approveModal">
+    <div class="modal-box">
+        <h3>📝 修改方案</h3>
+        <input type="hidden" id="modal_applicationId">
+        <input type="hidden" id="modal_applyType">
+
+        <div class="form-group">
+            <label>新方案金額</label>
+            <input type="number" id="modal_amount" min="1" required>
+        </div>
+
+        <div class="form-group">
+            <label>新方案期數</label>
+            <select id="modal_period"></select>
+        </div>
+
+        <div class="modal-btns">
+            <button class="btn-cancel" onclick="closeModal()">取消</button>
+            <button class="btn-submit" onclick="submitApprove()">送出方案</button>
+        </div>
+    </div>
+</div>
+
 <script>
     // ===============================
     // ⭐ 篩選查詢（狀態 + 金額區間）
@@ -287,6 +347,75 @@
         if (maxAmt) params.push("maxAmount=" + maxAmt);
 
         location.href = "LoanApply" + (params.length > 0 ? "?" + params.join("&") : "");
+    }
+
+    // ===============================
+    // ⭐ Modal 操作
+    // ===============================
+    var currentFilterStatus = "<%= selectedStatus != null ? selectedStatus : "" %>";
+
+    function openModal(applicationId, applyType) {
+        document.getElementById("modal_applicationId").value = applicationId;
+        document.getElementById("modal_applyType").value = applyType;
+        document.getElementById("modal_amount").value = "";
+
+        // 建立期數選單
+        var periodSelect = document.getElementById("modal_period");
+        periodSelect.innerHTML = "";
+        var terms = termOptions[applyType];
+        if (terms) {
+            terms.forEach(function(t) {
+                var opt = document.createElement("option");
+                opt.value = t;
+                opt.textContent = t + "期";
+                periodSelect.appendChild(opt);
+            });
+        }
+
+        document.getElementById("approveModal").classList.add("active");
+    }
+
+    function closeModal() {
+        document.getElementById("approveModal").classList.remove("active");
+    }
+
+    function submitApprove() {
+        var applicationId = document.getElementById("modal_applicationId").value;
+        var applyType = document.getElementById("modal_applyType").value;
+        var amount = document.getElementById("modal_amount").value;
+        var period = document.getElementById("modal_period").value;
+        var reviewerId = document.getElementById("reviewer_" + applicationId).value;
+
+        if (!amount || parseInt(amount) <= 0) {
+            alert("請輸入有效的方案金額");
+            return;
+        }
+
+        // 建立並送出表單
+        var form = document.createElement("form");
+        form.method = "POST";
+        form.action = "LoanApply";
+
+        var fields = {
+            action: "approve",
+            filterStatus: currentFilterStatus,
+            applicationId: applicationId,
+            applyType: applyType,
+            approvedAmount: amount,
+            approvedPeriod: period,
+            reviewerId: reviewerId
+        };
+
+        for (var key in fields) {
+            var input = document.createElement("input");
+            input.type = "hidden";
+            input.name = key;
+            input.value = fields[key];
+            form.appendChild(input);
+        }
+
+        document.body.appendChild(form);
+        form.submit();
     }
 
     // ===============================
