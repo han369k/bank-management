@@ -35,11 +35,12 @@
 1. 在 `src/main/resources/` 目錄下建立 `config.properties` 檔案。
 2. 填寫你的本機資料庫連線資訊：
    ```properties
-   db.url=jdbc:sqlserver://localhost:1433;databaseName=bank_db;encrypt=false
-   db.user=你的帳號 (如: sa)
-   db.password=你的密碼
+   jdbc.driver=com.microsoft.sqlserver.jdbc.SQLServerDriver
+   jdbc.url=jdbc:sqlserver://localhost:1433;databaseName=bank_db;encrypt=false;trustServerCertificate=true
+   jdbc.user=你的帳號 (如: sa)
+   jdbc.password=你的密碼
    ```
-   *(⚠️ 注意：`config.properties` 已加入 `.gitignore`，請勿將自己的密碼推上遠端！)*
+   *(⚠️ 注意：`db.properties` 已加入 `.gitignore`，請勿將自己的密碼推上遠端！)*
 
 ### 4. 啟動專案
 * 在 IntelliJ IDEA 或 Eclipse 中載入 Maven 專案 (`pom.xml`)。
