@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>新增股票基本資料</title>
+</head>
+<body>
+<header>
+    <h2>新增股票基本資料</h2>
+</header>
+<form>
+    <label for="stockId">股票代碼</label>
+    <input type="text" name="stockId" id="stockId" placeholder="請輸入股票代碼">
+    <label for="stockName">股票名稱</label>
+    <input type="text" name="stockName" id="stockName" placeholder="請輸入股票名稱">
+    <div class="button-group">
+        <input type="submit" value="新增" id="InsertStock">
+        <button type="button" onclick="window.location.href='../index.jsp'">取消</button>
+    </div>
+</form>
+<script>
+    document.getElementById('InsertStock').addEventListener('click', function (event) {
+
+        const stockId = document.getElementById('stockId').value;
+        const stockName = document.getElementById('stockName').value;
+
+        const params = JSON.stringify({
+            stockId: stockId,
+            stockName: stockName,
+        })
+
+        fetch('../Stock?method=Insert', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json; charset=UTF-8'
+            },
+            body: params
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不成功");
+                return response.text();
+            })
+    })
+</script>
+</body>
+</html>

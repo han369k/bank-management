@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查詢單筆</title>
+</head>
+<body>
+<header><h2>查詢單筆股票</h2></header>
+<input type="text" id="stockIdInput" placeholder="輸入股號">
+<button onclick="searchStock()">查詢</button>
+<table id="stockTable">
+    <tr>
+        <th>股名</th>
+        <th>股號</th>
+    </tr>
+    <tbody id="stockTableBody">
+    </tbody>
+</table>
+<script>
+    function searchStock() {
+        const id = document.getElementById("stockIdInput").value;
+        fetch('../Stock?method=Search', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({stockId: id})
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不成功");
+                return response.json(); // 將接收到的資料轉成 JS 物件/陣列
+            })
+            .then(stockData => {
+                console.log(stockData);
+                const tr = document.createElement("tr");
+                const tbody = document.getElementById("stockTableBody");
+                tbody.innerHTML = "";
+                const nameTd = document.createElement("td");
+                nameTd.textContent = stockData.stockName;
+
+                const codeTd = document.createElement("td");
+                codeTd.textContent = stockData.stockId;
+
+                tr.appendChild(nameTd);
+                tr.appendChild(codeTd);
+
+                tbody.appendChild(tr);
+            })
+            .catch(error => {
+                console.error("發生錯誤:", error);
+                alert("資料載入失敗，請檢查控制台");
+            });
+    }
+</script>
+</body>
+</html>

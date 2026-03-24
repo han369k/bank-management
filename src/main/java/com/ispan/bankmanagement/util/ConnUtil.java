@@ -88,7 +88,7 @@ public class ConnUtil {
 
     // 建立連線池
     public static Connection getConn() throws SQLException {
-            return dataSource.getConnection();
+        return dataSource.getConnection();
     }
 
     // 歸還連線池
@@ -146,15 +146,4 @@ public class ConnUtil {
             // logger.info("資料庫連線池已關閉");
         }
     }
-
-    public static void main(String[] args) {
-        try {
-            Connection conn = ConnUtil.getConn();
-            System.out.println(!conn.isClosed());
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
-
 }

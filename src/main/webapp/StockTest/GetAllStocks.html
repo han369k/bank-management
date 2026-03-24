@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>股票資訊</title>
+</head>
+<body>
+<header><h2>股票資訊</h2></header>
+<table id="stockTable">
+    <tr>
+        <th>股號</th>
+        <th>股名</th>
+    </tr>
+    <tbody id="stockTableBody">
+    </tbody>
+
+</table>
+<script>
+    // 當網頁載入完成後執行
+    window.onload = function () {
+        // 1. 呼叫你的 Java Servlet 網址
+        fetch('../Stock?method=GetAll')
+            .then(response => {
+                if (!response.ok) throw new Error("網路回應不成功");
+                return response.json(); // 將接收到的資料轉成 JS 物件/陣列
+            })
+            .then(stockList => {
+                console.table(stockList);
+                const tbody = document.getElementById("stockTableBody");
+                tbody.innerHTML = "";
+                // 2. 將接收到的資料動態加入到 HTML 表格中
+                stockList.forEach(stock => {
+                    const tr = document.createElement("tr");
+                    const td = document.createElement("td");
+                    //號碼
+                    const codeTd = document.createElement("td");
+                    codeTd.textContent = stock.stockId;
+                    //名稱
+                    const nameTd = document.createElement("td");
+                    const nameInput = document.createElement("input");
+                    nameInput.value = stock.stockName;
+                    nameTd.appendChild(nameInput);
+
+                    const delBtn = document.createElement("button");
+                    delBtn.textContent = "刪除"
+                    const updateBtn = document.createElement("button");
+                    updateBtn.textContent = "修改"
+                    td.appendChild(delBtn);
+                    td.appendChild(updateBtn);
+                    tr.appendChild(codeTd);
+                    tr.appendChild(nameTd);
+                    tr.appendChild(td);
+                    tbody.appendChild(tr);
+
+                    delBtn.addEventListener("click", () => {
+
+                        fetch('../Stock?method=Delete', {
+                            method: "POST",
+                            headers: {
+                                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+                            },
+                            body: new URLSearchParams({'stockId': stock.stockId})
+                        }).then(response => {
+                            if (response.ok) {
+                                location.reload(); // 重新整理，看到最新的股票清單
+                            }
+                        })
+                    })
+                    updateBtn.addEventListener("click", () => {
+                        const updatedData = {
+                            stockId: stock.stockId,
+                            stockName: nameInput.value
+                        };
+                        fetch('../Stock?method=Update', {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json; charset=UTF-8"
+                            },
+                            body: JSON.stringify(updatedData)
+                        }).then(response => {
+                            if (response.ok) {
+                                location.reload(); // 重新整理，看到最新的股票清單
+                            }
+                        })
+                    })
+                });
+            })
+            .catch(error => {
+                console.error("發生錯誤:", error);
+                alert("資料載入失敗，請檢查控制台");
+            });
+    };
+</script>
+</body>
+</html>
