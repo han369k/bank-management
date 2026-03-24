@@ -153,48 +153,22 @@
     <div class="col-md-4">
       <div class="module-card">
         <div class="module-header">
-          <i class="bi bi-cash-stack"></i>
-          <span>Loan 貸款</span>
-        </div>
-        <div class="module-body">
-          <a class="feature-link disabled">
-            <i class="bi bi-file-earmark-plus"></i> 申請貸款
-            <span class="badge-wip">待接入</span>
-          </a>
-          <a class="feature-link disabled">
-            <i class="bi bi-check2-circle"></i> 審核申請
-            <span class="badge-wip">待接入</span>
-          </a>
-          <a class="feature-link disabled">
-            <i class="bi bi-search"></i> 查詢貸款
-            <span class="badge-wip">待接入</span>
-          </a>
-        </div>
-      </div>
-    </div>
-
-    <div class="col-md-4">
-      <div class="module-card">
-        <div class="module-header">
           <i class="bi bi-credit-card"></i>
           <span>Card 信用卡</span>
         </div>
         <div class="module-body">
-          <a class="feature-link disabled">
-            <i class="bi bi-file-earmark-plus"></i> 申請信用卡
-            <span class="badge-wip">待接入</span>
+          <a class="feature-link" href="card?action=new">
+            <i class="bi bi-plus-circle"></i> 新增信用卡
           </a>
-          <a class="feature-link disabled">
-            <i class="bi bi-search"></i> 查詢申請狀態
-            <span class="badge-wip">待接入</span>
+          <a class="feature-link" href="card">
+            <i class="bi bi-card-list"></i> 查詢/修改/刪除信用卡
           </a>
-          <a class="feature-link disabled">
-            <i class="bi bi-card-list"></i> 查詢持卡紀錄
-            <span class="badge-wip">待接入</span>
+          <div class="divider"></div>
+          <a class="feature-link" href="view/card-billcurrent.jsp">
+            <i class="bi bi-receipt"></i> 查詢當期帳單
           </a>
-          <a class="feature-link disabled">
-            <i class="bi bi-sliders"></i> 修改卡片狀態
-            <span class="badge-wip">待接入</span>
+          <a class="feature-link" href="view/card-billdetail.jsp">
+            <i class="bi bi-file-text"></i> 查詢帳單明細
           </a>
         </div>
       </div>
@@ -217,9 +191,23 @@
       </div>
     </div>
 
-  </div>
-</div>
+    <div class="col-md-4">
+      <div class="module-card">
+        <div class="module-header">
+          <i class="bi bi-cash-stack"></i>
+          <span>Loan 貸款</span>
+        </div>
+        <div class="module-body">
+          <a class="feature-link" href="view/UserLoanApply.jsp">
+            <i class="bi bi-file-earmark-plus"></i> 申請貸款 (客戶端)
+          </a>
+          <a class="feature-link" href="LoanApply">
+            <i class="bi bi-check2-circle"></i> 審核 / 查詢貸款總表
+          </a>
+        </div>
+      </div>
+    </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </div> </div> <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

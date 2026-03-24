@@ -14,9 +14,9 @@
   <div class="container-fluid px-4">
     <a class="navbar-brand" href="/bank_management/index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
     <div class="navbar-nav ms-3">
-      <a class="nav-link active" href="account-list.html">帳戶列表</a>
-      <a class="nav-link" href="account-create.html">新增帳戶</a>
-      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+      <a class="nav-link active" href="/bank_management/view?page=account-list">帳戶列表</a>
+      <a class="nav-link" href="/bank_management/view?page=account-create">新增帳戶</a>
+      <a class="nav-link" href="/bank_management/view?page=translog-search">交易紀錄</a>
     </div>
   </div>
 </nav>
@@ -84,7 +84,7 @@
 </div>
 
 <script>
-const ctx = '/bank-management';
+const ctx = '/bank_management';
 
 function statusBadge(s) {
   const cls = s === 'ACTIVE' ? 'badge-active' : s === 'FROZEN' ? 'badge-frozen' : 'badge-closed';
@@ -136,7 +136,7 @@ async function loadAccounts() {
           <td>${statusBadge(a.status)}</td>
           <td>${a.createAt ? a.createAt.replace('T',' ').slice(0,16) : '-'}</td>
           <td>
-            <a href="account-detail.html?account=${a.account}" class="btn btn-sm btn-outline-secondary">
+            <a href="/bank_management/view?page=account-detail&account=${a.account}" class="btn btn-sm btn-outline-secondary">
               <i class="bi bi-arrow-right"></i> 詳情
             </a>
           </td>

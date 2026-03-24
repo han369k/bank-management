@@ -95,7 +95,7 @@ public class BillController extends HttpServlet {
 	    request.setAttribute("calculatedRemaining", remaining);
 	    request.setAttribute("customerId", customerId);
 
-	    request.getRequestDispatcher("/WEB-INF/views/creditCard/billDetail.jsp")
+	    request.getRequestDispatcher("/WEB-INF/views/creditCard/card-billdetail.jsp")
 	           .forward(request, response);
 
 
@@ -119,7 +119,7 @@ public class BillController extends HttpServlet {
 	    }
 
 	    request.setAttribute("billList", bills);
-		request.getRequestDispatcher("/WEB-INF/views/creditCard/billCurrent.jsp").forward(request, response);
+		request.getRequestDispatcher("/view/card-billcurrent.jsp").forward(request, response);
 	}
 	//付款
 	private void payBill(HttpServletRequest request,HttpServletResponse response) throws IOException {

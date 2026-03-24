@@ -1,77 +1,192 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: #f0f2f5;
-  font-size: 14px;
+/* 全域字體與背景強制設定 */
+* {
+  /* 加上 !important 確保字體不會被 Bootstrap 蓋掉 */
+  font-family: 'Inter', "Microsoft JhengHei", sans-serif !important;
 }
 
-/* Navbar */
-.navbar { background: #1a1d23 !important; }
-.navbar-brand { font-weight: 600; letter-spacing: 0.5px; color: #fff !important; }
-.nav-link { color: #adb5bd !important; font-size: 13px; }
-.nav-link:hover, .nav-link.active { color: #fff !important; }
+body {
+  background: #f0f2f5 !important;
+  font-size: 14px;
+  color: #1a1d23;
+}
 
-/* Page wrapper */
-.page-wrapper { max-width: 1100px; margin: 0 auto; padding: 28px 16px; }
-.page-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #1a1d23; }
+/* Navbar 導覽列風格強化 */
+.navbar {
+  background: #1a1d23 !important;
+  padding: 0.5rem 1rem;
+}
 
-/* Cards */
-.card { border: none; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); margin-bottom: 20px; }
-.card-header { background: #fff; border-bottom: 1px solid #eee; font-weight: 600; font-size: 13px; padding: 12px 20px; border-radius: 8px 8px 0 0 !important; text-transform: uppercase; letter-spacing: 0.4px; color: #555; }
-.card-body { padding: 20px; }
+.navbar-brand {
+  font-weight: 600 !important;
+  letter-spacing: 0.5px;
+  color: #fff !important;
+  font-size: 18px !important;
+}
 
-/* Form */
-label { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 4px; }
-.form-control, .form-select { font-size: 13px; border-radius: 6px; border: 1px solid #ddd; padding: 7px 10px; }
-.form-control:focus, .form-select:focus { border-color: #6c757d; box-shadow: 0 0 0 2px rgba(108,117,125,.15); }
+.nav-link {
+  color: #adb5bd !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  padding: 0.5rem 1rem !important;
+  transition: color 0.2s;
+}
 
-/* Buttons */
-.btn { font-size: 13px; border-radius: 6px; font-weight: 500; }
-.btn-primary { background: #1a1d23; border-color: #1a1d23; }
-.btn-primary:hover { background: #2d3139; border-color: #2d3139; }
-.btn-outline-secondary { color: #555; border-color: #ccc; }
-.btn-outline-secondary:hover { background: #f5f5f5; color: #333; border-color: #bbb; }
+.nav-link:hover {
+  color: #ffffff !important;
+}
 
-/* Table */
-.table { font-size: 13px; }
-.table thead th { background: #1a1d23; color: #fff; font-weight: 500; font-size: 11px; text-transform: uppercase; letter-spacing: 0.4px; border: none; padding: 10px 14px; }
-.table thead th:first-child { border-radius: 6px 0 0 0; }
-.table thead th:last-child  { border-radius: 0 6px 0 0; }
-.table tbody td { padding: 10px 14px; vertical-align: middle; border-bottom: 1px solid #f0f0f0; }
-.table tbody tr:last-child td { border-bottom: none; }
-.table tbody tr:hover td { background: #fafafa; }
-.table-wrapper { border-radius: 6px; overflow: hidden; border: 1px solid #eee; }
+.nav-link.active {
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid #ffffff;
+}
 
-/* Badges */
-.badge-status { font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 20px; text-transform: uppercase; letter-spacing: 0.3px; }
-.badge-active { background: #d1f5e0; color: #0a7a3e; }
-.badge-frozen { background: #dce8ff; color: #1a4fcc; }
-.badge-closed { background: #ebebeb; color: #666; }
+/* Page wrapper 頁面容器 */
+.page-wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 16px;
+}
 
-/* Amounts */
-.amount-pos { color: #0a7a3e; font-weight: 500; }
-.amount-neg { color: #c0392b; font-weight: 500; }
+.page-title {
+  font-size: 20px !important;
+  font-weight: 600 !important;
+  margin-bottom: 20px;
+  color: #1a1d23;
+}
 
-/* Alert messages */
-.alert { font-size: 13px; border-radius: 6px; padding: 10px 14px; }
+/* Cards 卡片樣式 */
+.card, .card-box {
+  border: none !important;
+  border-radius: 8px !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,.08) !important;
+  margin-bottom: 20px;
+  background: #fff;
+}
 
-/* Danger zone */
-.danger-zone { border: 1px solid #f5c2c7; border-radius: 8px; padding: 16px; background: #fff8f8; }
-.danger-zone .card-header-text { font-weight: 600; color: #c0392b; font-size: 13px; margin-bottom: 8px; }
+.card-header {
+  background: #fff !important;
+  border-bottom: 1px solid #eee !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  padding: 12px 20px !important;
+  border-radius: 8px 8px 0 0 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: #555;
+}
 
-/* Pagination */
-.pagination .page-link { font-size: 12px; color: #444; border-color: #ddd; }
-.pagination .page-item.active .page-link { background: #1a1d23; border-color: #1a1d23; }
-.pagination .page-item.disabled .page-link { color: #bbb; }
+.card-body {
+  padding: 20px !important;
+}
 
-/* Info table inside card */
-.info-table td { padding: 6px 0; font-size: 13px; }
-.info-table td:first-child { color: #888; width: 120px; font-size: 12px; }
-.info-table td:last-child  { font-weight: 500; }
+/* Form 表單元件 */
+label {
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  color: #555 !important;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  margin-bottom: 4px;
+  display: inline-block;
+}
 
-/* Empty state */
-.empty-state { text-align: center; padding: 32px; color: #aaa; font-size: 13px; }
+.form-control, .form-select {
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  border: 1px solid #ddd !important;
+  padding: 7px 10px !important;
+}
 
-/* Ref ID truncate */
-.ref-id { font-size: 11px; color: #888; font-family: monospace; }
+.form-control:focus, .form-select:focus {
+  border-color: #6c757d !important;
+  box-shadow: 0 0 0 2px rgba(108,117,125,.15) !important;
+  outline: none;
+}
+
+/* Buttons 按鈕樣式 */
+.btn {
+  font-size: 13px !important;
+  border-radius: 6px !important;
+  font-weight: 500 !important;
+  padding: 6px 16px;
+}
+
+.btn-primary {
+  background: #1a1d23 !important;
+  border-color: #1a1d23 !important;
+  color: #fff !important;
+}
+
+.btn-primary:hover {
+  background: #2d3139 !important;
+  border-color: #2d3139 !important;
+}
+
+.btn-outline-secondary {
+  color: #555 !important;
+  border-color: #ccc !important;
+}
+
+.btn-outline-secondary:hover {
+  background: #f5f5f5 !important;
+  color: #333 !important;
+  border-color: #bbb !important;
+}
+
+/* Table 資料表樣式 */
+.table {
+  font-size: 13px !important;
+}
+
+.table thead th {
+  background: #1a1d23 !important;
+  color: #fff !important;
+  font-weight: 500 !important;
+  font-size: 11px !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.4px;
+  border: none !important;
+  padding: 12px 14px !important;
+}
+
+/* 圓角處理 */
+.table-responsive, .table-wrapper {
+  border-radius: 8px !important;
+  overflow: hidden;
+  border: 1px solid #eee !important;
+}
+
+.table tbody td {
+  padding: 12px 14px !important;
+  vertical-align: middle !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+}
+
+.table tbody tr:hover td {
+  background: #fafafa !important;
+}
+
+/* Badges 標籤狀態 */
+.badge-status {
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  padding: 4px 10px !important;
+  border-radius: 20px !important;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.badge-active { background: #d1f5e0 !important; color: #0a7a3e !important; }
+.badge-frozen { background: #dce8ff !important; color: #1a4fcc !important; }
+.badge-closed { background: #ebebeb !important; color: #666 !important; }
+
+/* 金額與文字顏色 */
+.amount-pos, .text-success { color: #0a7a3e !important; font-weight: 500 !important; }
+.amount-neg, .text-danger { color: #c0392b !important; font-weight: 500 !important; }
+
+/* 其他輔助樣式 */
+.divider { border-top: 1px solid #f0f0f0; margin: 8px 0; }
+.font-monospace { font-family: monospace !important; font-size: 12px; }

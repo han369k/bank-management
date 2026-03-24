@@ -18,7 +18,7 @@ public class HomeController extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		RequestDispatcher rd =request.getRequestDispatcher("/WEB-INF/views/creditCard/creditCardHome.jsp");
+		RequestDispatcher rd =request.getRequestDispatcher("/WEB-INF/views/creditCard/credit-cardhome.jsp");
 		rd.forward(request, response);
 	}
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
