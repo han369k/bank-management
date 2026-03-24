@@ -61,11 +61,23 @@ public class LoanApplyServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String status = req.getParameter("status");
+        String minAmountStr = req.getParameter("minAmount");
+        String maxAmountStr = req.getParameter("maxAmount");
+
+        Long minAmount = (minAmountStr != null && !minAmountStr.isEmpty()) ? Long.parseLong(minAmountStr) : null;
+        Long maxAmount = (maxAmountStr != null && !maxAmountStr.isEmpty()) ? Long.parseLong(maxAmountStr) : null;
+
         List<LoanApplyBean> list;
-        if (status != null && !status.isEmpty()) {
+
+        // 有任何篩選條件 → 用 getByStatus
+        boolean hasFilter = (status != null && !status.isEmpty()) || minAmount != null || maxAmount != null;
+
+        if (hasFilter) {
             list = loanDao.getByStatus(
-                    List.of(LoanApplyDao.LoanStatus.valueOf(status)),
-                    null, null, null
+                    (status != null && !status.isEmpty())
+                            ? List.of(LoanApplyDao.LoanStatus.valueOf(status))
+                            : null,
+                    minAmount, maxAmount
             );
         } else {
             list = loanDao.getAll();

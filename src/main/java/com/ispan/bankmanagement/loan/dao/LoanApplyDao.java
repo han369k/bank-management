@@ -10,6 +10,9 @@ import java.util.List;
 
 public class LoanApplyDao {
 
+    // ===============================
+    // 🔹 統一處理狀態
+    // ===============================
     public enum LoanStatus {
         PENDING,
         PENDING_CONFIRM,
@@ -17,9 +20,6 @@ public class LoanApplyDao {
         REJECTED;
     }
 
-    // ===============================
-    // 統一狀態修改方法
-    // ===============================
     private void updateStatus(Connection conn,
                               String applicationId,
                               LoanStatus from,
@@ -33,7 +33,7 @@ public class LoanApplyDao {
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setString(1, to.name());
+            ps.setString(1, to.name()); // to.name() = enum → 字串
             ps.setString(2, applicationId);
 
             int rows = ps.executeUpdate();
@@ -72,10 +72,9 @@ public class LoanApplyDao {
     }
 
     // ===============================
-    // 🔹 2. 查詢status（條件式）
+    // 🔹 2. 依據status查詢
     // ===============================
     public List<LoanApplyBean> getByStatus(List<LoanStatus> statusList,
-                                           String customerId,
                                            Long minAmount,
                                            Long maxAmount) {
 
@@ -92,11 +91,6 @@ public class LoanApplyDao {
                 if (i < statusList.size() - 1) sql.append(",");
             }
             sql.append(") ");
-        }
-
-        // 附加條件 : 客戶ID
-        if (customerId != null && !customerId.isEmpty()) {
-            sql.append("AND customer_id = ? ");
         }
         // 附加條件 : 最小貸款金額
         if (minAmount != null) {
@@ -119,10 +113,6 @@ public class LoanApplyDao {
                 for (LoanStatus status : statusList) {
                     ps.setString(index++, status.name());
                 }
-            }
-
-            if (customerId != null && !customerId.isEmpty()) {
-                ps.setString(index++, customerId);
             }
             if (minAmount != null) {
                 ps.setLong(index++, minAmount);

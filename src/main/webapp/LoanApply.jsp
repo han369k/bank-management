@@ -1,7 +1,11 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
 <%@ page import="com.ispan.bankmanagement.loan.vo.LoanApplyBean" %>
-<%String selectedStatus = request.getParameter("status");%>
+<%
+    String selectedStatus = request.getParameter("status");
+    String paramMin = request.getParameter("minAmount");
+    String paramMax = request.getParameter("maxAmount");
+%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -98,14 +102,25 @@
     </form>
     <% } %>
 </div>
-<select id="statusFilter" onchange="location.href='LoanApply?status=' + this.value">
-    <option value="">全部</option>
-    <option value="PENDING" <%= "PENDING".equals(selectedStatus) ? "selected" : "" %>>待審核</option>
-    <option value="PENDING_CONFIRM" <%= "PENDING_CONFIRM".equals(selectedStatus) ? "selected" : "" %>>待客戶確認</option>
-    <option value="APPROVED" <%= "APPROVED".equals(selectedStatus) ? "selected" : "" %>>已核准</option>
-    <option value="REJECTED" <%= "REJECTED".equals(selectedStatus) ? "selected" : "" %>>已拒絕</option>
-</select>
-<br>
+
+<div style="margin:10px 0;">
+    狀態：
+    <select id="statusFilter" onchange="doFilter()">
+        <option value="">全部</option>
+        <option value="PENDING" <%= "PENDING".equals(selectedStatus) ? "selected" : "" %>>待審核</option>
+        <option value="PENDING_CONFIRM" <%= "PENDING_CONFIRM".equals(selectedStatus) ? "selected" : "" %>>待客戶確認</option>
+        <option value="APPROVED" <%= "APPROVED".equals(selectedStatus) ? "selected" : "" %>>已核准</option>
+        <option value="REJECTED" <%= "REJECTED".equals(selectedStatus) ? "selected" : "" %>>已拒絕</option>
+    </select>
+
+    &nbsp;&nbsp;申請金額：
+    <input type="number" id="minAmount" placeholder="最小金額" style="width:100px;"
+           value="<%= paramMin != null ? paramMin : "" %>">
+    ～
+    <input type="number" id="maxAmount" placeholder="最大金額" style="width:100px;"
+           value="<%= paramMax != null ? paramMax : "" %>">
+    <button onclick="doFilter()" style="padding:4px 12px;">查詢</button>
+</div>
 <table>
     <tr>
         <th class="sortable" onclick="sortTable(0)">申請編號 <span class="arrow"></span></th>
@@ -258,6 +273,22 @@
 
 </table>
 <script>
+    // ===============================
+    // ⭐ 篩選查詢（狀態 + 金額區間）
+    // ===============================
+    function doFilter() {
+        var status = document.getElementById("statusFilter").value;
+        var minAmt = document.getElementById("minAmount").value;
+        var maxAmt = document.getElementById("maxAmount").value;
+
+        var params = [];
+        if (status) params.push("status=" + status);
+        if (minAmt) params.push("minAmount=" + minAmt);
+        if (maxAmt) params.push("maxAmount=" + maxAmt);
+
+        location.href = "LoanApply" + (params.length > 0 ? "?" + params.join("&") : "");
+    }
+
     // ===============================
     // ⭐ 貸款種類 → 對應期數
     // ===============================
