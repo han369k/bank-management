@@ -2,7 +2,7 @@ CREATE TABLE [ADMINISTRATOR] (
     [admin_id] int PRIMARY KEY,
     [username] nvarchar(50),
     [password_hash] varchar(255),
-    [name] varchar(50),
+    [name] nvarchar(50),
     [email] varchar(100),
     [phone_number] varchar(20),
     [role] varchar(20),

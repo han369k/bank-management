@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>新增客戶 - Bank Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="../index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link" href="../index.html">首頁</a>
+      <a class="nav-link" href="account-list.html">帳戶</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+      <a class="nav-link" href="stock-getall.html">股票</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="container-fluid">
+
+    <!-- 標題與返回按鈕 -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="page-title"><i class="bi bi-person-plus me-2"></i>新增客戶</h2>
+        <p class="text-muted small mb-0">輸入客戶基本資料以建立新檔案</p>
+      </div>
+      <a href="../index.html" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-house me-1"></i>返回首頁
+      </a>
+    </div>
+
+    <!-- ===== 區塊二：新增顧客 (改寫為 Bootstrap 樣式) ===== -->
+    <div class="card card-custom mb-4">
+      <div class="card-header bg-white">
+        <i class="bi bi-file-earmark-person me-2"></i>客戶資料表單
+      </div>
+      <div class="card-body p-4">
+
+        <!-- 成功/錯誤訊息區塊 (預設隱藏) -->
+        <div id="alertMessage" class="alert d-none" role="alert"></div>
+
+        <form id="cust-insert-form">
+          <input type="hidden" name="action" value="insert">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="cust-new-id" class="form-label text-muted small">顧客代號 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cust-new-id" name="customerId" placeholder="例：C2026008" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-idno" class="form-label text-muted small">身分證字號 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cust-new-idno" name="idNumber" placeholder="例：A123456789" maxlength="10" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-name" class="form-label text-muted small">姓名 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cust-new-name" name="name" placeholder="例：王小明" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-dob" class="form-label text-muted small">生日</label>
+              <input type="date" class="form-control" id="cust-new-dob" name="dateOfBirth">
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-phone" class="form-label text-muted small">電話</label>
+              <input type="text" class="form-control" id="cust-new-phone" name="phone" placeholder="例：0912-345-678">
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-email" class="form-label text-muted small">Email</label>
+              <input type="email" class="form-control" id="cust-new-email" name="email" placeholder="例：test@gmail.com">
+            </div>
+
+            <div class="col-12">
+              <label for="cust-new-addr" class="form-label text-muted small">地址</label>
+              <input type="text" class="form-control" id="cust-new-addr" name="address" placeholder="例：台北市信義區松智路1號">
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-income" class="form-label text-muted small">月收入 (元)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light">$</span>
+                <input type="number" class="form-control" id="cust-new-income" name="income" placeholder="例：50000" min="0">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-credit" class="form-label text-muted small">信用分數</label>
+              <input type="number" class="form-control" id="cust-new-credit" name="creditScore" placeholder="例：700" min="300" max="850">
+            </div>
+
+            <div class="col-12 mt-4 text-end">
+              <button type="button" class="btn btn-light me-2" onclick="window.location.href='../index.html'">取消</button>
+              <button type="submit" class="btn btn-primary" id="btnSubmit">
+                <i class="bi bi-check-lg me-1"></i>新增顧客
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- 查詢結果區塊 (從 JSP 移過來，用於顯示結果) -->
+    <div id="resultCard" class="card card-custom mb-4 d-none">
+        <div class="card-header bg-white" id="resultHeader">
+            <i class="bi bi-info-circle me-2"></i>操作結果
+        </div>
+        <div class="card-body p-4" id="resultBody">
+            <!-- 結果會在這裡顯示 -->
+        </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  document.getElementById('cust-insert-form').addEventListener('submit', async function(event) {
+    event.preventDefault(); // 防止表單預設提交行為
+
+    const btnSubmit = document.getElementById('btnSubmit');
+    const alertBox = document.getElementById('alertMessage');
+    const resultCard = document.getElementById('resultCard');
+    const resultBody = document.getElementById('resultBody');
+
+    // 禁用按鈕避免重複提交
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>處理中...';
+
+    // 使用 URLSearchParams 收集表單資料
+    const formData = new FormData(this);
+    const searchParams = new URLSearchParams();
+    for (const pair of formData.entries()) {
+        searchParams.append(pair[0], pair[1].toString());
+    }
+
+    try {
+        const response = await fetch('../CustomerServlet', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
+          },
+          body: searchParams
+        });
+
+        if (!response.ok) {
+             throw new Error('網路回應不成功');
+        }
+
+        const htmlString = await response.text();
+        const isSuccess = htmlString.includes("✅ 新增成功");
+        const isError = htmlString.includes("❌ 新增失敗") || htmlString.includes("資料格式有誤");
+
+        if (isSuccess) {
+            alertBox.className = 'alert alert-success d-flex align-items-center';
+            alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><div>新增成功！</div>';
+            alertBox.classList.remove('d-none');
+
+            // 清空表單
+            document.getElementById('cust-insert-form').reset();
+
+            // 顯示更詳細的結果
+            resultCard.classList.remove('d-none');
+            resultBody.innerHTML = '<p class="text-success">顧客資料已成功建立。</p>';
+
+        } else if (isError) {
+            alertBox.className = 'alert alert-danger d-flex align-items-center';
+            alertBox.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><div>新增失敗，請檢查資料或確認是否重複。</div>';
+            alertBox.classList.remove('d-none');
+        } else {
+             // 如果無法確定，就直接把回傳的 HTML 的 body 內容塞進去顯示
+             resultCard.classList.remove('d-none');
+
+             // 安全地解析 HTML
+             const parser = new DOMParser();
+             const doc = parser.parseFromString(htmlString, 'text/html');
+             resultBody.innerHTML = doc.body ? doc.body.innerHTML : htmlString;
+        }
+    } catch (error) {
+      console.error("發生錯誤:", error);
+      alertBox.className = 'alert alert-danger d-flex align-items-center';
+      alertBox.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><div>處理失敗，請檢查網路或聯絡管理員。</div>';
+      alertBox.classList.remove('d-none');
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = '<i class="bi bi-check-lg me-1"></i>新增顧客';
+    }
+  });
+</script>
+</body>
+</html>

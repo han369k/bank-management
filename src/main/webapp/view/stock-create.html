@@ -12,12 +12,12 @@
 
 <nav class="navbar navbar-expand-lg">
   <div class="container-fluid px-4">
-    <a class="navbar-brand" href="index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <a class="navbar-brand" href="../index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
     <div class="navbar-nav ms-3">
-      <a class="nav-link" href="index.html">首頁</a>
+      <a class="nav-link" href="../index.html">首頁</a>
       <a class="nav-link" href="account-list.html">帳戶</a>
       <a class="nav-link" href="translog-search.html">交易紀錄</a>
-      <a class="nav-link active" href="stock-getallstocks.html">股票</a>
+      <a class="nav-link active" href="stock-getall.html">股票</a>
     </div>
   </div>
 </nav>
@@ -29,7 +29,7 @@
         <h2 class="page-title"><i class="bi bi-plus-circle me-2"></i>新增股票</h2>
         <p class="text-muted small mb-0">輸入股票代碼與名稱以建立新資料</p>
       </div>
-      <a href="stock-getallstocks.html" class="btn btn-outline-secondary btn-sm">
+      <a href="stock-getall.html" class="btn btn-outline-secondary btn-sm">
         <i class="bi bi-arrow-left me-1"></i>返回列表
       </a>
     </div>
@@ -51,7 +51,7 @@
             </div>
 
             <div class="col-12 mt-4 text-end">
-              <button type="button" class="btn btn-light me-2" onclick="window.location.href='stock-getallstocks.html'">取消</button>
+              <button type="button" class="btn btn-light me-2" onclick="window.location.href='stock-getall.html'">取消</button>
               <button type="submit" class="btn btn-primary" id="btnSubmit">
                 <i class="bi bi-check-lg me-1"></i>確認新增
               </button>
@@ -95,7 +95,7 @@
       }
       return response.text();
     })
-    .then(data => {
+    .then(() => {
       // 顯示成功訊息
       alertBox.className = 'alert alert-success d-flex align-items-center';
       alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><div>股票 ' + stockId + ' 新增成功！即將返回列表...</div>';
@@ -106,7 +106,7 @@
 
       // 1.5秒後導向列表頁
       setTimeout(() => {
-        window.location.href = 'stock-getallstocks.html';
+        window.location.href = 'stock-getall.html';
       }, 1500);
     })
     .catch(error => {

@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>查詢客戶 - Bank Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .search-section {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 20px;
+      border: 1px solid #e9ecef;
+    }
+    .status-select {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 2px 5px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="../index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link" href="../index.html">首頁</a>
+      <a class="nav-link" href="account-list.html">帳戶</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+      <a class="nav-link" href="stock-getall.html">股票</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <div>
+        <h2 class="page-title"><i class="bi bi-people me-2"></i>客戶列表</h2>
+        <p class="text-muted small mb-0">查詢、修改或刪除客戶資料</p>
+      </div>
+      <div>
+        <a href="customer-create.html" class="btn btn-primary btn-sm me-2">
+          <i class="bi bi-plus-lg me-1"></i>新增客戶
+        </a>
+        <a href="../index.html" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-house me-1"></i>返回首頁
+        </a>
+      </div>
+    </div>
+
+    <div id="alertMessage" class="alert d-none" role="alert"></div>
+
+    <div class="search-section d-flex flex-wrap align-items-center gap-3">
+      <div class="fw-bold text-secondary">
+        <i class="bi bi-search me-1"></i> 單筆查詢
+      </div>
+      <div class="input-group input-group-sm" style="max-width: 300px;">
+        <span class="input-group-text bg-white"><i class="bi bi-person-badge"></i></span>
+        <label for="idNumberInput" class="d-none">輸入身分證字號</label>
+        <input type="text" id="idNumberInput" class="form-control" placeholder="輸入身分證字號" maxlength="10">
+        <button class="btn btn-outline-primary" type="button" onclick="searchCustomer()">查詢</button>
+      </div>
+      <button class="btn btn-outline-secondary btn-sm" type="button" onclick="loadAllCustomers()">
+        <i class="bi bi-arrow-counterclockwise me-1"></i>顯示全部
+      </button>
+    </div>
+
+    <div class="card card-custom">
+      <div class="card-body p-0">
+        <div class="table-responsive table-wrapper">
+          <table class="table table-hover align-middle mb-0 custom-table">
+            <thead>
+            <tr>
+              <th>顧客代號</th>
+              <th>身分證字號</th>
+              <th>姓名</th>
+              <th>電話</th>
+              <th>狀態</th>
+              <th class="text-end">操作</th>
+            </tr>
+            </thead>
+            <tbody id="customerTableBody">
+            <tr>
+              <td colspan="6" class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>資料載入中...
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fs-6 fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>確認刪除</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center py-4">
+        <p class="mb-1 text-muted">確定要刪除客戶 <span id="deleteCustomerName" class="fw-bold text-dark"></span> 嗎？</p>
+        <p class="mb-0 small text-danger">此操作將一併移除相關資料。</p>
+      </div>
+      <div class="modal-footer border-0 pt-0 justify-content-center">
+        <button type="button" class="btn btn-light btn-sm px-3" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-danger btn-sm px-3" id="confirmDeleteBtn">確定刪除</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="detailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-light border-0">
+        <h5 class="modal-title fs-6 fw-bold"><i class="bi bi-person-lines-fill me-2"></i>客戶詳細資料</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <table class="table table-borderless info-table mb-0">
+          <tbody id="detailTableBody">
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">關閉</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal fade" id="editModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow">
+      <div class="modal-header bg-light border-0">
+        <h5 class="modal-title fs-6 fw-bold"><i class="bi bi-pencil-square me-2"></i>編輯客戶資料</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body p-4">
+        <form id="editCustomerForm">
+          <input type="hidden" id="editCustomerId" name="customerId">
+
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-1">身分證字號 (不可更改)</label>
+            <input type="text" class="form-control bg-light" id="editIdNumber" readonly>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-1">姓名</label>
+            <input type="text" class="form-control" id="editName" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-1">電話</label>
+            <input type="text" class="form-control" id="editPhone" name="phone">
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-1">Email</label>
+            <input type="email" class="form-control" id="editEmail" name="email">
+          </div>
+          <div class="mb-3">
+            <label class="form-label text-muted small mb-1">地址</label>
+            <input type="text" class="form-control" id="editAddress" name="address">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light btn-sm" data-bs-dismiss="modal">取消</button>
+        <button type="button" class="btn btn-primary btn-sm px-4" onclick="submitEdit()">儲存變更</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  let currentCustomerIdToDelete = null;
+  let deleteModalInstance = null;
+  let detailModalInstance = null;
+
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.bootstrap !== 'undefined') {
+      deleteModalInstance = new bootstrap.Modal(document.getElementById('deleteModal'));
+      detailModalInstance = new bootstrap.Modal(document.getElementById('detailModal'));
+    } else {
+      console.error('Bootstrap is not loaded. Modals will not work.');
+    }
+
+    // 初始化載入
+    loadAllCustomers();
+
+    // 綁定搜尋輸入框 Enter 鍵
+    document.getElementById("idNumberInput").addEventListener("keypress", function(event) {
+      if (event.key === "Enter") {
+        event.preventDefault();
+        searchCustomer();
+      }
+    });
+
+    // 綁定確認刪除按鈕
+    document.getElementById('confirmDeleteBtn').addEventListener('click', executeDelete);
+  });
+
+  function showAlert(message, type = 'success') {
+    const alertBox = document.getElementById('alertMessage');
+    alertBox.className = `alert alert-${type} d-flex align-items-center`;
+
+    let icon = type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill';
+    alertBox.innerHTML = `<i class="bi ${icon} me-2"></i><div>${message}</div>`;
+    alertBox.classList.remove('d-none');
+
+    // 3秒後自動隱藏
+    setTimeout(() => {
+      alertBox.classList.add('d-none');
+    }, 3000);
+  }
+
+  function parseHtmlToData(htmlStr) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(htmlStr, "text/html");
+
+    const table = doc.querySelector('table');
+    const rows = [];
+
+    if (table) {
+      const trs = table.querySelectorAll('tr');
+      for (let i = 1; i < trs.length; i++) {
+        const tds = trs[i].querySelectorAll('td');
+        if (tds.length >= 8) {
+          rows.push({
+            customerId: tds[0].innerText.trim(),
+            idNumber: tds[1].innerText.trim(),
+            name: tds[2].innerText.trim(),
+            dateOfBirth: tds[3].innerText.trim(),
+            phone: tds[4].innerText.trim(),
+            email: tds[5].innerText.trim(),
+            address: tds[6].innerText.trim(),
+            status: tds[7] ? tds[7].innerText.trim() : 'Active'
+          });
+        }
+      }
+    }
+
+    const actionMsg = doc.body.innerText.includes("✅") ? "操作成功" :
+            (doc.body.innerText.includes("❌") ? "操作失敗" : null);
+
+    return { rows, rawHtml: htmlStr, actionMsg };
+  }
+
+  async function loadAllCustomers() {
+    const tbody = document.getElementById("customerTableBody");
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>載入中...</td></tr>';
+    document.getElementById("idNumberInput").value = '';
+
+    try {
+      const res = await fetch('../CustomerServlet?action=list');
+      if(!res.ok) {
+        console.error("網路請求失敗", res.status);
+        throw new Error(`網路請求失敗: ${res.status}`);
+      }
+      const html = await res.text();
+      const data = parseHtmlToData(html);
+      if (data.rows && data.rows.length > 0) {
+        renderTable(data.rows);
+      } else {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="p-3">${html}</div></td></tr>`;
+      }
+    } catch(err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-2"></i>載入失敗：${err.message}</td></tr>`;
+    }
+  }
+
+  async function searchCustomer() {
+    const idNumber = document.getElementById("idNumberInput").value.trim();
+    if (!idNumber) {
+      showAlert("請輸入身分證字號", "danger");
+      return;
+    }
+
+    const tbody = document.getElementById("customerTableBody");
+    tbody.innerHTML = '<tr><td colspan="6" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>搜尋中...</td></tr>';
+
+    try {
+      const res = await fetch(`../CustomerServlet?action=search&idNumber=${encodeURIComponent(idNumber)}`);
+      if(!res.ok) {
+        console.error("網路請求失敗", res.status);
+        throw new Error(`網路請求失敗: ${res.status}`);
+      }
+      const html = await res.text();
+
+      if (html.includes("查無此身分證字號") || html.includes("沒有找到")) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state py-4"><i class="bi bi-info-circle me-2"></i>查無此身分證字號的客戶</td></tr>';
+        return;
+      }
+      const data = parseHtmlToData(html);
+      if (data.rows && data.rows.length > 0) {
+        renderTable(data.rows);
+        showAlert("查詢成功");
+      } else {
+        tbody.innerHTML = `<tr><td colspan="6"><div class="p-3">${html}</div></td></tr>`;
+      }
+    } catch(err) {
+      console.error(err);
+      tbody.innerHTML = `<tr><td colspan="6" class="text-center text-danger py-4"><i class="bi bi-exclamation-triangle me-2"></i>查詢失敗：${err.message}</td></tr>`;
+    }
+  }
+
+  function renderTable(customers) {
+    const tbody = document.getElementById("customerTableBody");
+    tbody.innerHTML = "";
+
+    if (customers.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="empty-state py-4"><i class="bi bi-info-circle me-2"></i>目前沒有客戶資料</td></tr>';
+      return;
+    }
+
+    customers.forEach(c => {
+      const tr = document.createElement("tr");
+
+      const idTd = document.createElement("td");
+      idTd.innerHTML = `<span class="ref-id badge bg-light text-dark border px-2 py-1">${c.customerId}</span>`;
+
+      const idNoTd = document.createElement("td");
+      idNoTd.textContent = c.idNumber;
+
+      const nameTd = document.createElement("td");
+      nameTd.className = "fw-medium";
+      nameTd.innerHTML = `<a href="javascript:void(0)" onclick='showDetail(${JSON.stringify(c)})' class="text-decoration-none">${c.name}</a>`;
+
+      const phoneTd = document.createElement("td");
+      phoneTd.textContent = c.phone || '-';
+
+      const statusTd = document.createElement("td");
+      const currentStatus = c.status || 'Active';
+      statusTd.innerHTML = `
+        <label for="status-${c.customerId}" class="d-none">狀態</label>
+        <select id="status-${c.customerId}" class="status-select" onchange="updateStatus('${c.customerId}', this.value, this)">
+          <option value="Active" ${currentStatus.includes('Active') ? 'selected' : ''}>Active (正常)</option>
+          <option value="Frozen" ${currentStatus.includes('Frozen') ? 'selected' : ''}>Frozen (凍結)</option>
+          <option value="VIP" ${currentStatus.includes('VIP') ? 'selected' : ''}>VIP</option>
+          <option value="Blacklist" ${currentStatus.includes('Blacklist') ? 'selected' : ''}>Blacklist (黑名單)</option>
+        </select>
+      `;
+
+      const actionTd = document.createElement("td");
+      actionTd.className = "text-end";
+      actionTd.innerHTML = `
+        <button class="btn btn-sm btn-outline-primary action-btn me-1" onclick='openEditModal(${JSON.stringify(c)})'>
+          <i class="bi bi-pencil"></i> 編輯
+        </button>
+        <button class="btn btn-sm btn-outline-danger action-btn" onclick="promptDelete('${c.customerId}', '${c.name}')">
+          <i class="bi bi-trash"></i> 刪除
+        </button>
+      `;
+
+      tr.appendChild(idTd);
+      tr.appendChild(idNoTd);
+      tr.appendChild(nameTd);
+      tr.appendChild(phoneTd);
+      tr.appendChild(statusTd);
+      tr.appendChild(actionTd);
+
+      tbody.appendChild(tr);
+    });
+  }
+
+  window.showDetail = function(customer) {
+    const tbody = document.getElementById("detailTableBody");
+    tbody.innerHTML = `
+      <tr><td>客戶代號</td><td><span class="ref-id bg-light border px-2 py-1 rounded">${customer.customerId}</span></td></tr>
+      <tr><td>身分證字號</td><td>${customer.idNumber}</td></tr>
+      <tr><td>姓名</td><td>${customer.name}</td></tr>
+      <tr><td>生日</td><td>${customer.dateOfBirth || '-'}</td></tr>
+      <tr><td>電話</td><td>${customer.phone || '-'}</td></tr>
+      <tr><td>Email</td><td>${customer.email || '-'}</td></tr>
+      <tr><td>地址</td><td>${customer.address || '-'}</td></tr>
+      <tr><td>狀態</td><td><span class="badge ${getBadgeClass(customer.status)}">${customer.status || 'Active'}</span></td></tr>
+    `;
+    if (detailModalInstance) {
+      detailModalInstance.show();
+    }
+  };
+
+  function getBadgeClass(status) {
+    if (!status) return 'badge-active';
+    if (status.includes('Active')) return 'badge-active';
+    if (status.includes('Frozen')) return 'badge-frozen';
+    if (status.includes('VIP')) return 'bg-warning text-dark';
+    if (status.includes('Blacklist')) return 'bg-dark text-white';
+    return 'badge-active';
+  }
+
+  window.updateStatus = async function(customerId, newStatus, selectElement) {
+    const originalValue = selectElement.getAttribute('data-prev') || selectElement.value;
+    selectElement.setAttribute('data-prev', selectElement.value);
+
+    selectElement.disabled = true;
+
+    const params = new URLSearchParams();
+    params.append('action', 'update');
+    params.append('customerId', customerId);
+    params.append('newStatus', newStatus);
+
+    try {
+      const res = await fetch('../CustomerServlet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: params
+      });
+      const html = await res.text();
+      if (html.includes("✅ 修改成功") || html.includes("狀態已更新")) {
+        showAlert(`客戶 ${customerId} 狀態已更新為 ${newStatus}`);
+      } else {
+        showAlert("狀態更新可能失敗，請重新整理確認", "danger");
+        selectElement.value = originalValue;
+      }
+    } catch(err) {
+      console.error(err);
+      showAlert("網路錯誤，狀態更新失敗", "danger");
+      selectElement.value = originalValue;
+    } finally {
+      selectElement.disabled = false;
+    }
+  };
+
+  window.promptDelete = function(customerId, name) {
+    currentCustomerIdToDelete = customerId;
+    document.getElementById('deleteCustomerName').textContent = `${name} (${customerId})`;
+    if (deleteModalInstance) {
+      deleteModalInstance.show();
+    }
+  };
+
+  async function executeDelete() {
+    if (!currentCustomerIdToDelete) return;
+
+    const btn = document.getElementById('confirmDeleteBtn');
+    const origText = btn.innerHTML;
+    btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>刪除中...';
+    btn.disabled = true;
+
+    const params = new URLSearchParams();
+    params.append('action', 'delete');
+    params.append('customerId', currentCustomerIdToDelete);
+
+    try {
+      const res = await fetch('../CustomerServlet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: params
+      });
+      const html = await res.text();
+      if (html.includes("✅ 刪除成功") || html.includes("已從系統中移除")) {
+        showAlert("客戶已成功刪除");
+        if (deleteModalInstance) {
+          deleteModalInstance.hide();
+        }
+        if (document.getElementById("idNumberInput").value) {
+          await searchCustomer();
+        } else {
+          await loadAllCustomers();
+        }
+      } else {
+        showAlert("刪除失敗，該客戶可能不存在或有其他關聯資料", "danger");
+      }
+    } catch(err) {
+      console.error(err);
+      showAlert("網路錯誤，刪除失敗", "danger");
+    } finally {
+      btn.innerHTML = origText;
+      btn.disabled = false;
+    }
+  }
+
+  let editModalInstance = null;
+
+  // 網頁載入時初始化 Edit Modal
+  document.addEventListener('DOMContentLoaded', function() {
+    if (typeof window.bootstrap !== 'undefined') {
+      editModalInstance = new bootstrap.Modal(document.getElementById('editModal'));
+    }
+  });
+
+  // 打開編輯視窗，並把資料塞進表單
+  window.openEditModal = function(customer) {
+    document.getElementById('editCustomerId').value = customer.customerId;
+    document.getElementById('editIdNumber').value = customer.idNumber;
+    document.getElementById('editName').value = customer.name;
+    document.getElementById('editPhone').value = customer.phone || '';
+    document.getElementById('editEmail').value = customer.email || '';
+    document.getElementById('editAddress').value = customer.address || '';
+
+    if (editModalInstance) editModalInstance.show();
+  };
+
+  // 送出編輯表單
+  window.submitEdit = async function() {
+    const customerId = document.getElementById('editCustomerId').value;
+    const name = document.getElementById('editName').value;
+    const phone = document.getElementById('editPhone').value;
+    const email = document.getElementById('editEmail').value;
+    const address = document.getElementById('editAddress').value;
+
+    if (!name) {
+      alert("姓名不能為空！");
+      return;
+    }
+
+    const params = new URLSearchParams();
+    params.append('action', 'updateInfo'); // 注意：我們呼叫一個新的 action 叫做 updateInfo
+    params.append('customerId', customerId);
+    params.append('name', name);
+    params.append('phone', phone);
+    params.append('email', email);
+    params.append('address', address);
+
+    try {
+      const res = await fetch('../CustomerServlet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: params
+      });
+      const html = await res.text();
+
+      if (html.includes("✅") || html.includes("成功")) {
+        showAlert("客戶資料更新成功！");
+        editModalInstance.hide();
+        // 重新整理目前的列表
+        if (document.getElementById("idNumberInput").value) {
+          await searchCustomer();
+        } else {
+          await loadAllCustomers();
+        }
+      } else {
+        showAlert("更新失敗，請檢查後端邏輯", "danger");
+      }
+    } catch(err) {
+      console.error(err);
+      showAlert("網路錯誤，更新失敗", "danger");
+    }
+  };
+</script>
+</body>
+</html>

@@ -5,6 +5,7 @@ import com.ispan.bankmanagement.stock.entity.StockInfoEntity;
 public class StockInfoVO {
     private int stockId;
     private String stockName;
+    private String status;//V2新增: 上市or下市
 
     public static StockInfoVO ConvertEntityToVO(StockInfoEntity stockInfoEntity) {
         StockInfoVO stockInfoVO = new StockInfoVO();
@@ -28,5 +29,13 @@ public class StockInfoVO {
 
     public String getStockName() {
         return stockName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

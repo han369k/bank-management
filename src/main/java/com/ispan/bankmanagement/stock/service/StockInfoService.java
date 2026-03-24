@@ -3,6 +3,7 @@ package com.ispan.bankmanagement.stock.service;
 import com.ispan.bankmanagement.stock.dao.InfoDao;
 import com.ispan.bankmanagement.stock.dto.StockInfoDto;
 import com.ispan.bankmanagement.stock.entity.StockInfoEntity;
+import com.ispan.bankmanagement.stock.vo.StockInfoVO;
 import com.ispan.bankmanagement.util.ConnUtil;
 
 import java.sql.Connection;
@@ -18,6 +19,7 @@ public class StockInfoService {
         StockInfoEntity stockInfoEntity = new StockInfoEntity();
         stockInfoEntity.setStockId(stockInfoDto.getStockId());
         stockInfoEntity.setStockName(stockInfoDto.getStockName());
+        stockInfoEntity.setStatus(Boolean.parseBoolean(stockInfoDto.getStatus()));
         return stockInfoEntity;
     }
 
@@ -25,11 +27,18 @@ public class StockInfoService {
         StockInfoDto stockInfoDto = new StockInfoDto();
         stockInfoDto.setStockId(stockInfoEntity.getStockId());
         stockInfoDto.setStockName(stockInfoEntity.getStockName());
+        //stockInfoDto.setStatus(stockInfoEntity.getStatus());
 
         return stockInfoDto;
     }
 
-
+    public static StockInfoVO ConvertToVO(StockInfoEntity stockInfoEntity) {
+        StockInfoVO stockInfoVO = new StockInfoVO();
+        stockInfoVO.setStockId(stockInfoEntity.getStockId());
+        stockInfoVO.setStockName(stockInfoEntity.getStockName());
+        stockInfoVO.setStatus(stockInfoEntity.getStatus()? "true":"false");
+        return stockInfoVO;
+    }
 
     //新增單筆股票基本資訊
     public boolean InsertStockInfoService(StockInfoDto stockInfoDto) {
@@ -55,17 +64,18 @@ public class StockInfoService {
     }
 
     //取得全部的股票基本資訊
-    public List<StockInfoDto> GetAllStocksInfoService() {
+    public List<StockInfoVO> GetAllStocksInfoService() {
         try (Connection conn = ConnUtil.getConn();) {
             //拿到資料庫原始資料
             List<StockInfoEntity> daoList = stockInfoDao.GetAll(conn);
 
             //完成整份清單的轉換 (Mapping) 將daoList (Stream)，全部轉成 (Map) dto，最後包成一個 List。」
             return daoList.stream()
-                    .map(StockInfoService::ConvertToDto)
+                    .map(StockInfoService::ConvertToVO)
                     .toList();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace(); // 這行能讓你在 IDE 的 Console 看到詳細報錯原因
+            throw new RuntimeException("資料庫查詢出錯: " + e.getMessage());
         }
     }
 
@@ -78,6 +88,7 @@ public class StockInfoService {
             }
             return ConvertToDto(stockInfoEntity);
         } catch (SQLException e) {
+            e.printStackTrace();
             throw new RuntimeException("查詢股票資訊時發生資料庫錯誤，ID: " + id, e);
         }
     }

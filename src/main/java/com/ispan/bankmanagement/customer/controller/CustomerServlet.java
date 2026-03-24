@@ -21,11 +21,11 @@ import java.util.List;
  * 這支 Servlet 處理所有顧客 CRUD 操作。
  * 用一個叫做 "action" 的參數來判斷要做什麼事情：
  *
- *   action=list   → 查詢全部顧客（GET）
- *   action=search → 用身分證查詢（GET）
- *   action=insert → 新增顧客（POST）
- *   action=update → 修改狀態（POST）
- *   action=delete → 刪除顧客（POST）
+ * action=list   → 查詢全部顧客（GET）
+ * action=search → 用身分證查詢（GET）
+ * action=insert → 新增顧客（POST）
+ * action=update → 修改狀態（POST）
+ * action=delete → 刪除顧客（POST）
  */
 @WebServlet("/CustomerServlet")
 public class CustomerServlet extends HttpServlet {
@@ -79,8 +79,8 @@ public class CustomerServlet extends HttpServlet {
                 handleDelete(request, response);
                 break;
             default:
-                // 動作不明，導回首頁
-                response.sendRedirect("customer360.html");
+                // 動作不明，導回新增頁面
+                response.sendRedirect(request.getContextPath() + "/view/customer-create.html");
         }
     }
 
@@ -92,12 +92,12 @@ public class CustomerServlet extends HttpServlet {
 
         List<Customer> customerList = customerDao.findAll();
 
-        // 把資料放進 request，讓 result.jsp 可以取得
+        // 把資料放進 request，讓 JSP 可以取得
         request.setAttribute("customerList", customerList);
         request.setAttribute("actionMessage", "顯示全部顧客（共 " + customerList.size() + " 筆）");
 
         // 轉向結果頁面
-        request.getRequestDispatcher("result.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
     }
 
     /** R - 用身分證查單一顧客 */
@@ -108,14 +108,14 @@ public class CustomerServlet extends HttpServlet {
 
         if (idNumber == null || idNumber.trim().isEmpty()) {
             request.setAttribute("errorMessage", "請輸入身分證字號！");
-            request.getRequestDispatcher("result.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
             return;
         }
 
         Customer customer = customerDao.findByIdNumber(idNumber.trim());
 
         if (customer != null) {
-            // 把找到的顧客放進一個 List，這樣 result.jsp 可以用同一個表格顯示
+            // 把找到的顧客放進一個 List，這樣 JSP 可以用同一個表格顯示
             List<Customer> resultList = new java.util.ArrayList<>();
             resultList.add(customer);
             request.setAttribute("customerList", resultList);
@@ -124,7 +124,7 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("actionMessage", "查無此身分證字號的顧客：" + idNumber);
         }
 
-        request.getRequestDispatcher("result.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
     }
 
     /** C - 新增顧客 */
@@ -164,7 +164,7 @@ public class CustomerServlet extends HttpServlet {
             }
         } catch (Exception e) {
             request.setAttribute("errorMessage", "資料格式有誤，請重新確認！");
-            request.getRequestDispatcher("result.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
             return;
         }
 
@@ -177,7 +177,7 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("errorMessage", "❌ 新增失敗，可能是顧客代號或身分證已存在！");
         }
 
-        request.getRequestDispatcher("result.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
     }
 
     /** U - 修改顧客狀態 */
@@ -189,7 +189,7 @@ public class CustomerServlet extends HttpServlet {
 
         if (customerId == null || customerId.trim().isEmpty()) {
             request.setAttribute("errorMessage", "請輸入顧客代號！");
-            request.getRequestDispatcher("result.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
             return;
         }
 
@@ -201,7 +201,7 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("errorMessage", "❌ 修改失敗，找不到此顧客代號：" + customerId);
         }
 
-        request.getRequestDispatcher("result.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
     }
 
     /** D - 刪除顧客 */
@@ -212,7 +212,7 @@ public class CustomerServlet extends HttpServlet {
 
         if (customerId == null || customerId.trim().isEmpty()) {
             request.setAttribute("errorMessage", "請輸入顧客代號！");
-            request.getRequestDispatcher("result.jsp").forward(request, response);
+            request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
             return;
         }
 
@@ -224,6 +224,6 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("errorMessage", "❌ 刪除失敗，找不到此顧客代號：" + customerId);
         }
 
-        request.getRequestDispatcher("result.jsp").forward(request, response);
+        request.getRequestDispatcher("/view/customer-result.jsp").forward(request, response);
     }
 }

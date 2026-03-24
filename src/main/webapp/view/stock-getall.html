@@ -17,6 +17,7 @@
       width: 100%;
       transition: all 0.2s;
     }
+
     .table-input:focus, .table-input:hover {
       border-color: #dee2e6;
       background-color: #fff;
@@ -67,9 +68,11 @@
       </div>
       <div class="input-group input-group-sm w-auto">
         <span class="input-group-text bg-white"><i class="bi bi-hash"></i></span>
-        <input type="text" id="stockIdInput" class="form-control" placeholder="輸入股號" style="max-width: 150px;">
+        <input type="text" id="stockIdInput" class="form-control" placeholder="輸入股號"
+               style="max-width: 150px;">
         <button class="btn btn-outline-secondary" type="button" onclick="searchSingleStock()">查詢</button>
-        <button class="btn btn-outline-secondary" type="button" onclick="loadAllStocks()" title="清除搜尋並顯示全部">
+        <button class="btn btn-outline-secondary" type="button" onclick="loadAllStocks()"
+                title="清除搜尋並顯示全部">
           <i class="bi bi-arrow-counterclockwise"></i>
         </button>
       </div>
@@ -81,18 +84,21 @@
         <div class="table-responsive table-wrapper">
           <table class="table table-hover align-middle mb-0 custom-table">
             <thead>
-              <tr>
-                <th width="20%">股號 <span class="text-muted fw-normal ms-1">ID</span></th>
-                <th width="50%">股名 <span class="text-muted fw-normal ms-1">Name</span></th>
-                <th width="30%" class="text-end">操作 <span class="text-muted fw-normal ms-1">Actions</span></th>
-              </tr>
+            <tr>
+              <th width="20%">股號 <span class="text-muted fw-normal ms-1">ID</span></th>
+              <th width="20%">股名 <span class="text-muted fw-normal ms-1">Name</span></th>
+              <th width="20%">狀態 <span class="text-muted fw-normal ms-1">Status</span></th>
+              <th width="40%" class="text-end">操作 <span class="text-muted fw-normal ms-1">Actions</span>
+              </th>
+            </tr>
             </thead>
             <tbody id="stockTableBody">
-              <tr>
-                <td colspan="3" class="text-center text-muted py-4">
-                  <div class="spinner-border spinner-border-sm me-2" role="status"></div>資料載入中...
-                </td>
-              </tr>
+            <tr>
+              <td colspan="3" class="text-center text-muted py-4">
+                <div class="spinner-border spinner-border-sm me-2" role="status"></div>
+                資料載入中...
+              </td>
+            </tr>
             </tbody>
           </table>
         </div>
@@ -106,11 +112,13 @@
   <div class="modal-dialog modal-dialog-centered modal-sm">
     <div class="modal-content border-0 shadow">
       <div class="modal-header border-0 pb-0">
-        <h5 class="modal-title fs-6 fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>確認刪除</h5>
+        <h5 class="modal-title fs-6 fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>確認刪除
+        </h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-center py-4">
-        <p class="mb-1 text-muted">確定要刪除股票 <span id="deleteStockName" class="fw-bold text-dark"></span> 嗎？</p>
+        <p class="mb-1 text-muted">確定要刪除股票 <span id="deleteStockName" class="fw-bold text-dark"></span>
+          嗎？</p>
         <p class="mb-0 small text-danger">此操作無法復原。</p>
       </div>
       <div class="modal-footer border-0 pt-0 justify-content-center">
@@ -137,17 +145,17 @@
     document.getElementById("searchMessage").classList.add("d-none");
 
     fetch('../Stock?method=GetAll')
-      .then(response => {
-        if (!response.ok) throw new Error("網路回應不成功");
-        return response.json();
-      })
-      .then(stockList => {
-        renderTable(stockList);
-      })
-      .catch(error => {
-        console.error("發生錯誤:", error);
-        showTableError("資料載入失敗，請檢查網路連線");
-      });
+            .then(response => {
+              if (!response.ok) throw new Error("網路回應不成功");
+              return response.json();
+            })
+            .then(stockList => {
+              renderTable(stockList);
+            })
+            .catch(error => {
+              console.error("發生錯誤:", error);
+              showTableError("資料載入失敗，請檢查網路連線");
+            });
   }
 
   // 查詢單筆股票
@@ -172,27 +180,27 @@
       },
       body: JSON.stringify({stockId: id})
     })
-    .then(response => {
-      if (!response.ok) {
-        if(response.status === 404 || response.status === 500) {
-           throw new Error("找不到該股票");
-        }
-        throw new Error("網路回應不成功");
-      }
-      return response.json();
-    })
-    .then(stockData => {
-      // 雖然是單筆，我們把它包成陣列交給 renderTable 處理
-      if (stockData && stockData.stockId) {
-        renderTable([stockData]);
-      } else {
-        showTableError("找不到符合條件的股票");
-      }
-    })
-    .catch(error => {
-      console.error("發生錯誤:", error);
-      showTableError(error.message || "搜尋發生錯誤");
-    });
+            .then(response => {
+              if (!response.ok) {
+                if (response.status === 404 || response.status === 500) {
+                  throw new Error("找不到該股票");
+                }
+                throw new Error("網路回應不成功");
+              }
+              return response.json();
+            })
+            .then(stockData => {
+              // 雖然是單筆，我們把它包成陣列交給 renderTable 處理
+              if (stockData && stockData.stockId) {
+                renderTable([stockData]);
+              } else {
+                showTableError("找不到符合條件的股票");
+              }
+            })
+            .catch(error => {
+              console.error("發生錯誤:", error);
+              showTableError(error.message || "搜尋發生錯誤");
+            });
   }
 
   // 渲染表格內容
@@ -212,47 +220,102 @@
       const codeTd = document.createElement("td");
       codeTd.innerHTML = `<span class="ref-id badge bg-light text-dark border font-monospace px-2 py-1">${stock.stockId}</span>`;
 
-      // 名稱 (可編輯輸入框)
+      // 名稱 (不可編輯)
       const nameTd = document.createElement("td");
-      const nameInput = document.createElement("input");
-      nameInput.type = "text";
-      nameInput.className = "table-input";
-      nameInput.value = stock.stockName;
-      nameTd.appendChild(nameInput);
+      nameTd.innerHTML = `<span class="ref-id badge bg-light text-dark border font-monospace px-2 py-1">${stock.stockName}</span>`;
+      // const nameInput = document.createElement("input");
+      // nameInput.type = "text";
+      // nameInput.className = "table-input";
+      // nameInput.value = stock.stockName;
+      // nameTd.appendChild(nameInput);
 
+      // 上下市狀態選單
+      const selectTd = document.createElement("td");
+      const statusOptions = [{text: "上市", value: "true"}, {text: "下市", value: "false"}];
+      const select = document.createElement("select");
+      statusOptions.forEach(optText => {
+        const opt = document.createElement("option");
+        opt.value = optText.value;
+        opt.textContent = optText.text;
+
+        // 根據目前的資料狀態 (stock.status) 預設選中哪一項
+        // 假設 stock.status 是布林值或字串 "true"/"false"
+        if (String(stock.status) === optText.value) {
+          opt.selected = true;
+        }
+
+        //預設選單無法編輯
+        select.disabled = true;
+        select.appendChild(opt);
+      });
+      //console.log("伺服器傳來的狀態：", stock.status, "類型：", typeof stock.status);
       // 操作按鈕
       const actionTd = document.createElement("td");
       actionTd.className = "text-end";
 
-      // 修改按鈕
+      // 修改按鈕組合的容器
+      const updateContainer = document.createElement("div");
+      updateContainer.className = "d-flex justify-content-end gap-1";
+      // 1.初始的修改
       const updateBtn = document.createElement("button");
       updateBtn.className = "btn btn-sm btn-outline-primary action-btn me-2";
-      updateBtn.innerHTML = '<i class="bi bi-save"></i> 儲存';
+      updateBtn.innerHTML = '<i class="bi bi-save"></i> 修改';
       updateBtn.title = "儲存修改";
+
+      // 2. 建立「確認」按鈕 (初始隱藏) ---
+      const confirmBtn = document.createElement("button");
+      confirmBtn.className = "btn btn-sm btn-success action-btn me-2";
+      confirmBtn.innerHTML = '<i class="bi bi-check-lg"></i> 確認';
+      confirmBtn.style.display = "none";
+
+      // --- 3. 建立「取消」按鈕 (初始隱藏) ---
+      const cancelBtn = document.createElement("button");
+      cancelBtn.className = "btn btn-sm btn-outline-secondary action-btn";
+      cancelBtn.innerHTML = '<i class="bi bi-x-lg"></i> 取消';
+      cancelBtn.style.display = "none";
 
       // 刪除按鈕
       const delBtn = document.createElement("button");
       delBtn.className = "btn btn-sm btn-outline-danger action-btn";
       delBtn.innerHTML = '<i class="bi bi-trash"></i> 刪除';
-
-      actionTd.appendChild(updateBtn);
-      actionTd.appendChild(delBtn);
-
+      // 將所有按鈕放入容器
+      updateContainer.append(updateBtn, confirmBtn, cancelBtn,delBtn);
+      actionTd.appendChild(updateContainer);
+      selectTd.appendChild(select);
       tr.appendChild(codeTd);
       tr.appendChild(nameTd);
+      tr.appendChild(selectTd);
       tr.appendChild(actionTd);
       tbody.appendChild(tr);
 
       // 綁定更新事件
       updateBtn.addEventListener("click", () => {
+
+        updateBtn.style.display = "none";
+        confirmBtn.style.display = "inline-block";
+        cancelBtn.style.display = "inline-block";
+        select.disabled = false;
+      });
+
+      cancelBtn.addEventListener("click", () => {
+        updateBtn.style.display = "inline-block";
+        confirmBtn.style.display = "none";
+        cancelBtn.style.display = "none";
+        select.disabled = true;
+        selectTd.value = stock.status;
+      });
+
+      confirmBtn.addEventListener("click", () => {
+
         // 變更按鈕狀態顯示處理中
-        const originalHtml = updateBtn.innerHTML;
-        updateBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
-        updateBtn.disabled = true;
+        const originalConfirmHtml = confirmBtn.innerHTML;
+        confirmBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>';
+        confirmBtn.disabled = true;
+        cancelBtn.disabled = true;
 
         const updatedData = {
           stockId: stock.stockId,
-          stockName: nameInput.value.trim()
+          status: select.value
         };
 
         fetch('../Stock?method=Update', {
@@ -264,23 +327,30 @@
         }).then(response => {
           if (response.ok) {
             // 顯示成功效果
-            updateBtn.className = "btn btn-sm btn-success action-btn me-2";
-            updateBtn.innerHTML = '<i class="bi bi-check"></i> 成功';
+            confirmBtn.className = "btn btn-sm btn-success action-btn me-2";
+            confirmBtn.innerHTML = '<i class="bi bi-check"></i> 成功';
+            cancelBtn.style.display = "none";
             setTimeout(() => {
-              updateBtn.className = "btn btn-sm btn-outline-primary action-btn me-2";
-              updateBtn.innerHTML = originalHtml;
-              updateBtn.disabled = false;
+              updateBtn.style.display = "inline-block";
+              confirmBtn.style.display = "none";
+              confirmBtn.className = "btn btn-sm btn-success action-btn me-2";
+              confirmBtn.innerHTML = originalConfirmHtml;
+              confirmBtn.disabled = false;
+              cancelBtn.disabled = false;
+
+              select.disabled = true;
+              selectTd.value = stock.status;
             }, 1500);
           } else {
             throw new Error("更新失敗");
           }
         }).catch(err => {
           alert("更新失敗：" + err.message);
-          updateBtn.innerHTML = originalHtml;
-          updateBtn.disabled = false;
+          confirmBtn.innerHTML = originalConfirmHtml;
+          confirmBtn.disabled = false;
+          cancelBtn.disabled = false;
         });
       });
-
       // 綁定刪除事件 (開啟 Modal)
       delBtn.addEventListener("click", () => {
         currentStockIdToDelete = stock.stockId;
@@ -297,7 +367,7 @@
   }
 
   // 確認刪除按鈕事件
-  document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+  document.getElementById('confirmDeleteBtn').addEventListener('click', function () {
     if (!currentStockIdToDelete) return;
 
     const btn = this;
@@ -316,11 +386,11 @@
       if (response.ok) {
         deleteModal.hide();
         // 如果目前是在搜尋模式，刪除後重新載入全部
-        if(document.getElementById("stockIdInput").value) {
-            loadAllStocks();
+        if (document.getElementById("stockIdInput").value) {
+          loadAllStocks();
         } else {
-            // 否則重新載入目前畫面
-            location.reload();
+          // 否則重新載入目前畫面
+          location.reload();
         }
       } else {
         throw new Error("刪除失敗");
