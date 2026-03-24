@@ -80,6 +80,7 @@
     <form action="${pageContext.request.contextPath}/LoanApply" method="post" style="display:inline;"
           onsubmit="return confirm('確定要刪除所有已拒絕的資料嗎？此操作無法復原！');">
         <input type="hidden" name="action" value="deleteRejected">
+        <input type="hidden" name="filterStatus" value="REJECTED">
         <button class="btn-delete">🗑 刪除資料（僅限功能展示使用）</button>
     </form>
     <% } %>
@@ -164,8 +165,8 @@
 
         <td><%= loan.getCreateTime() %></td>
 
-        <td><%= loan.getApprovedAmount() %></td>
-        <td><%= loan.getApprovedPeriod() %></td>
+        <td><%= loan.getApprovedAmount() == null ? "" : loan.getApprovedAmount() %></td>
+        <td><%= loan.getApprovedPeriod() == null ? "" : loan.getApprovedPeriod() %></td>
         <td>
             <%= loan.getApprovedRate() == null ? "" :
                     loan.getApprovedRate().multiply(new java.math.BigDecimal("100"))
@@ -235,7 +236,7 @@
     %>
 
     <tr>
-        <td colspan="12">目前沒有資料</td>
+        <td colspan="14">目前沒有資料</td>
     </tr>
 
     <%
@@ -252,7 +253,7 @@
         CAR: [12,24,36,48,60],
         MOTOR: [12,24,36],
         STUDENT: [60,84,120],
-        BUSINESS: [30,60,84],
+        BUSINESS: [36,60,84],
         HOUSE: [120,240,360,480],
         LAND: [120,180,240]
     };

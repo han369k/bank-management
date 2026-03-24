@@ -34,7 +34,7 @@ public class LoanApplyService {
                 return new BigDecimal("0.015");
             case "BUSINESS":
                 baseRate = new BigDecimal("0.02");
-                validateTerm(term, new int[]{30,60,84});
+                validateTerm(term, new int[]{36,60,84});
                 break;
             case "HOUSE":
                 baseRate = new BigDecimal("0.018");
