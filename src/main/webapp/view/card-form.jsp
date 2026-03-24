@@ -9,11 +9,9 @@
 
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 
   <style>
-    /* 這裡僅保留此表單頁面專屬的寬度與間距微調，字體交由 style.css 統一控管 */
     .page-wrapper { max-width: 520px; margin: 40px auto; padding: 0 16px; }
 
     .card-box {
@@ -24,7 +22,6 @@
       border: 1px solid #eee;
     }
 
-    /* 信用卡 4x4 專屬樣式 */
     .card-number-group { display: flex; gap: 8px; align-items: center; }
     .card-number-group .form-control {
       text-align: center;
@@ -33,7 +30,6 @@
       letter-spacing: 2px;
     }
 
-    /* 強化標籤與輸入框的視覺一致性 */
     .form-label { font-size: 12px; font-weight: 600; color: #555; text-transform: uppercase; }
     .form-control:focus, .form-select:focus { border-color: #1a1d23; box-shadow: 0 0 0 0.25rem rgba(26, 29, 35, 0.1); }
   </style>
@@ -54,7 +50,12 @@
 </nav>
 
 <div class="page-wrapper">
-  <h1 class="page-title"><i class="bi bi-plus-circle me-2"></i>新增信用卡</h1>
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1 class="page-title mb-0"><i class="bi bi-plus-circle me-2"></i>新增信用卡</h1>
+    <button type="button" class="btn btn-sm btn-outline-info" onclick="fillDemoData()">
+      <i class="bi bi-magic me-1"></i>一鍵帶入
+    </button>
+  </div>
 
   <div class="card-box">
     <form id="creditCardForm" action="${pageContext.request.contextPath}/card" method="post">
@@ -62,12 +63,12 @@
       <input type="hidden" id="fullCardNumber" name="cardNumber">
 
       <div class="mb-3">
-        <label for="customerId" class="form-label">客戶 ID</label>
-        <input type="number" id="customerId" name="customerId" class="form-control" placeholder="請輸入客戶編號" required>
+        <label for="customerId" class="form-label">客戶 ID <span class="text-muted fw-normal">(例: C00001)</span></label>
+        <input type="text" id="customerId" name="customerId" class="form-control" placeholder="請輸入客戶編號" required>
       </div>
 
       <div class="mb-3">
-        <label for="cardTypeId" class="form-label">卡別 ID</label>
+        <label for="cardTypeId" class="form-label">卡別 ID <span class="text-muted fw-normal">(1~10)</span></label>
         <input type="number" id="cardTypeId" name="cardTypeId" class="form-control" placeholder="請輸入卡片類型編號" required>
       </div>
 
@@ -115,6 +116,33 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
 <script>
+  // ✅ 魔法按鈕專屬邏輯
+  function fillDemoData() {
+    // 1. 隨機客戶與卡別
+    document.getElementById('customerId').value = 'C00001';
+    document.getElementById('cardTypeId').value = Math.floor(Math.random() * 10) + 1;
+
+    // 2. 產生一組隨機 16 碼 (前綴 4500 代表 Visa)
+    const randomSuffix = Math.floor(Math.random() * 1000000000000).toString().padStart(12, '0');
+    const fullCardNumber = '4500' + randomSuffix;
+
+    // 3. 把 16 碼拆分成 4 份，塞進 4 個輸入框
+    const parts = document.querySelectorAll('.card-part');
+    for (let i = 0; i < 4; i++) {
+      parts[i].value = fullCardNumber.substring(i * 4, (i + 1) * 4);
+    }
+
+    // 4. 設定到期日為三年後
+    const futureDate = new Date();
+    futureDate.setFullYear(futureDate.getFullYear() + 3);
+    document.getElementById('expiryDate').value = futureDate.toISOString().split('T')[0];
+
+    // 5. 設定狀態
+    document.getElementById('cardStatus').value = 'ACTIVE';
+    document.getElementById('cardError').style.display = 'none';
+  }
+
+  // 以下為原有的卡號輸入邏輯
   document.addEventListener('DOMContentLoaded', function() {
     const parts = document.querySelectorAll('.card-part');
     const form = document.getElementById('creditCardForm');
@@ -123,9 +151,7 @@
 
     parts.forEach((el, index) => {
       el.addEventListener('input', function() {
-        // 過濾非數字字元
         this.value = this.value.replace(/\D/g, '');
-        // 自動跳格
         if (this.value.length >= 4 && index < parts.length - 1) {
           parts[index + 1].focus();
         }

@@ -86,7 +86,7 @@ public class LoanApplyServlet extends HttpServlet {
         req.setAttribute("list", list);
 
         // 👉 對應你的 JSP 檔名
-        req.getRequestDispatcher("/LoanApply.jsp").forward(req, resp);
+        req.getRequestDispatcher("/view/loan-loanapply.jsp").forward(req, resp);
     }
 
     // ===============================

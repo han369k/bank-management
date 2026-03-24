@@ -64,11 +64,14 @@
             <option value="FROZEN">FROZEN</option>
           </select>
         </div>
-        <div class="col-12 d-flex gap-2 mt-1">
+        <div class="col-12 d-flex gap-2 mt-2">
           <button class="btn btn-primary" onclick="createAccount()">
             <i class="bi bi-plus-lg me-1"></i>建立帳戶
           </button>
           <button class="btn btn-outline-secondary" onclick="clearForm()">清除</button>
+          <button class="btn btn-outline-info ms-auto" onclick="fillDemoData()">
+            <i class="bi bi-magic me-1"></i>一鍵帶入
+          </button>
         </div>
       </div>
     </div>
@@ -76,58 +79,76 @@
 </div>
 
 <script>
-const ctx = '/bank_management';
+  const ctx = '/bank_management';
 
-function showMsg(text, type='danger') {
-  document.getElementById('msg').innerHTML =
-    `<div class="alert alert-${type} alert-dismissible" role="alert">
+  function showMsg(text, type='danger') {
+    document.getElementById('msg').innerHTML =
+            `<div class="alert alert-${type} alert-dismissible" role="alert">
        ${text}
        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
      </div>`;
-}
-
-function clearForm() {
-  ['f-account','f-customer','f-balance'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('f-type').value     = 'CHECKING';
-  document.getElementById('f-currency').value = 'TWD';
-  document.getElementById('f-status').value   = 'ACTIVE';
-  document.getElementById('msg').innerHTML    = '';
-}
-
-const v = id => document.getElementById(id).value.trim();
-
-async function createAccount() {
-  if (!v('f-account'))              { showMsg('帳號為必填'); return; }
-  if (v('f-account').length !== 12) { showMsg('帳號必須為 12 碼'); return; }
-  if (!v('f-customer'))             { showMsg('客戶 ID 為必填'); return; }
-  if (v('f-balance') === '' || Number(v('f-balance')) < 0) {
-    showMsg('請輸入有效的初始餘額'); return;
   }
 
-  const body = {
-    account:    v('f-account'),
-    customerId: v('f-customer'),
-    type:       v('f-type'),
-    currency:   v('f-currency'),
-    balance:    Number(v('f-balance')),
-    status:     v('f-status'),
-    createAt:   new Date().toISOString().slice(0,19)
-  };
-
-  try {
-    const res  = await fetch(`${ctx}/account?action=create`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body)
-    });
-    const data = await res.json();
-    if (!res.ok) { showMsg(data.error || '建立失敗'); return; }
-    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
-    clearForm();
-  } catch(e) {
-    showMsg('網路錯誤：' + e.message);
+  function clearForm() {
+    ['f-account','f-customer','f-balance'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-type').value     = 'CHECKING';
+    document.getElementById('f-currency').value = 'TWD';
+    document.getElementById('f-status').value   = 'ACTIVE';
+    document.getElementById('msg').innerHTML    = '';
   }
-}
+
+  // ✅ 魔法按鈕的專屬邏輯
+  function fillDemoData() {
+    // 隨機產生後 9 碼，加上前面的 '808'，保證每次點擊帳號都不同，避免 PK 重複報錯
+    const randomSuffix = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+
+    document.getElementById('f-account').value = '808' + randomSuffix;
+    document.getElementById('f-customer').value = 'C00001'; // 對應剛剛建立的第一筆客戶
+    document.getElementById('f-type').value = 'SAVINGS';
+    document.getElementById('f-currency').value = 'TWD';
+    document.getElementById('f-balance').value = '150000';  // 直接給個漂亮的數字
+    document.getElementById('f-status').value = 'ACTIVE';
+
+    // 清掉之前的提示訊息
+    document.getElementById('msg').innerHTML = '';
+  }
+
+  const v = id => document.getElementById(id).value.trim();
+
+  async function createAccount() {
+    if (!v('f-account'))              { showMsg('帳號為必填'); return; }
+    if (v('f-account').length !== 12) { showMsg('帳號必須為 12 碼'); return; }
+    if (!v('f-customer'))             { showMsg('客戶 ID 為必填'); return; }
+    if (v('f-balance') === '' || Number(v('f-balance')) < 0) {
+      showMsg('請輸入有效的初始餘額'); return;
+    }
+
+    const body = {
+      account:    v('f-account'),
+      customerId: v('f-customer'),
+      type:       v('f-type'),
+      currency:   v('f-currency'),
+      balance:    Number(v('f-balance')),
+      status:     v('f-status'),
+      createAt:   new Date().toISOString().slice(0,19)
+    };
+
+    try {
+      const res  = await fetch(`${ctx}/account?action=create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (!res.ok) { showMsg(data.error || '建立失敗'); return; }
+
+      // 成功後顯示綠色提示框，但不清除表單，讓評審能看清楚剛剛建了什麼
+      showMsg(`<i class="bi bi-check-circle me-1"></i>建立成功！帳戶 ${body.account} 已寫入資料庫。`, 'success');
+
+    } catch(e) {
+      showMsg('網路錯誤：' + e.message);
+    }
+  }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
