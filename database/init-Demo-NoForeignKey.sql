@@ -207,14 +207,6 @@ CREATE TABLE [STOCK_TRANSACTION_RECORD] (
     )
     GO
 
-CREATE TABLE [stock_info] (
-    [stock_id] int PRIMARY KEY,
-    [stock_name] NVARCHAR(MAX) NULL,
-    [status] bit Null
-    )
-GO
-
-
     EXEC sp_addextendedproperty
     @name = N'Column_Description',
     @value = '行員編號 (PK)',
