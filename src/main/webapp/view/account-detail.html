@@ -6,24 +6,24 @@
   <title>帳戶詳情</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="/bank_management/css/style.css">
 </head>
 <body>
 
 <nav class="navbar navbar-expand-lg">
   <div class="container-fluid px-4">
-    <a class="navbar-brand" href="../index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <a class="navbar-brand" href="/bank_management/index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
     <div class="navbar-nav ms-3">
-      <a class="nav-link active" href="account-list.html">帳戶列表</a>
-      <a class="nav-link" href="account-create.html">新增帳戶</a>
-      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+      <a class="nav-link active" href="/bank-management/view?page=account-list">帳戶列表</a>
+      <a class="nav-link" href="/bank-management/view?page=account-create">新增帳戶</a>
+      <a class="nav-link" href="/bank-management/view?page=translog-search">交易紀錄</a>
     </div>
   </div>
 </nav>
 
 <div class="page-wrapper">
   <div class="d-flex align-items-center gap-3 mb-3">
-    <a href="account-list.html" class="btn btn-sm btn-outline-secondary">
+    <a href="/bank-management/view?page=account-list" class="btn btn-sm btn-outline-secondary">
       <i class="bi bi-arrow-left"></i> 返回列表
     </a>
     <div class="page-title mb-0">帳戶詳情</div>
@@ -31,7 +31,6 @@
 
   <div id="msg"></div>
 
-  <!-- 基本資訊 -->
   <div class="card">
     <div class="card-header d-flex justify-content-between align-items-center">
       基本資訊
@@ -44,7 +43,6 @@
     </div>
   </div>
 
-  <!-- 存款 / 提款 -->
   <div class="row g-3">
     <div class="col-md-6">
       <div class="card h-100">
@@ -72,7 +70,6 @@
     </div>
   </div>
 
-  <!-- 轉帳 -->
   <div class="card">
     <div class="card-header">轉帳</div>
     <div class="card-body">
@@ -98,7 +95,6 @@
     </div>
   </div>
 
-  <!-- 更新狀態 -->
   <div class="card" style="max-width:340px">
     <div class="card-header">更新帳戶狀態</div>
     <div class="card-body">
@@ -114,10 +110,9 @@
     </div>
   </div>
 
-  <!-- 刪除 -->
   <div class="danger-zone" style="max-width:400px">
-    <div class="danger-zone card-header-text"><i class="bi bi-exclamation-triangle me-1"></i>刪除帳戶（專題展示用）</div>
-    <p style="font-size:12px;color:#888;margin-bottom:12px">實務上不應刪除帳戶，僅供 Demo 使用。請確認帳戶無交易紀錄。</p>
+    <div class="danger-zone card-header-text"><i class="bi bi-exclamation-triangle me-1"></i>刪除帳戶</div>
+    <p style="font-size:12px;color:#888;margin-bottom:12px">實務上不應刪除帳戶，僅供 Demo 使用。</p>
     <button class="btn btn-sm btn-danger" onclick="doDelete()">
       <i class="bi bi-trash me-1"></i>實體刪除此帳戶
     </button>
@@ -125,39 +120,40 @@
 </div>
 
 <script>
-const ctx = '/bank-management';
-const account = new URLSearchParams(location.search).get('account');
+  const ctx = '/bank-management';
+  const account = new URLSearchParams(location.search).get('account');
 
-if (!account) {
-  document.getElementById('msg').innerHTML =
-    '<div class="alert alert-danger">未指定帳號，請從列表進入此頁。</div>';
-}
+  if (!account) {
+    document.getElementById('msg').innerHTML =
+            '<div class="alert alert-danger">未指定帳號，請從列表進入此頁。</div>';
+  }
 
-document.getElementById('link-translog').href =
-  `translog-search.html?account=${encodeURIComponent(account ?? '')}`;
+  // 修正：轉向交易紀錄也要透過 ViewServlet
+  document.getElementById('link-translog').href =
+          `${ctx}/view?page=translog-search&account=${encodeURIComponent(account ?? '')}`;
 
-function showMsg(text, type='danger') {
-  document.getElementById('msg').innerHTML =
-    `<div class="alert alert-${type} alert-dismissible" role="alert">
+  function showMsg(text, type='danger') {
+    document.getElementById('msg').innerHTML =
+            `<div class="alert alert-${type} alert-dismissible" role="alert">
        ${text}
        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
      </div>`;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 
-function statusBadge(s) {
-  const cls = s === 'ACTIVE' ? 'badge-active' : s === 'FROZEN' ? 'badge-frozen' : 'badge-closed';
-  return `<span class="badge-status ${cls}">${s}</span>`;
-}
+  function statusBadge(s) {
+    const cls = s === 'ACTIVE' ? 'badge-active' : s === 'FROZEN' ? 'badge-frozen' : 'badge-closed';
+    return `<span class="badge-status ${cls}">${s}</span>`;
+  }
 
-async function loadAccount() {
-  if (!account) return;
-  const res  = await fetch(`${ctx}/account?action=get&account=${encodeURIComponent(account)}`);
-  const data = await res.json();
-  if (!res.ok) { document.getElementById('info-body').textContent = data.error; return; }
+  async function loadAccount() {
+    if (!account) return;
+    const res  = await fetch(`${ctx}/account?action=get&account=${encodeURIComponent(account)}`);
+    const data = await res.json();
+    if (!res.ok) { document.getElementById('info-body').textContent = data.error; return; }
 
-  document.getElementById('st-status').value = data.status;
-  document.getElementById('info-body').innerHTML = `
+    document.getElementById('st-status').value = data.status;
+    document.getElementById('info-body').innerHTML = `
     <table class="info-table">
       <tr><td>帳號</td>     <td><span style="font-family:monospace">${data.account}</span></td></tr>
       <tr><td>客戶 ID</td>  <td>${data.customerId}</td></tr>
@@ -167,68 +163,69 @@ async function loadAccount() {
       <tr><td>狀態</td>     <td>${statusBadge(data.status)}</td></tr>
       <tr><td>建立時間</td> <td>${data.createAt ? data.createAt.replace('T',' ').slice(0,16) : '-'}</td></tr>
     </table>`;
-}
+  }
 
-async function post(action, body) {
-  const res  = await fetch(`${ctx}/account?action=${action}`, {
-    method: 'POST', headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(body)
-  });
-  return { ok: res.ok, status: res.status, data: await res.json() };
-}
+  async function post(action, body) {
+    const res  = await fetch(`${ctx}/account?action=${action}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    return { ok: res.ok, status: res.status, data: await res.json() };
+  }
 
-async function doDeposit() {
-  const amount = document.getElementById('dep-amount').value.trim();
-  if (!amount || Number(amount) <= 0) { showMsg('請輸入有效金額'); return; }
-  const { ok, status, data } = await post('deposit', { account, amount: Number(amount) });
-  if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); return; }
-  showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
-  document.getElementById('dep-amount').value = '';
+  async function doDeposit() {
+    const amount = document.getElementById('dep-amount').value.trim();
+    if (!amount || Number(amount) <= 0) { showMsg('請輸入有效金額'); return; }
+    const { ok, status, data } = await post('deposit', { account, amount: Number(amount) });
+    if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+    document.getElementById('dep-amount').value = '';
+    loadAccount();
+  }
+
+  async function doWithdraw() {
+    const amount = document.getElementById('wit-amount').value.trim();
+    if (!amount || Number(amount) <= 0) { showMsg('請輸入有效金額'); return; }
+    const { ok, status, data } = await post('withdraw', { account, amount: Number(amount) });
+    if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+    document.getElementById('wit-amount').value = '';
+    loadAccount();
+  }
+
+  async function doTransfer() {
+    const toAccount = document.getElementById('tr-to').value.trim();
+    const amount    = document.getElementById('tr-amount').value.trim();
+    const note      = document.getElementById('tr-note').value.trim();
+    if (!toAccount)                    { showMsg('請填入轉入帳號'); return; }
+    if (!amount || Number(amount) <= 0){ showMsg('請輸入有效金額'); return; }
+    const { ok, status, data } = await post('transfer', {
+      fromAccount: account, toAccount, amount: Number(amount), note: note || '轉帳'
+    });
+    if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+    ['tr-to','tr-amount','tr-note'].forEach(id => document.getElementById(id).value = '');
+    loadAccount();
+  }
+
+  async function doUpdateStatus() {
+    const status = document.getElementById('st-status').value;
+    const { ok, data } = await post('updateStatus', { account, status });
+    if (!ok) { showMsg(data.error); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+    loadAccount();
+  }
+
+  async function doDelete() {
+    if (!confirm(`確定要實體刪除帳戶 ${account}？\n此操作不可還原。`)) return;
+    const { ok, data } = await post('delete', { account });
+    if (!ok) { showMsg(data.error); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}　3秒後返回列表`, 'success');
+    // 修正：返回列表也要透過 ViewServlet
+    setTimeout(() => location.href = `${ctx}/view?page=account-list`, 3000);
+  }
+
   loadAccount();
-}
-
-async function doWithdraw() {
-  const amount = document.getElementById('wit-amount').value.trim();
-  if (!amount || Number(amount) <= 0) { showMsg('請輸入有效金額'); return; }
-  const { ok, status, data } = await post('withdraw', { account, amount: Number(amount) });
-  if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); return; }
-  showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
-  document.getElementById('wit-amount').value = '';
-  loadAccount();
-}
-
-async function doTransfer() {
-  const toAccount = document.getElementById('tr-to').value.trim();
-  const amount    = document.getElementById('tr-amount').value.trim();
-  const note      = document.getElementById('tr-note').value.trim();
-  if (!toAccount)                    { showMsg('請填入轉入帳號'); return; }
-  if (!amount || Number(amount) <= 0){ showMsg('請輸入有效金額'); return; }
-  const { ok, status, data } = await post('transfer', {
-    fromAccount: account, toAccount, amount: Number(amount), note: note || '轉帳'
-  });
-  if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); return; }
-  showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
-  ['tr-to','tr-amount','tr-note'].forEach(id => document.getElementById(id).value = '');
-  loadAccount();
-}
-
-async function doUpdateStatus() {
-  const status = document.getElementById('st-status').value;
-  const { ok, data } = await post('updateStatus', { account, status });
-  if (!ok) { showMsg(data.error); return; }
-  showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
-  loadAccount();
-}
-
-async function doDelete() {
-  if (!confirm(`確定要實體刪除帳戶 ${account}？\n此操作不可還原。`)) return;
-  const { ok, data } = await post('delete', { account });
-  if (!ok) { showMsg(data.error); return; }
-  showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}　3秒後返回列表`, 'success');
-  setTimeout(() => location.href = 'account-list.html', 3000);
-}
-
-loadAccount();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
