@@ -1,23 +1,57 @@
 package com.ispan.bankmanagement.loan.controller;
-
 import com.ispan.bankmanagement.loan.dao.LoanApplyDao;
 import com.ispan.bankmanagement.loan.service.LoanApplyService;
 import com.ispan.bankmanagement.loan.vo.LoanApplyBean;
+import com.ispan.bankmanagement.util.ConnUtil;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-@WebServlet("/loanApply")
+@WebServlet("/LoanApply")
 public class LoanApplyServlet extends HttpServlet {
 
     private LoanApplyDao loanDao = new LoanApplyDao();
     private LoanApplyService loanService = new LoanApplyService();
+    private void createCustomerIfNotExist(String customerId) {
+
+        String checkSql = "SELECT COUNT(*) FROM CUSTOMER WHERE customer_id = ?";
+        String insertSql = "INSERT INTO CUSTOMER (customer_id, name, created_at, status) VALUES (?, ?, SYSDATETIME(), 'ACTIVE')";
+
+        try (Connection conn = ConnUtil.getConn()) {
+
+            // 🔍 檢查是否存在
+            try (PreparedStatement ps = conn.prepareStatement(checkSql)) {
+                ps.setString(1, customerId);
+                ResultSet rs = ps.executeQuery();
+
+                if (rs.next() && rs.getInt(1) > 0) {
+                    return; // 已存在
+                }
+            }
+
+            // ➕ 不存在 → 自動新增
+            try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
+                ps.setString(1, customerId);
+                ps.setString(2, "測試用戶_" + customerId);
+                ps.executeUpdate();
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("建立測試客戶失敗", e);
+        }
+    }
 
     // ===============================
     // 📌 查詢列表（後台頁面）
@@ -26,12 +60,21 @@ public class LoanApplyServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
 
-        List<LoanApplyBean> list = loanDao.getAll();
+        String status = req.getParameter("status");
+        List<LoanApplyBean> list;
+        if (status != null && !status.isEmpty()) {
+            list = loanDao.getByStatus(
+                    List.of(LoanApplyDao.LoanStatus.valueOf(status)),
+                    null, null, null
+            );
+        } else {
+            list = loanDao.getAll();
+        }
 
         req.setAttribute("list", list);
 
         // 👉 對應你的 JSP 檔名
-        req.getRequestDispatcher("/loanApply.jsp").forward(req, resp);
+        req.getRequestDispatcher("/LoanApply.jsp").forward(req, resp);
     }
 
     // ===============================
@@ -74,15 +117,25 @@ public class LoanApplyServlet extends HttpServlet {
                     rejectByCustomer(req);
                     break;
 
+                case "deleteRejected":
+                    loanDao.deleteByStatus(LoanApplyDao.LoanStatus.REJECTED);
+                    break;
+
                 default:
                     insertLoan(req, resp);
                     return;
             }
 
-            // 👉 操作完成後回列表
-            resp.sendRedirect("loanApply");
+            // 👉 操作完成後回列表（保留篩選狀態）
+            String filterStatus = req.getParameter("filterStatus");
+            if (filterStatus != null && !filterStatus.isEmpty()) {
+                resp.sendRedirect("LoanApply?status=" + filterStatus);
+            } else {
+                resp.sendRedirect("LoanApply");
+            }
 
         } catch (Exception e) {
+            e.printStackTrace(); // ← 印到 Tomcat console 方便除錯
             throw new ServletException(e);
         }
     }
@@ -93,39 +146,72 @@ public class LoanApplyServlet extends HttpServlet {
     private void insertLoan(HttpServletRequest req, HttpServletResponse resp)
             throws IOException {
 
-        String customerId = req.getParameter("customerId");
-        String applyType = req.getParameter("applyType");
-        String amountStr = req.getParameter("applyAmount");
-        String periodStr = req.getParameter("applyPeriod");
+        resp.setContentType("text/plain;charset=UTF-8");
 
-        Long applyAmount = (amountStr == null || amountStr.isEmpty())
-                ? null
-                : Long.parseLong(amountStr);
+        try {
+            String customerId = req.getParameter("customerId");
+            String applyType = req.getParameter("applyType");
+            String amountStr = req.getParameter("applyAmount");
+            String periodStr = req.getParameter("applyPeriod");
 
-        Integer applyPeriod = (periodStr == null || periodStr.isEmpty())
-                ? null
-                : Integer.parseInt(periodStr);
+            System.out.println("=== 收到貸款申請 ===");
+            System.out.println("customerId=" + customerId);
+            System.out.println("applyType=" + applyType);
+            System.out.println("applyAmount=" + amountStr);
+            System.out.println("applyPeriod=" + periodStr);
 
-        BigDecimal rate = loanService.calculateRate(applyType, applyPeriod);
+            // =====================
+            // ✅ 防呆：金額
+            // =====================
+            if (amountStr == null || amountStr.isEmpty() || Long.parseLong(amountStr) <= 0) {
+                resp.setStatus(400);
+                resp.getWriter().write("錯誤：貸款金額必須大於0");
+                return;
+            }
 
-        LoanApplyBean loan = new LoanApplyBean();
-        loan.setApplicationId(UUID.randomUUID().toString());
-        loan.setCustomerId(customerId);
-        loan.setApplyType(applyType);
-        loan.setApplyAmount(applyAmount);
-        loan.setApplyPeriod(applyPeriod);
-        loan.setRate(rate);
+            if (periodStr == null || periodStr.isEmpty()) {
+                resp.setStatus(400);
+                resp.getWriter().write("錯誤：請選擇期數");
+                return;
+            }
 
-        loanDao.insert(loan);
+            Long applyAmount = Long.parseLong(amountStr);
+            Integer applyPeriod = Integer.parseInt(periodStr);
 
-        resp.setContentType("application/json;charset=UTF-8");
+            // =====================
+            // ⭐ 跳過 CUSTOMER 檢查，直接寫入 LOAN_APPLICATION
+            // =====================
+            // createCustomerIfNotExist(customerId);
 
-        String json = String.format(
-                "{\"status\":\"success\",\"rate\":%s}",
-                rate.toString()
-        );
+            BigDecimal rate = loanService.calculateRate(applyType, applyPeriod);
 
-        resp.getWriter().write(json);
+            // ⭐ 有規則的 application_id：LA + yyyyMMddHHmmss + 4碼隨機數 = 剛好 20 字元
+            String timeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
+            String randomSuffix = String.format("%04d", (int)(Math.random() * 10000));
+            String applicationId = "LA" + timeStr + randomSuffix;
+
+            LoanApplyBean loan = new LoanApplyBean();
+            loan.setApplicationId(applicationId);
+            loan.setCustomerId(customerId);
+            loan.setApplyType(applyType);
+            loan.setApplyAmount(applyAmount);
+            loan.setApplyPeriod(applyPeriod);
+            loan.setRate(rate);
+
+            System.out.println("準備寫入 DB，applicationId=" + loan.getApplicationId());
+
+            loanDao.insert(loan);
+
+            System.out.println("✅ 寫入 DB 成功！");
+
+            resp.setStatus(200);
+            resp.getWriter().write("success");
+
+        } catch (Exception e) {
+            e.printStackTrace(); // ← 印到 Tomcat console
+            resp.setStatus(500);
+            resp.getWriter().write("伺服器錯誤：" + e.getMessage());
+        }
     }
 
     // ===============================
@@ -142,7 +228,7 @@ public class LoanApplyServlet extends HttpServlet {
 
         // 👉 重新計算利率（用核准條件）
         BigDecimal rate = loanService.calculateRate(
-                null,
+                req.getParameter("applyType"),
                 loan.getApprovedPeriod()
         );
         loan.setApprovedRate(rate);
@@ -163,7 +249,7 @@ public class LoanApplyServlet extends HttpServlet {
         loan.setReviewerId(Integer.parseInt(req.getParameter("reviewerId")));
 
         BigDecimal rate = loanService.calculateRate(
-                null,
+                req.getParameter("applyType"),
                 loan.getApprovedPeriod()
         );
         loan.setApprovedRate(rate);

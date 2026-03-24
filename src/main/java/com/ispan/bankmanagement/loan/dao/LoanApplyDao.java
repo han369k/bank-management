@@ -28,14 +28,13 @@ public class LoanApplyDao {
         String sql = """
                     UPDATE LOAN_APPLICATION
                     SET status = ?, review_time = SYSDATETIME()
-                    WHERE application_id = ? AND status = ?
+                    WHERE application_id = ?
                 """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, to.name());
             ps.setString(2, applicationId);
-            ps.setString(3, from.name());
 
             int rows = ps.executeUpdate();
 
@@ -150,8 +149,8 @@ public class LoanApplyDao {
     // ===============================
     public void insert(LoanApplyBean loan) {
 
-        String sql = "INSERT INTO LOAN_APPLICATION " +
-                "(application_id, customer_id, apply_type, apply_amount, apply_period, rate, status, create_time) " +
+        String sql = "INSERT INTO LOAN_APPLICATION\n" +
+                "(application_id, customer_id, apply_type, apply_amount, apply_period, rate, status, create_time)\n" +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, SYSDATETIME())";
 
         try (Connection conn = ConnUtil.getConn();
@@ -160,13 +159,16 @@ public class LoanApplyDao {
             ps.setString(1, loan.getApplicationId());
             ps.setString(2, loan.getCustomerId());
             ps.setString(3, loan.getApplyType());
+
             if (loan.getApplyAmount() != null) {
                 ps.setLong(4, loan.getApplyAmount());
             } else {
                 ps.setNull(4, Types.BIGINT);
             }
+
             ps.setInt(5, loan.getApplyPeriod());
             ps.setBigDecimal(6, loan.getRate());
+
             ps.setString(7, LoanStatus.PENDING.name());
 
             ps.executeUpdate();
@@ -189,9 +191,20 @@ public class LoanApplyDao {
         try (Connection conn = ConnUtil.getConn();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setLong(1, loan.getApprovedAmount());
+            if (loan.getApprovedAmount() != null) {
+                ps.setLong(1, loan.getApprovedAmount());
+            } else {
+                ps.setNull(1, Types.BIGINT);
+            }
+
             ps.setBigDecimal(2, loan.getApprovedRate());
-            ps.setInt(3, loan.getApprovedPeriod());
+
+            if (loan.getApprovedPeriod() != null) {
+                ps.setInt(3, loan.getApprovedPeriod());
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+
             ps.setInt(4, loan.getReviewerId());
             ps.setString(5, loan.getApplicationId());
 
@@ -219,11 +232,23 @@ public class LoanApplyDao {
         try (Connection conn = ConnUtil.getConn();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
-            ps.setLong(1, loan.getApprovedAmount());
+            if (loan.getApprovedAmount() != null) {
+                ps.setLong(1, loan.getApprovedAmount());
+            } else {
+                ps.setNull(1, Types.BIGINT);
+            }
+
             ps.setBigDecimal(2, loan.getApprovedRate());
-            ps.setInt(3, loan.getApprovedPeriod());
+
+            if (loan.getApprovedPeriod() != null) {
+                ps.setInt(3, loan.getApprovedPeriod());
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+
             ps.setInt(4, loan.getReviewerId());
             ps.setString(5, loan.getApplicationId());
+
 
             ps.executeUpdate();
 
@@ -232,9 +257,9 @@ public class LoanApplyDao {
                     LoanStatus.PENDING,
                     LoanStatus.PENDING_CONFIRM);
 
-            } catch (SQLException e) {
+        } catch (SQLException e) {
             throw new RuntimeException("送出方案失敗", e);
-            }
+        }
     }
 
     // ===============================
@@ -244,7 +269,6 @@ public class LoanApplyDao {
 
         try (Connection conn = ConnUtil.getConn()) {
 
-            // ⭐ 修改
             updateStatus(conn,
                     applicationId,
                     LoanStatus.PENDING_CONFIRM,
@@ -300,6 +324,26 @@ public class LoanApplyDao {
     }
 
     // ===============================
+    // 🔹 10. 刪除指定狀態的所有資料
+    // ===============================
+    public void deleteByStatus(LoanStatus status) {
+
+        String sql = "DELETE FROM LOAN_APPLICATION WHERE status = ?";
+
+        try (Connection conn = ConnUtil.getConn();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, status.name());
+            int rows = ps.executeUpdate();
+
+            System.out.println("已刪除 " + rows + " 筆狀態為 " + status.name() + " 的資料");
+
+        } catch (SQLException e) {
+            throw new RuntimeException("刪除資料失敗", e);
+        }
+    }
+
+    // ===============================
     // 🔹 9. 共用 mapping
     // ===============================
     private LoanApplyBean mapRow(ResultSet rs) throws SQLException {
@@ -326,8 +370,7 @@ public class LoanApplyDao {
         int period = rs.getInt("approved_period");
         loan.setApprovedPeriod(rs.wasNull() ? null : period);
 
-        // ⭐ 修改：String → enum（前提：Bean 要改）
-        loan.setStatus(rs.getString("status")); // ← 如果你還沒改 Bean 就先保留
+        loan.setStatus(rs.getString("status"));
 
         int reviewer = rs.getInt("reviewer_id");
         loan.setReviewerId(rs.wasNull() ? null : reviewer);
@@ -336,6 +379,4 @@ public class LoanApplyDao {
 
         return loan;
     }
-
 }
-
