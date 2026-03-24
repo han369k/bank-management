@@ -68,6 +68,19 @@
         .btn-delete:hover {
             background: #c23616;
         }
+
+        th.sortable {
+            cursor: pointer;
+            user-select: none;
+            position: relative;
+        }
+        th.sortable:hover {
+            background: #485460;
+        }
+        th .arrow {
+            font-size: 10px;
+            margin-left: 4px;
+        }
     </style>
 
 </head>
@@ -95,23 +108,23 @@
 <br>
 <table>
     <tr>
-        <th>申請編號</th>
-        <th>客戶ID</th>
+        <th class="sortable" onclick="sortTable(0)">申請編號 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(1)">客戶ID <span class="arrow"></span></th>
 
-        <th>貸款種類</th>
-        <th>申請金額</th>
-        <th>期數</th>
-        <th>申請利率</th>
-        <th>建立時間</th>
+        <th class="sortable" onclick="sortTable(2)">貸款種類 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(3)">申請金額 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(4)">期數 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(5)">申請利率 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(6)">建立時間 <span class="arrow"></span></th>
 
-        <th>核准金額</th>
-        <th>核准期數</th>
-        <th>核准利率</th>
+        <th class="sortable" onclick="sortTable(7)">核准金額 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(8)">核准期數 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(9)">核准利率 <span class="arrow"></span></th>
 
-        <th>核准人員</th>
-        <th>核准時間</th>
+        <th class="sortable" onclick="sortTable(10)">核准人員 <span class="arrow"></span></th>
+        <th class="sortable" onclick="sortTable(11)">核准時間 <span class="arrow"></span></th>
 
-        <th>狀態</th>
+        <th class="sortable" onclick="sortTable(12)">狀態 <span class="arrow"></span></th>
         <th>操作</th>
     </tr>
 
@@ -279,6 +292,72 @@
             select.appendChild(option);
         });
     });
+
+    // ===============================
+    // ⭐ 表格欄位排序
+    // ===============================
+    var currentSortCol = -1;
+    var currentSortAsc = true;
+
+    function sortTable(colIndex) {
+        var table = document.querySelector("table");
+        var rows = Array.from(table.querySelectorAll("tr"));
+        var headerRow = rows.shift(); // 移除表頭
+
+        // 如果沒有資料列就不排序
+        if (rows.length === 0) return;
+        // 如果只有一列且是 "目前沒有資料"，不排序
+        if (rows.length === 1 && rows[0].querySelector("td[colspan]")) return;
+
+        // 決定排序方向
+        if (currentSortCol === colIndex) {
+            currentSortAsc = !currentSortAsc;
+        } else {
+            currentSortCol = colIndex;
+            currentSortAsc = true;
+        }
+
+        // 排序
+        rows.sort(function(a, b) {
+            var cellA = a.cells[colIndex];
+            var cellB = b.cells[colIndex];
+            if (!cellA || !cellB) return 0;
+
+            var valA = cellA.textContent.trim();
+            var valB = cellB.textContent.trim();
+
+            // 嘗試數字比較（移除 % 符號）
+            var numA = parseFloat(valA.replace(/[%,]/g, ""));
+            var numB = parseFloat(valB.replace(/[%,]/g, ""));
+
+            if (!isNaN(numA) && !isNaN(numB)) {
+                return currentSortAsc ? numA - numB : numB - numA;
+            }
+
+            // 空值排到最後
+            if (valA === "" && valB !== "") return 1;
+            if (valA !== "" && valB === "") return -1;
+            if (valA === "" && valB === "") return 0;
+
+            // 文字比較
+            var cmp = valA.localeCompare(valB, "zh-TW");
+            return currentSortAsc ? cmp : -cmp;
+        });
+
+        // 重新插入排序後的列
+        rows.forEach(function(row) {
+            table.appendChild(row);
+        });
+
+        // 更新箭頭
+        document.querySelectorAll("th .arrow").forEach(function(el) {
+            el.textContent = "";
+        });
+        var arrows = document.querySelectorAll("th.sortable .arrow");
+        if (arrows[colIndex]) {
+            arrows[colIndex].textContent = currentSortAsc ? " ▲" : " ▼";
+        }
+    }
 </script>
 
 </body>
