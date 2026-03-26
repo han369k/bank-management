@@ -32,8 +32,8 @@ public class CreditCardDao {
             ps.setTimestamp(7, card.getCreateDate());
             ps.setInt(8, card.getStatus().getValue());
 
-            ps.executeUpdate();
-
+            int rows= ps.executeUpdate();
+            System.out.println("Add "+rows+"rows.");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}	

@@ -69,7 +69,23 @@ pageEncoding="UTF-8"%>
         <br>
         <a href="${pageContext.request.contextPath}/bill">進入</a>
     </div>
-</div>
+    <div class="card">
+    		<div class="title">申請信用卡</div>
+    		<div class="desc">選擇卡種並加入購物車</div>
+    		<br>
+    		<a href="${pageContext.request.contextPath}/cardType?action=list">進入</a>
+    </div>
+
+    <div class="card">
+    		<div class="title">申請購物車</div>
+    		
+    		<div class="desc">查看已選卡片並送出申請</div>
+    		<br>
+    		<a href="${pageContext.request.contextPath}/cardCart?action=view">進入</a>
+    </div>
+
+    </div>
+
 <!-- <button onclick="showAlert()">點我</button> -->
 <script>
 // function showAlert() {

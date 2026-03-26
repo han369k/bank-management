@@ -6,7 +6,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 import java.io.IOException;
+import java.util.ArrayList;
 
 @WebServlet("/creditCardHome")
 public class HomeController extends HttpServlet {
@@ -18,6 +21,14 @@ public class HomeController extends HttpServlet {
     }
 
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		//  這裡補（初始化購物車）
+	    HttpSession session = request.getSession();
+
+	    if (session.getAttribute("cart") == null) {
+	        session.setAttribute("cart", new ArrayList<>());
+	    }
+		
+		
 		RequestDispatcher rd =request.getRequestDispatcher("/WEB-INF/views/creditCard/creditCardHome.jsp");
 		rd.forward(request, response);
 	}

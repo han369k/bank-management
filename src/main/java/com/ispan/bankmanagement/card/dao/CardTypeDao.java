@@ -45,11 +45,53 @@ public class CardTypeDao {
                 list.add(ct);								
 			}
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			throw new RuntimeException("查詢 CardTypes 失敗", e);
 		}
 		return list;		
 	}//查全部end
+	
+	//查詢單筆
+	public CardTypes getCardTypeById(int cardTypeId) {
+		String sql = """
+	            SELECT card_type_id, card_type_name, brand, annual_fee, cashback_rate
+	            FROM CARD_TYPE
+	            WHERE card_type_id = ?
+	            """;
+
+	    try (Connection conn = ConnUtil.getConn();
+	         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+	        // 設定參數
+	        ps.setInt(1, cardTypeId);
+
+	        try (ResultSet rs = ps.executeQuery()) {
+
+	            // ❗ 如果查不到資料 → 直接丟例外
+	            if (!rs.next()) {
+	                throw new RuntimeException("查無此卡種，ID: " + cardTypeId);
+	            }
+
+	            // ✅ 有資料才會走到這裡
+	            CardTypes type = new CardTypes();
+	            type.setCardTypeId(rs.getInt("card_type_id"));
+	            type.setCardTypeName(rs.getString("card_type_name"));
+	            type.setBrand(rs.getString("brand"));
+	            type.setAnnualFee(rs.getBigDecimal("annual_fee"));
+	            type.setCashbackRate(rs.getBigDecimal("cashback_rate"));
+
+	            return type;
+	        }
+
+	    } catch (SQLException e) {
+	        // ❗ DB 錯誤也轉成 RuntimeException 丟出去
+	        throw new RuntimeException("查詢卡種失敗", e);
+	    }
+		
+		
+	}
+	
+	
+	
 	//修改卡別
 	public void updateCardType(CardTypes cardTypes) {
 		String sql = "UPDATE CARD_TYPE SET card_type_name=?, brand=?, annual_fee=?,cashback_rate=?  WHERE card_type_id=?";
