@@ -33,8 +33,8 @@ public class InfoDao extends BaseDao {
 
     //新增單筆
     public int InsertInfo(Connection conn, StockInfoEntity stockInfo) throws SQLException {
-        String insert = "insert into stock_info (stock_id, stock_name) values (?, ?)";
-        return Update(conn, insert, stockInfo.getStockId(), stockInfo.getStockName());
+        String insert = "insert into stock_info (stock_id, stock_name, status) values (?, ?, ?)";
+        return Update(conn, insert, stockInfo.getStockId(), stockInfo.getStockName(), stockInfo.getStatus());
     }
 
     //依據id刪除

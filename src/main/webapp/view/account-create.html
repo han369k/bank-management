@@ -14,9 +14,9 @@
   <div class="container-fluid px-4">
     <a class="navbar-brand" href="/bank_management/index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
     <div class="navbar-nav ms-3">
-      <a class="nav-link" href="/bank_management/view?page=account-list">帳戶列表</a>
-      <a class="nav-link active" href="/bank_management/view?page=account-create">新增帳戶</a>
-      <a class="nav-link" href="/bank_management/view?page=translog-search">交易紀錄</a>
+      <a class="nav-link" href="/bank_management/view/account-list.html">帳戶列表</a>
+      <a class="nav-link" href="/bank_management/view/account-create.html">新增帳戶</a>
+      <a class="nav-link" href="/bank_management/view/translog-search.html">交易紀錄</a>
     </div>
   </div>
 </nav>
@@ -142,7 +142,7 @@
       const data = await res.json();
       if (!res.ok) { showMsg(data.error || '建立失敗'); return; }
 
-      // 成功後顯示綠色提示框，但不清除表單，讓評審能看清楚剛剛建了什麼
+      // 成功後顯示綠色提示框，但不清除表單，二次確認剛剛建立的內容
       showMsg(`<i class="bi bi-check-circle me-1"></i>建立成功！帳戶 ${body.account} 已寫入資料庫。`, 'success');
 
     } catch(e) {

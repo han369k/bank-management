@@ -80,7 +80,7 @@ public class AccountController extends HttpServlet {
                     break;
                 case "getAll":
                 default:
-                    handleGetAllAccounts(resp);
+                    handleGetAllAccounts(req,resp);
                     break;
             }
         } catch (Exception e) {
@@ -147,9 +147,19 @@ public class AccountController extends HttpServlet {
         sendJson(resp, HttpServletResponse.SC_OK, account);
     }
 
-    private void handleGetAllAccounts(HttpServletResponse resp) {
-        // 為了符合舊方法簽名，傳入一個空的 Entity
-        List<AccountEntity> accounts = accountService.getAllAccount(new AccountEntity());
+    /**
+     * 處理取得所有帳戶 (支援動態條件查詢)
+     */
+    private void handleGetAllAccounts(HttpServletRequest req, HttpServletResponse resp) {
+        // 1. 建立一個 Entity 來裝載前端傳來的查詢條件
+        AccountEntity condition = new AccountEntity();
+        condition.setAccount(req.getParameter("account"));
+        condition.setCustomerId(req.getParameter("customerId"));
+        condition.setType(req.getParameter("type"));
+        condition.setStatus(req.getParameter("status"));
+
+        // 2. 將裝滿條件的 condition 傳給 Service
+        List<AccountEntity> accounts = accountService.getAllAccount(condition);
         sendJson(resp, HttpServletResponse.SC_OK, accounts);
     }
 

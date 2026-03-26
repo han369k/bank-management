@@ -207,6 +207,7 @@ CREATE TABLE [STOCK_TRANSACTION_RECORD] (
     )
     GO
 
+
     EXEC sp_addextendedproperty
     @name = N'Column_Description',
     @value = '行員編號 (PK)',

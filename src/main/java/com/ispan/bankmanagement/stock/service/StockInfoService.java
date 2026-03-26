@@ -27,7 +27,11 @@ public class StockInfoService {
         StockInfoDto stockInfoDto = new StockInfoDto();
         stockInfoDto.setStockId(stockInfoEntity.getStockId());
         stockInfoDto.setStockName(stockInfoEntity.getStockName());
-        //stockInfoDto.setStatus(stockInfoEntity.getStatus());
+        
+        // 將 Boolean 安全地轉回 String，若為 null 則維持 null 或給預設值
+        if (stockInfoEntity.getStatus() != null) {
+            stockInfoDto.setStatus(String.valueOf(stockInfoEntity.getStatus()));
+        }
 
         return stockInfoDto;
     }
@@ -36,7 +40,8 @@ public class StockInfoService {
         StockInfoVO stockInfoVO = new StockInfoVO();
         stockInfoVO.setStockId(stockInfoEntity.getStockId());
         stockInfoVO.setStockName(stockInfoEntity.getStockName());
-        stockInfoVO.setStatus(stockInfoEntity.getStatus()? "true":"false");
+        // 增加 null 防呆，避免拆箱(Unboxing)時發生 NullPointerException
+        stockInfoVO.setStatus(Boolean.TRUE.equals(stockInfoEntity.getStatus()) ? "true" : "false");
         return stockInfoVO;
     }
 

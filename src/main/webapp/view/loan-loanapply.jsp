@@ -15,33 +15,24 @@
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
     <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 
     <style>
-        /* 此頁面專屬的表格與標籤微調 */
         .page-wrapper { max-width: 95%; margin: 32px auto; padding: 0 16px; }
-
         .card-box {
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0,0,0,.08);
-            border: 1px solid #eee;
+            background: #fff; border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,.08); border: 1px solid #eee;
         }
-
         th.sortable { cursor: pointer; user-select: none; position: relative; }
         th.sortable:hover { background-color: #f8f9fa !important; }
 
-        /* 狀態標籤 */
         .badge { font-weight: 600; padding: 5px 10px; border-radius: 6px; letter-spacing: 0.5px; }
         .badge-pending { background-color: #fff3cd; color: #856404; border: 1px solid #ffeeba; }
         .badge-confirm { background-color: #cff4fc; color: #055160; border: 1px solid #b6effb; }
         .badge-approved { background-color: #d1e7dd; color: #0f5132; border: 1px solid #badbcc; }
         .badge-rejected { background-color: #f8d7da; color: #842029; border: 1px solid #f5c2c7; }
 
-        /* 操作區輸入框 */
         .reviewer-input { width: 50px; text-align: center; font-size: 12px; }
     </style>
 </head>
@@ -98,7 +89,7 @@
 
     <div class="card-box p-0 overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-hover align-middle mb-0" style="font-size: 13px;">
+            <table class="table table-hover align-middle mb-0" style="font-size: 12px;">
                 <thead class="table-light text-muted">
                 <tr>
                     <th class="sortable ps-3" onclick="sortTable(0)">申請編號 <span class="arrow"></span></th>
@@ -107,10 +98,17 @@
                     <th class="sortable text-end" onclick="sortTable(3)">申請金額 <span class="arrow"></span></th>
                     <th class="sortable text-center" onclick="sortTable(4)">期數 <span class="arrow"></span></th>
                     <th class="sortable text-center" onclick="sortTable(5)">申請利率 <span class="arrow"></span></th>
-                    <th class="sortable text-end text-success" onclick="sortTable(6)">核准金額 <span class="arrow"></span></th>
-                    <th class="sortable text-center text-success" onclick="sortTable(7)">核准期數 <span class="arrow"></span></th>
-                    <th class="sortable text-center text-success" onclick="sortTable(8)">核准利率 <span class="arrow"></span></th>
-                    <th class="sortable text-center" onclick="sortTable(9)">狀態 <span class="arrow"></span></th>
+
+                    <th class="sortable text-center" onclick="sortTable(6)">申請時間 <span class="arrow"></span></th>
+
+                    <th class="sortable text-end text-success" onclick="sortTable(7)">核准金額 <span class="arrow"></span></th>
+                    <th class="sortable text-center text-success" onclick="sortTable(8)">核准期數 <span class="arrow"></span></th>
+
+                    <th class="sortable text-center text-success" onclick="sortTable(9)">審核時間 <span class="arrow"></span></th>
+
+                    <th class="sortable text-center text-success" onclick="sortTable(10)">核准利率 <span class="arrow"></span></th>
+                    <th class="sortable text-center" onclick="sortTable(11)">審核人員 <span class="arrow"></span></th>
+                    <th class="sortable text-center" onclick="sortTable(12)">狀態 <span class="arrow"></span></th>
                     <th class="text-center pe-3">操作 (限待審核)</th>
                 </tr>
                 </thead>
@@ -157,9 +155,16 @@
                     <td class="text-center"><%= loan.getApplyPeriod() %> 期</td>
                     <td class="text-center"><%= loan.getRate() == null ? "" : loan.getRate().multiply(new java.math.BigDecimal("100")).setScale(2, java.math.RoundingMode.HALF_UP) + "%" %></td>
 
+                    <td class="text-center text-muted small"><%= loan.getCreateTime() != null ? String.valueOf(loan.getCreateTime()).replace("T", " ") : "-" %></td>
+
                     <td class="text-end text-success fw-bold"><%= loan.getApprovedAmount() == null ? "-" : "$ " + String.format("%,d", loan.getApprovedAmount()) %></td>
                     <td class="text-center text-success"><%= loan.getApprovedPeriod() == null ? "-" : loan.getApprovedPeriod() + " 期" %></td>
+
+                    <td class="text-center text-success small"><%= loan.getReviewTime() != null ? String.valueOf(loan.getReviewTime()).replace("T", " ") : "<span class='text-muted fst-italic'>尚未審核</span>" %></td>
+
                     <td class="text-center text-success"><%= loan.getApprovedRate() == null ? "-" : loan.getApprovedRate().multiply(new java.math.BigDecimal("100")).setScale(2, java.math.RoundingMode.HALF_UP) + "%" %></td>
+
+                    <td class="text-center"><span class="badge bg-light text-dark border"><%= (loan.getReviewerId() != null) ? "ID: " + loan.getReviewerId() : "-" %></span></td>
 
                     <td class="text-center"><span class="badge <%= badgeClass %>"><%= statusText %></span></td>
 
@@ -203,7 +208,7 @@
                 <%  }
                 } else { %>
                 <tr>
-                    <td colspan="11" class="text-center py-5 text-muted">
+                    <td colspan="14" class="text-center py-5 text-muted">
                         <i class="bi bi-inbox fs-2 d-block mb-2"></i>目前沒有符合條件的案件資料
                     </td>
                 </tr>
@@ -247,10 +252,8 @@
         PERSONAL: [12,24,36,48,60], CAR: [12,24,36,48,60], MOTOR: [12,24,36],
         STUDENT: [60,84,120], BUSINESS: [36,60,84], HOUSE: [120,240,360,480], LAND: [120,180,240]
     };
-
     var currentFilterStatus = "<%= selectedStatus != null ? selectedStatus : "" %>";
     var myModal = null;
-
     document.addEventListener("DOMContentLoaded", function() {
         myModal = new bootstrap.Modal(document.getElementById('approveModal'));
     });
@@ -265,12 +268,11 @@
         if (minAmt) params.push("minAmount=" + minAmt);
         if (maxAmt) params.push("maxAmount=" + maxAmt);
 
-        // 顯示載入動畫，提升專業感
         Swal.fire({ title: '資料撈取中...', allowOutsideClick: false, showConfirmButton: false, didOpen: () => { Swal.showLoading(); }});
         location.href = "LoanApply" + (params.length > 0 ? "?" + params.join("&") : "");
     }
 
-    // 刪除按鈕 (SweetAlert2)
+    // 刪除按鈕
     function confirmDeleteRejected() {
         Swal.fire({
             title: '清除已拒絕案件？',
