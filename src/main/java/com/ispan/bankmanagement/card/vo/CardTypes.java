@@ -11,6 +11,7 @@ public class CardTypes implements Serializable{
     private String brand;
     private BigDecimal annualFee;
     private BigDecimal cashbackRate;
+    private String cardImageUrl;
 //    private double creditLimit;
 	public CardTypes(int cardTypeId, String cardTypeName, String brand, BigDecimal annualFee, BigDecimal cashbackRate,
 			double creditLimit) {
@@ -23,6 +24,17 @@ public class CardTypes implements Serializable{
 //		this.creditLimit = creditLimit;
 	}
 	
+	public CardTypes(int cardTypeId, String cardTypeName, String brand, BigDecimal annualFee, BigDecimal cashbackRate,
+			String cardImageUrl) {
+		super();
+		this.cardTypeId = cardTypeId;
+		this.cardTypeName = cardTypeName;
+		this.brand = brand;
+		this.annualFee = annualFee;
+		this.cashbackRate = cashbackRate;
+		this.cardImageUrl = cardImageUrl;
+	}
+
 	public CardTypes() {
 		super();
 		// TODO Auto-generated constructor stub
@@ -57,6 +69,14 @@ public class CardTypes implements Serializable{
 	}
 	public void setCashbackRate(BigDecimal cashbackRate) {
 		this.cashbackRate = cashbackRate;
+	}
+
+	public String getCardImageUrl() {
+		return cardImageUrl;
+	}
+
+	public void setCardImageUrl(String cardImageUrl) {
+		this.cardImageUrl = cardImageUrl;
 	}
 	
     

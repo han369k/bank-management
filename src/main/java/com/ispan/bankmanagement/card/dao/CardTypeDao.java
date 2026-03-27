@@ -14,13 +14,14 @@ import com.ispan.bankmanagement.util.ConnUtil;
 public class CardTypeDao {
 	//新增
 	public void addCardType(CardTypes cardType) {
-		String sql = "INSERT INTO CARD_TYPE (card_type_name, brand, annual_fee,cashback_rate) VALUES (?, ?, ?,?)";
+		String sql = "INSERT INTO CARD_TYPE (card_type_name, brand, annual_fee,cashback_rate,card_image_url) VALUES (?, ?, ?,?)";
 		try (Connection conn = ConnUtil.getConn();
 				PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, cardType.getCardTypeName());
 			ps.setString(2, cardType.getBrand());
 			ps.setBigDecimal(3, cardType.getAnnualFee());
 			ps.setBigDecimal(4, cardType.getCashbackRate());
+			ps.setString(5, cardType.getCardImageUrl());
 			ps.executeUpdate();			
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -42,6 +43,7 @@ public class CardTypeDao {
                 ct.setBrand(rs.getString("brand"));
                 ct.setAnnualFee(rs.getBigDecimal("annual_fee"));
                 ct.setCashbackRate(rs.getBigDecimal("cashback_rate"));
+                ct.setCardImageUrl(rs.getString("card_image_url"));
                 list.add(ct);								
 			}
 		} catch (SQLException e) {
@@ -78,7 +80,7 @@ public class CardTypeDao {
 	            type.setBrand(rs.getString("brand"));
 	            type.setAnnualFee(rs.getBigDecimal("annual_fee"));
 	            type.setCashbackRate(rs.getBigDecimal("cashback_rate"));
-
+	            type.setCardImageUrl(rs.getString("card_image_url"));
 	            return type;
 	        }
 
@@ -94,7 +96,7 @@ public class CardTypeDao {
 	
 	//修改卡別
 	public void updateCardType(CardTypes cardTypes) {
-		String sql = "UPDATE CARD_TYPE SET card_type_name=?, brand=?, annual_fee=?,cashback_rate=?  WHERE card_type_id=?";
+		String sql = "UPDATE CARD_TYPE SET card_type_name=?, brand=?, annual_fee=?,cashback_rate=?,card_image_url=?  WHERE card_type_id=?";
 		try (Connection conn = ConnUtil.getConn();
 				PreparedStatement ps = conn.prepareStatement(sql)) {
 			ps.setString(1, cardTypes.getCardTypeName());
@@ -102,6 +104,7 @@ public class CardTypeDao {
             ps.setBigDecimal(3, cardTypes.getAnnualFee());
             ps.setBigDecimal(4, cardTypes.getCashbackRate());            
             ps.setInt(5, cardTypes.getCardTypeId());
+            ps.setString(6,cardTypes.getCardImageUrl());
             ps.executeUpdate();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block

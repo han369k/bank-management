@@ -18,13 +18,7 @@
         margin-bottom: 10px;
     }
 
-    .top-actions a {
-        margin-right: 10px;
-        padding: 6px 12px;
-        border-radius: 5px;
-        text-decoration: none;
-        color: white;
-    }
+
 
     .back-btn {
         background-color: #007bff;
@@ -34,8 +28,9 @@
         background-color: #dc3545;
     }
 
-    .top-actions a:hover {
-        opacity: 0.85;
+    .top-actions a:hover,
+.top-actions button:hover {
+    opacity: 0.85;
     }
 
     .card {
@@ -106,6 +101,44 @@
         color: #888;
         margin-top: 20px;
     }
+button.remove-btn {
+    border: none;
+    cursor: pointer;
+}
+    .card {
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-top: 15px;
+    }
+
+.top-actions button {
+    margin-right: 10px;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+    vertical-align: middle;
+}
+
+.top-actions a,
+.top-actions button {
+    margin-right: 10px;
+    padding: 6px 12px;
+    border-radius: 5px;
+    text-decoration: none;
+    color: white;
+    border: none;
+    cursor: pointer;
+
+    /* 🔥 關鍵三個 */
+    font-size: 14px;
+    font-family: inherit;
+    line-height: 1.5;
+}
 
 </style>
 
@@ -116,7 +149,14 @@
 
 <div class="top-actions">
     <a class="back-btn" href="${pageContext.request.contextPath}/cardType?action=list">← 繼續選卡</a>
-    <a class="clear-btn" href="${pageContext.request.contextPath}/cardCart?action=clear">清空購物車</a>
+    <!-- <a class="clear-btn" href="${pageContext.request.contextPath}/cardCart?action=clear">清空購物車</a> -->
+    <form action="${pageContext.request.contextPath}/cardCart" method="post" style="display:inline;">
+        <input type="hidden" name="action" value="clear">
+        <button class="clear-btn" type="submit">清空購物車</button>
+    </form>
+
+
+
 </div>
 
 <hr>
@@ -145,10 +185,15 @@
                     <td>${item.annualFee}</td>
                     <td>${item.cashbackRate}%</td>
                     <td>
-                        <a class="remove-btn"
+                        <!-- <a class="remove-btn"
                            href="${pageContext.request.contextPath}/cardCart?action=remove&cardTypeId=${item.cardTypeId}">
                             移除
-                        </a>
+                        </a> -->
+                        <form action="${pageContext.request.contextPath}/cardCart" method="post" style="display:inline;">
+                            <input type="hidden" name="action" value="remove">
+                            <input type="hidden" name="cardTypeId" value="${item.cardTypeId}">
+                            <button class="remove-btn" type="submit">移除</button>
+                        </form>
                     </td>
                 </tr>
             </c:forEach>

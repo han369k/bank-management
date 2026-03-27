@@ -43,33 +43,37 @@ public class CartController extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String action = request.getParameter("action");
-		if ("add".equals(action)) {
-            addToCart(request, response);
-            return;
-        }
-
-        if ("remove".equals(action)) {
-            removeFromCart(request, response);
-            return;
-        }
-
-        if ("clear".equals(action)) {
-            request.getSession().removeAttribute("cart");
-            response.sendRedirect(request.getContextPath() + "/cardCart?action=view");
-            return;
-        }
         
         if (action == null || "view".equals(action)) {
             viewCart(request, response);
             return;
         }
-		
+      //防呆
+        response.sendRedirect(request.getContextPath() + "/cardCart?action=view");
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		String action = request.getParameter("action");
 
-        if ("checkout".equals(action)) {
+		if ("add".equals(action)) {
+			addToCart(request, response);
+			return;
+		}
+		
+		if ("remove".equals(action)) {
+			removeFromCart(request, response);
+			return;
+		}
+		
+		if ("clear".equals(action)) {
+			request.getSession().removeAttribute("cart");
+			response.sendRedirect(request.getContextPath() + "/cardCart?action=view");
+			return;
+		}
+		
+
+		
+		if ("checkout".equals(action)) {
             checkout(request, response);
             return;
         }
@@ -145,6 +149,7 @@ public class CartController extends HttpServlet {
             card.setCreditLimit(BigDecimal.ZERO);// 不由使用者輸入
             card.setCurrentBalance(BigDecimal.ZERO);
             card.setStatus(CardStatus.INACTIVE);//預設是
+            
 
             cardService.addCard(card);
         }

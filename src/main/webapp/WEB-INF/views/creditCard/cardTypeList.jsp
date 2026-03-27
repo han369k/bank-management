@@ -39,6 +39,11 @@
         background-color: #218838;
     }
 
+    button.btn {
+    border: none;
+    cursor: pointer;
+}
+
     .table {
         width: 100%;
         border-collapse: collapse;
@@ -58,6 +63,18 @@
     .table tr:hover {
         background-color: #f9f9f9;
     }
+    .btn:disabled {
+    background-color: #aaa;
+    cursor: not-allowed;
+}
+img {
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+img:hover {
+    transform: scale(1.05);
+}
 
 </style>
 
@@ -76,6 +93,7 @@
             <th>品牌</th>
             <th>年費</th>
             <th>回饋率</th>
+            <th>圖片</th>
             <th>操作</th>
         </tr>
 
@@ -86,16 +104,48 @@
                 <td>${type.brand}</td>
                 <td>${type.annualFee}</td>
                 <td>${type.cashbackRate}%</td>
+                <td><img src="${pageContext.request.contextPath}${type.cardImageUrl}" alt="${type.cardTypeName}" width="100"></td>
                 <td>
-                    <a class="btn"
+                    <!-- <a class="btn"
                        href="${pageContext.request.contextPath}/cardCart?action=add&cardTypeId=${type.cardTypeId}">
                         加入購物車
-                    </a>
+                    </a> -->
+                    <form class="add-form" action="${pageContext.request.contextPath}/cardCart" method="post">
+                        <input type="hidden" name="action" value="add">
+                        <input type="hidden" name="cardTypeId" value="${type.cardTypeId}">
+                        <button class="btn add-btn" type="submit">加入購物車</button>
+
+
+
+                    </form>
                 </td>
             </tr>
         </c:forEach>
 
     </table>
+    <script>
+    // 為所有加入購物車的表單添加事件監聽器
+const forms = document.querySelectorAll('.add-form');
+forms.forEach(form => { 
+    form.addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const btn = this.querySelector('.add-btn');
+
+    if (btn.disabled) return;
+
+    btn.disabled = true;
+    btn.textContent = '已加入購物車';
+
+    fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this)
+    });
+});
+});
+
+    </script>
+
 
 </body>
 </html>
