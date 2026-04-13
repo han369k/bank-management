@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
-<%@ page import="com.ispan.bankmanagement.loan.vo.LoanApplyBean" %>
+<%@ page import="com.ispan.bankmanagement.loan.LoanApplyBean" %>
 <%
     String selectedStatus = request.getParameter("status");
     String paramMin = request.getParameter("minAmount");

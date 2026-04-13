@@ -33,3 +33,15 @@ Desktop.ini
 
 # === 專案私密設定 (保護資料庫密碼) ===
 src/main/resources/db.properties
+src/main/resources/application-local.properties
+
+# Maven Wrapper
+.mvn/
+mvnw
+mvnw.cmd
+
+# Log files
+*.log
+logs/
+
+HELP.md

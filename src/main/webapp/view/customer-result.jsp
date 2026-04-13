@@ -1,6 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="com.ispan.bankmanagement.customer.vo.Customer" %>
+<%@ page import="com.ispan.bankmanagement.customer.Customer" %>
 <!DOCTYPE html>
 <html>
 <head>
