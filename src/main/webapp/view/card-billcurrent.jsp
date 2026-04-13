@@ -13,7 +13,7 @@
   <link rel="stylesheet" href="${pageContext.request.contextPath}/css/style.css">
 
   <style>
-    /* 這裡只保留此頁面專有的排版微調，字體與顏色已由 style.css 統一控管 */
+    /* 這裡只保留此頁面專有的排版微調，字體與顏色由 style.css 統一控管 */
     .page-wrapper { max-width: 900px; margin: 32px auto; padding: 0 16px; }
     .page-title { font-size: 20px; font-weight: 600; margin-bottom: 20px; }
     .card-box { background: #fff; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.08); padding: 24px; }

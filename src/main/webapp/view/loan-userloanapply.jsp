@@ -104,9 +104,7 @@
 
 <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 <script>
-  // ==========================================
-  // 1. 一鍵帶入假資料 (Demo 魔法按鈕)
-  // ==========================================
+  // 一鍵帶入Demo假資料
   function fillDemoData() {
     // 隨機產生客戶 ID (例如 C00001 ~ C00100 之間)
     const randCustId = 'C' + Math.floor(Math.random() * 100 + 1).toString().padStart(5, '0');
@@ -116,7 +114,7 @@
     const loanTypes = ['PERSONAL', 'CAR', 'HOUSE'];
     const randomType = loanTypes[Math.floor(Math.random() * loanTypes.length)];
 
-    // 設定貸款種類，並「主動觸發 change 事件」，讓期數的下拉選單生出來！
+    // 設定貸款種類，並主動觸發 change 事件，讓期數的下拉選單生出來
     $('#type').val(randomType).trigger('change');
 
     // 取得剛生出來的期數選單中，所有合法的期數 (排除第一個空選項)
@@ -127,15 +125,13 @@
     // 隨機產生金額 (例如 30萬 ~ 500萬)
     const randomAmount = Math.floor(Math.random() * 470 + 30) * 10000;
 
-    // 設定金額，並「主動觸發 input 事件」，讓下方的利率與金額開始試算！
+    // 設定金額，並主動觸發 input 事件，讓下方的利率與金額開始試算
     $('#amount').val(randomAmount).trigger('input');
   }
 
-  // ==========================================
-  // 2. 原有的連動與試算邏輯
-  // ==========================================
+  // 連動與試算邏輯
   $(function() {
-    // 貸款種類 → 期數邏輯不變
+    // 貸款種類 -> 期數邏輯不變
     $("#type").change(function () {
       var plan = $(this).val();
       var term = $("#term");

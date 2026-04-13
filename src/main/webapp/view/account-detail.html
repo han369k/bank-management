@@ -8,7 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../css/style.css">
   <style>
-    /* ✅ 補回詳情頁專屬的排版設定，解決跑版問題 */
+    /* 補回詳情頁專屬的排版設定，解決跑版問題 */
     .page-wrapper { max-width: 800px; margin: 30px auto; padding: 0 16px; }
     .card { border: 1px solid #eee; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.05); margin-bottom: 20px; }
     .card-header { background-color: #f8f9fa; font-weight: 600; border-bottom: 1px solid #eee; padding: 12px 16px; }
@@ -33,9 +33,9 @@
   <div class="container-fluid px-4">
     <a class="navbar-brand" href="../index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
     <div class="navbar-nav ms-3">
-      <a class="nav-link active" href="account-list.html">帳戶列表</a>
-      <a class="nav-link" href="account-create.html">新增帳戶</a>
-      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+      <a class="nav-link" href="../view/account-list.html">帳戶列表</a>
+      <a class="nav-link" href="../view/account-create.html">新增帳戶</a>
+      <a class="nav-link" href="../view/translog-search.html">交易紀錄</a>
     </div>
   </div>
 </nav>
@@ -163,7 +163,6 @@
 </div>
 
 <script>
-  // 這裡假設你的 Java Servlet 註冊的 URL 是 /account
   const ctx = '../account';
   const account = new URLSearchParams(location.search).get('account');
 
@@ -172,7 +171,7 @@
             '<div class="alert alert-danger mb-4"><i class="bi bi-exclamation-octagon me-2"></i>未指定帳號，請從列表進入此頁。</div>';
   }
 
-  // ✅ 修正：轉向交易紀錄的實體檔案路徑
+  // fix: 轉向交易紀錄的實體檔案路徑
   document.getElementById('link-translog').href =
           `translog-search.html?account=${encodeURIComponent(account ?? '')}`;
 
@@ -190,7 +189,7 @@
     return `<span class="badge-status ${cls}">${s}</span>`;
   }
 
-  // ✅ 一鍵帶入轉帳 Demo 資料
+  // 一鍵帶入轉帳 Demo 資料
   function fillTransferDemo() {
     // 隨機產生一個 808 開頭的假目標帳號
     const randomSuffix = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
@@ -318,7 +317,7 @@
     if (!ok) { showMsg(data.error); return; }
     showMsg(`<i class="bi bi-check-circle-fill me-1"></i>${data.message}　(3秒後返回列表)`, 'success');
 
-    // ✅ 修正返回列表路徑
+    // fix: 修正返回列表路徑
     setTimeout(() => location.href = 'account-list.html', 3000);
   }
 
