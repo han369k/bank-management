@@ -1,0 +1,7 @@
+${AnsiColor.BRIGHT_MAGENTA}
+   |\__/,|   (`\
+ _.|o o  |_   ) )
+-(((---(((--------
+${AnsiColor.BRIGHT_CYAN}
+ :: Spring Meow ::  (v${spring-boot.version})
+${AnsiColor.DEFAULT}
