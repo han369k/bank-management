@@ -17,14 +17,14 @@
 //    private static final Logger logger = LoggerFactory.getLogger(AccountDAO.class);
 //
 //    /**
-//     * 將 ResultSet 的當前行數據，映射到一個 AccountEntity 物件。
+//     * 將 ResultSet 的當前行數據，映射到一個 Account 物件。
 //     * 這是一個私有輔助方法，用於簡化查詢程式碼。
 //     * @param rs 資料庫查詢結果集
-//     * @return 一個包含該行數據的 AccountEntity 物件
+//     * @return 一個包含該行數據的 Account 物件
 //     * @throws SQLException 如果讀取 ResultSet 時發生錯誤
 //     */
-//    private AccountEntity mapRow(ResultSet rs) throws SQLException {
-//        AccountEntity accountEntity = new AccountEntity();
+//    private Account mapRow(ResultSet rs) throws SQLException {
+//        Account accountEntity = new Account();
 //        accountEntity.setAccount(rs.getString("account_number"));
 //        accountEntity.setCustomerId(rs.getString("customer_id"));
 //        accountEntity.setType(rs.getString("type"));
@@ -45,7 +45,7 @@
 //     * @param accountEntity 包含要新增的帳戶資料的實體物件
 //     * @throws SQLException 如果 SQL 執行失敗
 //     */
-//    public void insert(Connection conn, AccountEntity accountEntity) throws SQLException {
+//    public void insert(Connection conn, Account accountEntity) throws SQLException {
 //        String sql = "INSERT INTO account (account_number, customer_id, type, currency, balance, status, create_at, change_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 //
 //        // 使用 try-with-resources 自動關閉 PreparedStatement
@@ -77,7 +77,7 @@
 //     * @throws SQLException 如果 SQL 執行失敗
 //     * @throws ResourceNotFoundException 如果找不到該帳號
 //     */
-//    public AccountEntity findByAccount(Connection conn, String account) throws SQLException {
+//    public Account findByAccount(Connection conn, String account) throws SQLException {
 //        String sql = "SELECT * FROM account WHERE account_number = ?";
 //
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -95,13 +95,13 @@
 //
 //    /**
 //     * 多條件動態查詢。
-//     * 根據傳入的 AccountEntity 物件中的非空欄位，動態拼接 SQL 查詢條件。
+//     * 根據傳入的 Account 物件中的非空欄位，動態拼接 SQL 查詢條件。
 //     * @param conn          資料庫連線
 //     * @param accountEntity 包含查詢條件的實體物件 (可為 null 或空物件)
 //     * @return 符合條件的帳戶列表
 //     * @throws SQLException 如果 SQL 執行失敗
 //     */
-//    public List<AccountEntity> query(Connection conn, AccountEntity accountEntity) throws SQLException {
+//    public List<Account> query(Connection conn, Account accountEntity) throws SQLException {
 //        // 使用 StringBuilder 動態拼接 SQL，"WHERE 1=1" 技巧方便後續用 "AND" 串接條件
 //        StringBuilder sql = new StringBuilder("SELECT * FROM account WHERE 1=1");
 //        List<Object> params = new ArrayList<>();
@@ -126,7 +126,7 @@
 //
 //        sql.append(" ORDER BY create_at DESC");
 //
-//        List<AccountEntity> list = new ArrayList<>();
+//        List<Account> list = new ArrayList<>();
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 //            // 將參數列表中的值，依序設定到 PreparedStatement 中
 //            for (int i = 0; i < params.size(); i++) {

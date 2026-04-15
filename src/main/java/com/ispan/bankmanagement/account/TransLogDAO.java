@@ -18,10 +18,10 @@
 //    private static final Logger logger = LoggerFactory.getLogger(TransLogDAO.class);
 //
 //    /**
-//     * 將 ResultSet 的當前行數據，映射到一個 TransLogEntity 物件。
+//     * 將 ResultSet 的當前行數據，映射到一個 TransLog 物件。
 //     */
-//    private TransLogEntity mapRow(ResultSet rs) throws SQLException {
-//        TransLogEntity vo = new TransLogEntity();
+//    private TransLog mapRow(ResultSet rs) throws SQLException {
+//        TransLog vo = new TransLog();
 //        vo.setTransLogId(rs.getLong("trans_log_id"));
 //        vo.setReferenceId(rs.getString("reference_id"));
 //        vo.setAmount(rs.getBigDecimal("amount"));
@@ -40,7 +40,7 @@
 //     * @param log  要新增的交易紀錄實體
 //     * @throws SQLException 如果 SQL 執行失敗
 //     */
-//    public void insert(Connection conn, TransLogEntity log) throws SQLException {
+//    public void insert(Connection conn, TransLog log) throws SQLException {
 //        String sql = "INSERT INTO trans_log (reference_id, amount, type, operation_account, other_account, balance, transaction_time, note) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 //            pstmt.setString(1, log.getReferenceId());
@@ -64,7 +64,7 @@
 //     * @throws SQLException 如果 SQL 執行失敗
 //     * @throws ResourceNotFoundException 如果找不到該紀錄
 //     */
-//    public TransLogEntity findByReferenceId(Connection conn, String referenceId) throws SQLException {
+//    public TransLog findByReferenceId(Connection conn, String referenceId) throws SQLException {
 //        String sql = "SELECT * FROM trans_log WHERE reference_id = ?";
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 //            pstmt.setString(1, referenceId);
@@ -88,7 +88,7 @@
 //     * @return 符合條件的交易紀錄列表
 //     * @throws SQLException 如果 SQL 執行失敗
 //     */
-//    public List<TransLogEntity> query(Connection conn, String customerId, String account, LocalDate startDate, LocalDate endDate, int page) throws SQLException {
+//    public List<TransLog> query(Connection conn, String customerId, String account, LocalDate startDate, LocalDate endDate, int page) throws SQLException {
 //        final int PAGE_SIZE = 50;
 //        StringBuilder sql = new StringBuilder("SELECT t.* FROM trans_log t ");
 //        List<Object> params = new ArrayList<>();
@@ -122,7 +122,7 @@
 //        params.add((page - 1) * PAGE_SIZE);
 //        params.add(PAGE_SIZE);
 //
-//        List<TransLogEntity> list = new ArrayList<>();
+//        List<TransLog> list = new ArrayList<>();
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql.toString())) {
 //            for (int i = 0; i < params.size(); i++) {
 //                pstmt.setObject(i + 1, params.get(i));
@@ -201,9 +201,9 @@
 //    }
 //
 //    // 以下是舊的、功能較單一的查詢方法，予以保留，以防有其他地方呼叫
-//    public List<TransLogEntity> findByOperationAccount(Connection conn, String operationAccount) throws SQLException {
+//    public List<TransLog> findByOperationAccount(Connection conn, String operationAccount) throws SQLException {
 //        String sql = "SELECT * FROM trans_log WHERE operation_account = ? ORDER BY transaction_time DESC";
-//        List<TransLogEntity> list = new ArrayList<>();
+//        List<TransLog> list = new ArrayList<>();
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 //            pstmt.setString(1, operationAccount);
 //            try (ResultSet rs = pstmt.executeQuery()) {
@@ -214,9 +214,9 @@
 //        }
 //        return list;
 //    }
-//    public List<TransLogEntity> findByCustomerId(Connection conn, String customerId) throws SQLException {
+//    public List<TransLog> findByCustomerId(Connection conn, String customerId) throws SQLException {
 //        String sql = "SELECT t.* FROM trans_log t JOIN account a ON t.operation_account = a.account WHERE a.customer_id = ? ORDER BY t.transaction_time DESC";
-//        List<TransLogEntity> list = new ArrayList<>();
+//        List<TransLog> list = new ArrayList<>();
 //        try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
 //            pstmt.setString(1, customerId);
 //            try (ResultSet rs = pstmt.executeQuery()) {

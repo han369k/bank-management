@@ -128,7 +128,7 @@
 //        if (referenceId == null || referenceId.isBlank()) {
 //            throw new IllegalArgumentException("referenceId 參數為必填");
 //        }
-//        TransLogEntity log = transLogService.getLogByReferenceId(referenceId);
+//        TransLog log = transLogService.getLogByReferenceId(referenceId);
 //        sendJson(resp, HttpServletResponse.SC_OK, log);
 //    }
 //
@@ -137,7 +137,7 @@
 //        if (account == null || account.isBlank()) {
 //            throw new IllegalArgumentException("account 參數為必填");
 //        }
-//        List<TransLogEntity> logs = transLogService.getLogsByAccount(account);
+//        List<TransLog> logs = transLogService.getLogsByAccount(account);
 //        sendJson(resp, HttpServletResponse.SC_OK, logs);
 //    }
 //
@@ -146,7 +146,7 @@
 //        if (customerId == null || customerId.isBlank()) {
 //            throw new IllegalArgumentException("customerId 參數為必填");
 //        }
-//        List<TransLogEntity> logs = transLogService.getLogsByCustomerId(customerId);
+//        List<TransLog> logs = transLogService.getLogsByCustomerId(customerId);
 //        sendJson(resp, HttpServletResponse.SC_OK, logs);
 //    }
 //
@@ -171,7 +171,7 @@
 //        LocalDate startDate = parseDate(startStr, "startDate");
 //        LocalDate endDate   = parseDate(endStr,   "endDate");
 //
-//        List<TransLogEntity> logs =
+//        List<TransLog> logs =
 //                transLogService.searchLogs(customerId, account, startDate, endDate, page);
 //        sendJson(resp, HttpServletResponse.SC_OK, logs);
 //    }

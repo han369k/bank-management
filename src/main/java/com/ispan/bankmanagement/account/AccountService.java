@@ -22,7 +22,7 @@
 //    TransLogDAO transLogDAO = new TransLogDAO();
 //
 //    // 新增帳戶
-//    public void createAcc(AccountEntity accountEntity) {
+//    public void createAcc(Account accountEntity) {
 //        // 使用 try-with-resources 語句，確保 Connection 在使用完畢後會自動關閉
 //        try (Connection conn = ConnUtil.getConn()) {
 //
@@ -61,7 +61,7 @@
 //    }
 //
 //    // 透過帳號查詢單筆帳戶資料
-//    public AccountEntity getAccountByAccount(String account) {
+//    public Account getAccountByAccount(String account) {
 //        try (Connection conn = ConnUtil.getConn()) {
 //            // 直接回傳 DAO 的查詢結果。
 //            // Service 層不再需要處理「找不到」的情況，因為 DAO 層會直接拋出 ResourceNotFoundException。
@@ -73,12 +73,12 @@
 //    }
 //
 //    // todo: 需要改寫DAO (join custormer)
-//    //public AccountEntity searchAccountByCustormerName(){}
+//    //public Account searchAccountByCustormerName(){}
 //
 //    // 查詢所有帳戶 (或根據條件)
-//    public List<AccountEntity> getAllAccount(AccountEntity accountEntity) {
+//    public List<Account> getAllAccount(Account accountEntity) {
 //        try (Connection conn = ConnUtil.getConn()) {
-//            List<AccountEntity> list = accountDAO.query(conn, accountEntity);
+//            List<Account> list = accountDAO.query(conn, accountEntity);
 //            logger.info("帳戶條件查詢完成，共找到 {} 筆資料。", list.size());
 //            return list;
 //        } catch (SQLException e) {
@@ -131,7 +131,7 @@
 //
 //            try {
 //                // 1. 鎖定並查詢帳戶，檢查狀態與餘額
-//                AccountEntity accountEntity = accountDAO.findByAccount(conn, accountNo);
+//                Account accountEntity = accountDAO.findByAccount(conn, accountNo);
 //
 //                // 業務邏輯：凍結的帳戶不能提款
 //                if ("FROZEN".equals(accountEntity.getStatus())) {
@@ -149,7 +149,7 @@
 //                BigDecimal balanceAfter = accountEntity.getBalance().subtract(amount);
 //
 //                // 4. 封裝交易紀錄 (TransLog)
-//                TransLogEntity log = new TransLogEntity();
+//                TransLog log = new TransLog();
 //                log.setReferenceId(UUID.randomUUID().toString()); // 產生一個唯一的交易參考碼
 //                log.setAmount(amount);
 //                log.setType("WITHDRAW");
@@ -193,7 +193,7 @@
 //
 //            try {
 //                // 1. 查詢帳戶是否存在、是否被凍結
-//                AccountEntity account = accountDAO.findByAccount(conn, accountNo);
+//                Account account = accountDAO.findByAccount(conn, accountNo);
 //                if ("FROZEN".equals(account.getStatus())) {
 //                    throw new AccountFrozenException("存款失敗，帳戶已凍結");
 //                }
@@ -205,7 +205,7 @@
 //                BigDecimal balanceAfter = account.getBalance().add(amount);
 //
 //                // 4. 封裝並寫入交易日誌
-//                TransLogEntity log = new TransLogEntity();
+//                TransLog log = new TransLog();
 //                log.setReferenceId(UUID.randomUUID().toString());
 //                log.setAmount(amount);
 //                log.setType("DEPOSIT");
@@ -247,12 +247,12 @@
 //
 //            try {
 //                // 1. 鎖定並檢查轉出帳戶
-//                AccountEntity fromAcc = accountDAO.findByAccount(conn, fromAccNo);
+//                Account fromAcc = accountDAO.findByAccount(conn, fromAccNo);
 //                if (fromAcc.getBalance().compareTo(amount) < 0) throw new RuntimeException("餘額不足");
 //                if ("FROZEN".equals(fromAcc.getStatus())) throw new AccountFrozenException("轉出帳戶已凍結");
 //
 //                // 2. 鎖定並檢查轉入帳戶
-//                AccountEntity toAcc = accountDAO.findByAccount(conn, toAccNo);
+//                Account toAcc = accountDAO.findByAccount(conn, toAccNo);
 //                if ("FROZEN".equals(toAcc.getStatus())) throw new AccountFrozenException("轉入帳戶已凍結");
 //
 //                // 3. 計算更新後餘額，並執行更新
@@ -268,7 +268,7 @@
 //                LocalDateTime now = LocalDateTime.now();
 //
 //                // 4a. 寫入"轉出方"的日誌
-//                TransLogEntity fromLog = new TransLogEntity();
+//                TransLog fromLog = new TransLog();
 //                fromLog.setReferenceId(commonRef);
 //                fromLog.setAmount(amount.negate()); // 轉出方的金額紀錄為負數
 //                fromLog.setType("TRANSFER_OUT");
@@ -280,7 +280,7 @@
 //                transLogDAO.insert(conn, fromLog);
 //
 //                // 4b. 寫入"轉入方"的日誌
-//                TransLogEntity toLog = new TransLogEntity();
+//                TransLog toLog = new TransLog();
 //                toLog.setReferenceId(commonRef);
 //                toLog.setAmount(amount); // 轉入方的金額紀錄為正數
 //                toLog.setType("TRANSFER_IN");

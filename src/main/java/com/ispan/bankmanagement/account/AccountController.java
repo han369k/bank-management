@@ -141,7 +141,7 @@
 //        if (accountNo == null || accountNo.trim().isEmpty()) {
 //            throw new IllegalArgumentException("查詢失敗，請提供 account 參數");
 //        }
-//        AccountEntity account = accountService.getAccountByAccount(accountNo);
+//        Account account = accountService.getAccountByAccount(accountNo);
 //        sendJson(resp, HttpServletResponse.SC_OK, account);
 //    }
 //
@@ -150,21 +150,21 @@
 //     */
 //    private void handleGetAllAccounts(HttpServletRequest req, HttpServletResponse resp) {
 //        // 1. 建立一個 Entity 來裝載前端傳來的查詢條件
-//        AccountEntity condition = new AccountEntity();
+//        Account condition = new Account();
 //        condition.setAccount(req.getParameter("account"));
 //        condition.setCustomerId(req.getParameter("customerId"));
 //        condition.setType(req.getParameter("type"));
 //        condition.setStatus(req.getParameter("status"));
 //
 //        // 2. 將裝滿條件的 condition 傳給 Service
-//        List<AccountEntity> accounts = accountService.getAllAccount(condition);
+//        List<Account> accounts = accountService.getAllAccount(condition);
 //        sendJson(resp, HttpServletResponse.SC_OK, accounts);
 //    }
 //
 //    // --- POST 請求的處理方法 ---
 //
 //    private void handleCreateAccount(HttpServletResponse resp, String jsonBody) throws IOException {
-//        AccountEntity accountEntity = objectMapper.readValue(jsonBody, AccountEntity.class);
+//        Account accountEntity = objectMapper.readValue(jsonBody, Account.class);
 //
 //        // 在呼叫 Service 前，對從 JSON 來的資料進行基本驗證
 //        if (accountEntity.getAccount() == null || accountEntity.getAccount().isBlank()) {

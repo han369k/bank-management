@@ -21,7 +21,7 @@
 //     * @return 找到的交易紀錄實體
 //     * @throws ResourceNotFoundException 如果找不到對應的紀錄
 //     */
-//    public TransLogEntity getLogByReferenceId(String referenceId) {
+//    public TransLog getLogByReferenceId(String referenceId) {
 //        try (Connection conn = ConnUtil.getConn()) {
 //            if (referenceId == null || referenceId.trim().isEmpty()) {
 //                throw new IllegalArgumentException("Reference ID 不可為空");
@@ -39,12 +39,12 @@
 //     * @param customerId
 //     * @return 該客戶的所有交易紀錄列表，如果沒有則回傳空List
 //     */
-//    public List<TransLogEntity> getLogsByCustomerId(String customerId) {
+//    public List<TransLog> getLogsByCustomerId(String customerId) {
 //        try (Connection conn = ConnUtil.getConn()) {
 //            if (customerId == null || customerId.trim().isEmpty()) {
 //                throw new IllegalArgumentException("Customer ID 不可為空");
 //            }
-//            List<TransLogEntity> logs = transLogDAO.findByCustomerId(conn, customerId);
+//            List<TransLog> logs = transLogDAO.findByCustomerId(conn, customerId);
 //            logger.info("為 Customer ID: {} 查詢到 {} 筆交易紀錄", customerId, logs.size());
 //            return logs;
 //        } catch (SQLException e) {
@@ -58,12 +58,12 @@
 //     * @param account 銀行帳號
 //     * @return 該帳戶的所有交易紀錄列表，如果沒有則回傳空列表
 //     */
-//    public List<TransLogEntity> getLogsByAccount(String account) {
+//    public List<TransLog> getLogsByAccount(String account) {
 //        try (Connection conn = ConnUtil.getConn()) {
 //            if (account == null || account.trim().isEmpty()) {
 //                throw new IllegalArgumentException("帳號不可為空");
 //            }
-//            List<TransLogEntity> logs = transLogDAO.findByOperationAccount(conn, account);
+//            List<TransLog> logs = transLogDAO.findByOperationAccount(conn, account);
 //            logger.info("為帳號: {} 查詢到 {} 筆交易紀錄", account, logs.size());
 //            return logs;
 //        } catch (SQLException e) {
@@ -105,7 +105,7 @@
 //     * @param page       頁碼，從 1 開始。
 //     * @return 符合條件的交易紀錄列表 (單頁最多50筆)
 //     */
-//    public List<TransLogEntity> searchLogs(String customerId, String account, LocalDate startDate, LocalDate endDate, int page) {
+//    public List<TransLog> searchLogs(String customerId, String account, LocalDate startDate, LocalDate endDate, int page) {
 //        // 【修正 6】頁碼小於 1 時拋出例外
 //        if (page < 1) {
 //            throw new IllegalArgumentException("頁碼必須大於等於 1");
@@ -114,7 +114,7 @@
 //        endDate = validateEndDate(startDate, endDate);
 //
 //        try (Connection conn = ConnUtil.getConn()) {
-//            List<TransLogEntity> logs = transLogDAO.query(conn, customerId, account, startDate, endDate, page);
+//            List<TransLog> logs = transLogDAO.query(conn, customerId, account, startDate, endDate, page);
 //            logger.info("交易紀錄動態查詢完成，條件: [customerId={}, account={}, startDate={}, endDate={}, page={}]，共取得 {} 筆資料",
 //                    customerId, account, startDate, endDate, page, logs.size());
 //            return logs;
