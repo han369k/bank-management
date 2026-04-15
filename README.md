@@ -21,7 +21,7 @@
 * **建置工具 (Build Tool)**: Maven
 * **伺服器 (Server)**: 內建 Tomcat (Embedded)
 
-### `main` 分支 (傳統 Servlet 架構)
+### `main` 分支 (傳統 Servlet 架構)   
 * **後端 (Backend)**: Java 17, Jakarta EE (Servlet / JSP)
 * **前端 (Frontend)**: HTML5, CSS3, JavaScript (jQuery)
 * **資料存取 (Data Access)**: 傳統 JDBC (DAO Pattern)
