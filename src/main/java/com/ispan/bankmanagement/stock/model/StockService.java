@@ -30,7 +30,11 @@ public class StockService {
         sRepos.deleteById(id);
     }
 
-    public Stock update(Stock stock) {
-        return sRepos.save(stock);
+    @Transactional
+    public Stock update(Integer id, Boolean status) {
+        return sRepos.findById(id).map(stock -> {
+            stock.setStatus(status);
+            return sRepos.save(stock);
+        }).orElseThrow(() -> new RuntimeException("找不到資料"));
     }
 }

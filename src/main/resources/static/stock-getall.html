@@ -39,9 +39,9 @@
 
 <nav class="navbar navbar-expand-lg">
   <div class="container-fluid px-4">
-    <a class="navbar-brand" href="../index2.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <a class="navbar-brand" href="../index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
     <div class="navbar-nav ms-3">
-      <a class="nav-link" href="../index2.html">首頁</a>
+      <a class="nav-link" href="../index.html">首頁</a>
       <a class="nav-link" href="account-list.html">帳戶</a>
       <a class="nav-link" href="translog-search.html">交易紀錄</a>
       <a class="nav-link active" href="stock-getallstocks.html">股票</a>
@@ -144,7 +144,7 @@
     document.getElementById("stockIdInput").value = "";
     document.getElementById("searchMessage").classList.add("d-none");
 
-    fetch('../Stock?method=GetAll')
+    fetch(`api/stocks`)
             .then(response => {
               if (!response.ok) throw new Error("網路回應不成功");
               return response.json();
@@ -173,12 +173,8 @@
     const tbody = document.getElementById("stockTableBody");
     tbody.innerHTML = '<tr><td colspan="3" class="text-center text-muted py-4"><div class="spinner-border spinner-border-sm me-2" role="status"></div>搜尋中...</td></tr>';
 
-    fetch('../Stock?method=Search', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({stockId: id})
+    fetch(`/api/stocks/${id}`, {
+      method: 'GET',
     })
             .then(response => {
               if (!response.ok) {
@@ -316,8 +312,8 @@
           status: select.value
         };
 
-        fetch('../Stock?method=Update', {
-          method: "POST",
+        fetch(`api/stocks`, {
+          method: "PUT",
           headers: {
             "Content-Type": "application/json; charset=UTF-8"
           },
@@ -373,13 +369,11 @@
     btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>處理中...';
     btn.disabled = true;
 
-    fetch('../Stock?method=Delete', {
-      method: "POST",
+    fetch(`/api/stocks/${currentStockIdToDelete}`, {
+      method: "DELETE",
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8'
-      },
-      // 使用 URLSearchParams 配合 x-www-form-urlencoded
-      body: new URLSearchParams({'stockId': currentStockIdToDelete})
+      }
     }).then(response => {
       if (response.ok) {
         deleteModal.hide();

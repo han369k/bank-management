@@ -33,7 +33,7 @@ public class StockController {
 
     @PutMapping
     public Stock update(@RequestBody Stock stock) {
-        return sService.update(stock);
+        return sService.update(stock.getStockId(), stock.getStatus());
     }
 
     @DeleteMapping("/{id}")
