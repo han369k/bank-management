@@ -2,9 +2,26 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>My Cards</title>
 </head>
 <body>
-
+    <h2>我的卡片</h2>
+    <ul id="cards"></ul>
+    <script>
+        fetch('/my-cards')
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('cards');
+            data.forEach(card => {
+                const li = document.createElement('li');
+                li.textContent = `Card Number: ${card.number}, Card Type: ${card.type}, Status: ${card.status}`;
+                list.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('無法獲取卡片資料');
+        });
+    </script>
 </body>
 </html>

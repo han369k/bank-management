@@ -5,6 +5,25 @@
 <title>Insert title here</title>
 </head>
 <body>
-
+    <h1>卡片類型列表</h1>
+    <ul id="cardTypes"></ul>
+<script>
+    // 當頁面載入時，向後端抓取卡片類型列表 (GET /card/types)
+    fetch('/card/types')
+      .then(response => response.json())
+      .then(data => {
+        const list = document.getElementById('cardTypes');
+        // 假設每個卡片類型有 id 和 name 屬性
+        data.forEach(cardType => {
+          const li = document.createElement('li');
+          // 點擊連結到卡片詳情頁，可帶上 id 作為查詢參數
+          li.innerHTML = `<a href="cardType-detail.html?id=${cardType.id}">
+                            ${cardType.name}
+                          </a>`;
+          list.appendChild(li);
+        });
+      })
+      .catch(error => console.error('抓取卡片列表失敗:', error));
+</script>
 </body>
 </html>

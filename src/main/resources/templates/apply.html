@@ -3,8 +3,41 @@
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
+
 </head>
 <body>
+<h2>申請卡片</h2>
+<form id="form">
+    User ID: <input type="text" id="userId" name="userId"><br><br>
+    Card Type: <input type="text" id="cardType" name="cardType"><br><br>
+    <button type="submit">申請</button>
+</form>
+
+
+<script>
+    document.getElementById('form').addEventListener('submit',function(event){
+        event.preventDefault();
+        const userId = document.getElementById('userId').value;
+        const cardType = document.getElementById('cardType').value;
+
+        fetch('/apply', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ userId, cardType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('申請失敗');
+        });
+    });
+</script>
+
 
 </body>
 </html>

@@ -2,9 +2,26 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Insert title here</title>
+<title>My Applications</title>
 </head>
 <body>
-
+    <h2>我的申請</h2>
+    <ul id="list"></ul>
+    <script>
+        fetch('/my-applications')
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('list');
+            data.forEach(app => {
+                const li = document.createElement('li');
+                li.textContent = `User ID: ${app.userId}, Card Type: ${app.cardType}, Status: ${app.status}`;
+                list.appendChild(li);
+            });
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('無法獲取申請資料');
+        });
+    </script>
 </body>
 </html>
