@@ -1,4 +1,4 @@
-package com.ispan.bankmanagement.loan.model;
+package com.ispan.bankmanagement.loan;
 
 import jakarta.persistence.*;
 import lombok.*;

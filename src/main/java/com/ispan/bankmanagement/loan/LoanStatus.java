@@ -1,4 +1,4 @@
-package com.ispan.bankmanagement.loan.model;
+package com.ispan.bankmanagement.loan;
 
 public enum LoanStatus {
     PENDING,            // 待審核
