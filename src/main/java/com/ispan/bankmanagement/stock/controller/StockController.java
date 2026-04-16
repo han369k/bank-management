@@ -2,7 +2,6 @@ package com.ispan.bankmanagement.stock.controller;
 
 import com.ispan.bankmanagement.stock.model.Stock;
 import com.ispan.bankmanagement.stock.model.StockService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
