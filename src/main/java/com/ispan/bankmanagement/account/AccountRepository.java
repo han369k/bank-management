@@ -30,5 +30,5 @@ public interface AccountRepository extends JpaRepository<Account, String>, JpaSp
     // 單純提高效能 不寫也沒差 省略SELECT 直接UPDATE
     @Modifying
     @Query("UPDATE Account a SET a.status = :status WHERE a.accountNumber = :accountNumber")
-    int updateStatus(@Param("accountNumber") String accountNumber, @Param("status") String status);
+    int updateStatus(@Param("accountNumber") String accountNumber, @Param("status") AccountStatus status);
 }
