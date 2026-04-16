@@ -26,8 +26,9 @@ public class Account {
     @Column(name = "customer_id" , nullable = false)
     private Integer customerId;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String type;
+    private AccountType type = AccountType.CURRENT;
 
     @Column(nullable = false, length = 3)
     private String currency;
@@ -35,8 +36,9 @@ public class Account {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal balance;
 
-    @Column(nullable = false, length = 10)
-    private String status;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, length = 20)
+    private AccountStatus status = AccountStatus.INACTIVE;
 
     @CreationTimestamp
     @Column(name = "create_at", nullable = false, updatable = false)
