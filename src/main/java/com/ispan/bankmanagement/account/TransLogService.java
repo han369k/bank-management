@@ -1,164 +1,140 @@
-//package com.ispan.bankmanagement.account;
-//
-//import com.ispan.bankmanagement.common.util.ConnUtil;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//
-//import java.sql.Connection;
-//import java.sql.SQLException;
-//import java.time.LocalDate;
-//import java.util.List;
-//
-//public class TransLogService {
-//
-//    private static final Logger logger = LoggerFactory.getLogger(TransLogService.class);
-//    private final TransLogDAO transLogDAO = new TransLogDAO();
-//
-//    /**
-//     * 透過 Reference ID 查詢單筆交易紀錄。
-//     * Reference ID 是由 UUID 生成的唯一識別碼，理論上只會查到一筆。
-//     * @param referenceId 交易參考編號
-//     * @return 找到的交易紀錄實體
-//     * @throws ResourceNotFoundException 如果找不到對應的紀錄
-//     */
-//    public TransLogEntity getLogByReferenceId(String referenceId) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            if (referenceId == null || referenceId.trim().isEmpty()) {
-//                throw new IllegalArgumentException("Reference ID 不可為空");
-//            }
-//            // 【修正 3】簡化邏輯，直接回傳 DAO 的結果，讓例外自然拋出
-//            return transLogDAO.findByReferenceId(conn, referenceId);
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("查詢交易紀錄時發生資料庫連線錯誤", e);
-//        }
-//    }
-//
-//    /**
-//     * 透過 Customer ID 查詢其名下所有帳戶的交易紀錄。
-//     * @param customerId
-//     * @return 該客戶的所有交易紀錄列表，如果沒有則回傳空List
-//     */
-//    public List<TransLogEntity> getLogsByCustomerId(String customerId) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            if (customerId == null || customerId.trim().isEmpty()) {
-//                throw new IllegalArgumentException("Customer ID 不可為空");
-//            }
-//            List<TransLogEntity> logs = transLogDAO.findByCustomerId(conn, customerId);
-//            logger.info("為 Customer ID: {} 查詢到 {} 筆交易紀錄", customerId, logs.size());
-//            return logs;
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("查詢交易紀錄時發生資料庫連線錯誤", e);
-//        }
-//    }
-//
-//    /**
-//     * 透過帳號查詢該帳戶的所有交易紀錄。
-//     * @param account 銀行帳號
-//     * @return 該帳戶的所有交易紀錄列表，如果沒有則回傳空列表
-//     */
-//    public List<TransLogEntity> getLogsByAccount(String account) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            if (account == null || account.trim().isEmpty()) {
-//                throw new IllegalArgumentException("帳號不可為空");
-//            }
-//            List<TransLogEntity> logs = transLogDAO.findByOperationAccount(conn, account);
-//            logger.info("為帳號: {} 查詢到 {} 筆交易紀錄", account, logs.size());
-//            return logs;
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("查詢交易紀錄時發生資料庫連線錯誤", e);
-//        }
-//    }
-//
-//    /**
-//     * (因應專題而生的刪除功能)
-//     * 透過 Reference ID 刪除交易紀錄。
-//     * 實務上絕對不允許刪除交易紀錄，此方法僅為專題展示用。
-//     * @param referenceId 要刪除的交易參考編號
-//     */
-//    public void deleteLogByReferenceId(String referenceId) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            if (referenceId == null || referenceId.trim().isEmpty()) {
-//                throw new IllegalArgumentException("Reference ID 不可為空");
-//            }
-//            // 【修正 4】簡化邏輯，先查詢確認存在，若不存在 DAO 會拋例外
-//            transLogDAO.findByReferenceId(conn, referenceId);
-//            // 確認存在後再執行刪除
-//            transLogDAO.deleteByReferenceId(conn, referenceId);
-//            logger.warn("警告：已成功透過 Reference ID 刪除交易紀錄: {}", referenceId);
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("刪除交易紀錄時發生資料庫連線錯誤", e);
-//        }
-//    }
-//
-//    /**
-//     * 動態條件查詢交易紀錄 (支援分頁)。
-//     * 這是推薦使用的主要查詢方法，可以組合不同條件。
-//     *
-//     * @param customerId (可選) 客戶身分證字號
-//     * @param account    (可選) 銀行帳號
-//     * @param startDate  (可選) 查詢區間的開始日期 (包含當天)
-//     * @param endDate    (可選) 查詢區間的結束日期 (包含當天)
-//     * @param page       頁碼，從 1 開始。
-//     * @return 符合條件的交易紀錄列表 (單頁最多50筆)
-//     */
-//    public List<TransLogEntity> searchLogs(String customerId, String account, LocalDate startDate, LocalDate endDate, int page) {
-//        // 【修正 6】頁碼小於 1 時拋出例外
-//        if (page < 1) {
-//            throw new IllegalArgumentException("頁碼必須大於等於 1");
-//        }
-//        // 【修正 5】使用抽離的私有方法驗證日期
-//        endDate = validateEndDate(startDate, endDate);
-//
-//        try (Connection conn = ConnUtil.getConn()) {
-//            List<TransLogEntity> logs = transLogDAO.query(conn, customerId, account, startDate, endDate, page);
-//            logger.info("交易紀錄動態查詢完成，條件: [customerId={}, account={}, startDate={}, endDate={}, page={}]，共取得 {} 筆資料",
-//                    customerId, account, startDate, endDate, page, logs.size());
-//            return logs;
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("查詢交易紀錄時發生資料庫連線錯誤", e);
-//        }
-//    }
-//
-//    /**
-//     * 計算符合動態條件的交易紀錄總筆數。
-//     * 這個方法與 searchLogs 搭配使用，用來給前端計算總頁數。
-//     *
-//     * @param customerId (可選) 客戶身分證字號
-//     * @param account    (可選) 銀行帳號
-//     * @param startDate  (可選) 查詢區間的開始日期 (包含當天)
-//     * @param endDate    (可選) 查詢區間的結束日期 (包含當天)
-//     * @return 符合條件的總筆數
-//     */
-//    public int countLogs(String customerId, String account, LocalDate startDate, LocalDate endDate) {
-//        // 【修正 5】使用抽離的私有方法驗證日期
-//        endDate = validateEndDate(startDate, endDate);
-//
-//        try (Connection conn = ConnUtil.getConn()) {
-//            int total = transLogDAO.count(conn, customerId, account, startDate, endDate);
-//            logger.info("交易紀錄總筆數計算完成，條件: [customerId={}, account={}, startDate={}, endDate={}]，共 {} 筆",
-//                    customerId, account, startDate, endDate, total);
-//            return total;
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("計算交易紀錄總筆數時發生資料庫連線錯誤", e);
-//        }
-//    }
-//
-//    /**
-//     * 【修正 5】抽離的日期驗證私有方法
-//     * 驗證結束日期是否在開始日期之前。
-//     * @return 如果日期合法，回傳原始的 endDate；否則回傳 null。
-//     */
-//    private LocalDate validateEndDate(LocalDate startDate, LocalDate endDate) {
-//        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
-//            logger.warn("查詢日期區間不合法，結束日期 {} 在開始日期 {} 之前", endDate, startDate);
-//            return null;
-//        }
-//        return endDate;
-//    }
-//}
+package com.ispan.bankmanagement.account;
+
+import com.ispan.bankmanagement.account.dto.TransLogDetailResponse;
+import com.ispan.bankmanagement.account.dto.TransLogQueryRequest;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+@Slf4j // Lombok 自動產生 logger，省去宣告 private static final Logger ...
+public class TransLogService {
+
+    private final TransLogRepository transLogRepository;
+
+    /**
+     * 透過 UUID (Reference ID) 查詢單筆交易紀錄
+     */
+    public TransLogDetailResponse getLogByReferenceId(String referenceId) {
+        if (referenceId == null || referenceId.isBlank()) {
+            throw new IllegalArgumentException("Reference ID 不可為空");
+        }
+        // 利用 Optional 的 orElseThrow，把原本的 null check 縮減成一行，同時自訂找不到時的例外訊息
+        TransLog logEntity = transLogRepository.findByReferenceId(referenceId)
+                .orElseThrow(() -> new RuntimeException("找不到該筆交易紀錄"));
+        
+        return convertToResponse(logEntity);
+    }
+
+    /**
+     * 透過 Customer ID 查詢該名下所有帳戶的交易紀錄
+     */
+    public List<TransLogDetailResponse> getLogsByCustomerId(Integer customerId) {
+        if (customerId == null) {
+            throw new IllegalArgumentException("Customer ID 不可為空");
+        }
+        List<TransLog> logs = transLogRepository.findByCustomerId(customerId);
+        log.info("為 Customer ID: {} 查詢到 {} 筆交易紀錄", customerId, logs.size());
+        return logs.stream().map(this::convertToResponse).toList();
+    }
+
+    /**
+     * 透過帳號查詢該帳戶的所有交易紀錄
+     */
+    public List<TransLogDetailResponse> getLogsByAccount(String account) {
+        if (account == null || account.isBlank()) {
+            throw new IllegalArgumentException("帳號不可為空");
+        }
+        List<TransLog> logs = transLogRepository.findByOperationAccountOrderByTransactionTimeDesc(account);
+        log.info("為帳號: {} 查詢到 {} 筆交易紀錄", account, logs.size());
+        return logs.stream().map(this::convertToResponse).toList();
+    }
+
+    /**
+     * 刪除特定交易紀錄 (專題 Demo 用)
+     * 實務上銀行的 Log 絕對是 Insert-only (只能新增)，不可能允許任何人去刪除異動，
+     * 但為了專案展示上的 CRUD 完整性，這裡還是保留刪除功能。
+     */
+    @Transactional
+    public void deleteLogByReferenceId(String referenceId) {
+        if (referenceId == null || referenceId.isBlank()) {
+            throw new IllegalArgumentException("Reference ID 不可為空");
+        }
+        // 刪除前先查詢確認存在，若不存在就由 orElseThrow 丟例外直接阻擋後續操作
+        TransLog logEntity = transLogRepository.findByReferenceId(referenceId)
+                .orElseThrow(() -> new RuntimeException("交易紀錄不存在，無法刪除"));
+        
+        transLogRepository.deleteByReferenceId(referenceId);
+        log.warn("警告：已成功透過 Reference ID 刪除交易紀錄: {}", referenceId);
+    }
+
+    /**
+     * 動態條件分頁查詢 (最強大的查詢方法)
+     * 前端只要傳入一個 request，後面包含總筆數、總頁數、當頁資料都會一次幫你算好包進 Page 物件！
+     */
+    public Page<TransLogDetailResponse> searchLogs(TransLogQueryRequest request) {
+        // 1. 業務邏輯防呆：檢查結束時間不可早於開始時間
+        LocalDate endDate = validateEndDate(request.startDate(), request.endDate());
+
+        // 2. 準備分頁物件
+        // 【注意】Spring Data JPA 的 PageRequest 頁碼是從 0 開始算的，但前端 UI 通常是從 1 開始，所以接收進來要 - 1
+        Pageable pageable = PageRequest.of(
+                request.page() - 1, 
+                request.size(), 
+                Sort.by(Sort.Direction.DESC, "transactionTime") // 強制按交易時間倒序排列
+        );
+
+        // 3. 呼叫 Specification 產出動態的 WHERE 條件
+        var spec = TransLogSpecification.dynamicQuery(
+                request.customerId(),
+                request.account(),
+                request.startDate(),
+                endDate
+        );
+
+        // 4. 一次搞定：JPA 會自動幫我們下兩道 SQL：一道 SELECT 查當頁資料，一道 SELECT COUNT 查總計筆數
+        Page<TransLog> pageResult = transLogRepository.findAll(spec, pageable);
+        log.info("交易紀錄動態查詢完成，共取得 {} 筆資料", pageResult.getTotalElements());
+
+        // 5. 實體轉換 DTO
+        // Page.map() 是一個超好用的語法糖，會自動將原本 Page 內的 Entity 迴圈轉為 DTO 格式，保留所有分頁資訊
+        return pageResult.map(this::convertToResponse);
+    }
+
+    /**
+     * 驗證結束日期是否在開始日期之前
+     * 若日期合法回傳原始 endDate，若不合法紀錄警告並回傳 null (忽略結束時間條件)。
+     */
+    private LocalDate validateEndDate(LocalDate startDate, LocalDate endDate) {
+        if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+            log.warn("查詢日期區間不合法，結束日期 {} 在開始日期 {} 之前", endDate, startDate);
+            return null;
+        }
+        return endDate;
+    }
+
+    /**
+     * 實體轉 DTO 封裝方法
+     */
+    private TransLogDetailResponse convertToResponse(TransLog transLog) {
+        return new TransLogDetailResponse(
+                transLog.getReferenceId(),
+                transLog.getAmount(),
+                transLog.getType(),
+                transLog.getOperationAccount(),
+                transLog.getOtherAccount(),
+                transLog.getBalance(),
+                transLog.getTransactionTime(),
+                transLog.getNote()
+        );
+    }
+}

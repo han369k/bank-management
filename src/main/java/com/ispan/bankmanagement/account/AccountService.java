@@ -1,309 +1,290 @@
-//package com.ispan.bankmanagement.account;
-//
-//
-//import com.ispan.bankmanagement.account.common.exception.AccountFrozenException;
-//import com.ispan.bankmanagement.account.common.exception.ResourceNotFoundException;
-//import com.ispan.bankmanagement.common.util.ConnUtil;
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-//
-//import java.math.BigDecimal;
-//import java.sql.Connection;
-//import java.sql.SQLException;
-//import java.time.LocalDateTime;
-//import java.util.List;
-//import java.util.UUID;
-//
-//public class AccountService {
-//    private static final Logger logger = LoggerFactory.getLogger(AccountService.class);
-//
-//    // Service 層持有 DAO 層的實例，以便呼叫資料庫操作方法
-//    AccountDAO accountDAO = new AccountDAO();
-//    TransLogDAO transLogDAO = new TransLogDAO();
-//
-//    // 新增帳戶
-//    public void createAcc(AccountEntity accountEntity) {
-//        // 使用 try-with-resources 語句，確保 Connection 在使用完畢後會自動關閉
-//        try (Connection conn = ConnUtil.getConn()) {
-//
-//            // 業務邏輯：對傳入的參數進行基本驗證 (防呆)
-//            if (accountEntity == null || accountEntity.getAccount() == null || accountEntity.getAccount().trim().isEmpty()) {
-//                logger.warn("新增失敗，提供的資料格式不正確。");
-//                throw new IllegalArgumentException("帳戶資料與帳號不可為空。");
-//            }
-//
-//            // 業務邏輯：檢查帳號是否已存在
-//            // 這裡的寫法很特別：因為 DAO 層在找不到帳號時會拋出 ResourceNotFoundException，
-//            // 所以我們用 try-catch 來捕捉這個「預期中的例外」。
-//            try {
-//                accountDAO.findByAccount(conn, accountEntity.getAccount());
-//                // 如果上面那行程式碼「沒有」拋出例外，就代表帳號已經存在了，這是不允許的。
-//                throw new IllegalArgumentException("帳號 " + accountEntity.getAccount() + " 已存在，無法重複新增。");
-//            } catch (ResourceNotFoundException e) {
-//                // 如果捕捉到 ResourceNotFoundException，代表查無此帳戶，這是我們期望的情況。
-//                // 這個 catch 區塊可以留空，或者留下一個 debug 日誌，表示帳號可用。
-//                logger.debug("帳號 {} 可用，繼續新增流程。", accountEntity.getAccount());
-//            }
-//
-//            // 業務邏輯：限制帳號長度
-//            if (accountEntity.getAccount().trim().length() != 12) {
-//                throw new IllegalArgumentException("帳號格式不合法，長度應為12碼");
-//            }
-//
-//            // 呼叫 DAO 層執行資料庫插入
-//            accountDAO.insert(conn, accountEntity);
-//            logger.info("帳戶 {} 建立成功。", accountEntity.getAccount());
-//
-//        } catch (SQLException e) {
-//            // 如果在取得連線或執行 SQL 時發生錯誤，將其包裝成 RuntimeException 向上拋出
-//            throw new RuntimeException("資料庫連線或操作失敗，請稍後再試。", e);
-//        }
-//    }
-//
-//    // 透過帳號查詢單筆帳戶資料
-//    public AccountEntity getAccountByAccount(String account) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            // 直接回傳 DAO 的查詢結果。
-//            // Service 層不再需要處理「找不到」的情況，因為 DAO 層會直接拋出 ResourceNotFoundException。
-//            return accountDAO.findByAccount(conn, account);
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("資料庫連線或操作失敗，請稍後再試。", e);
-//        }
-//    }
-//
-//    // todo: 需要改寫DAO (join custormer)
-//    //public AccountEntity searchAccountByCustormerName(){}
-//
-//    // 查詢所有帳戶 (或根據條件)
-//    public List<AccountEntity> getAllAccount(AccountEntity accountEntity) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            List<AccountEntity> list = accountDAO.query(conn, accountEntity);
-//            logger.info("帳戶條件查詢完成，共找到 {} 筆資料。", list.size());
-//            return list;
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("資料庫連線或操作失敗，請稍後再試。", e);
-//        }
-//    }
-//
-//    // 更新帳戶狀態
-//    // todo: insert adminLog
-//    public void updateStatus(String accountNo, String status) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            // 直接呼叫 DAO 進行更新。
-//            // Service 層不再需要先檢查帳號是否存在，因為 DAO 的 updateStatus 方法在找不到帳號時會自己拋出例外。
-//            accountDAO.updateStatus(conn, accountNo, status);
-//            logger.info("狀態更新成功, account: {}, 新狀態: {}", accountNo, status);
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("資料庫操作失敗", e);
-//        }
-//    }
-//
-//
-//    // 為了對應專題的CRUD展示而實作
-//    // 沒事切記不要使用這個method
-//    // Demo時記得要刪沒有任何交易紀錄的帳號
-//    public void deleteByAccount(String accountNo) {
-//        try (Connection conn = ConnUtil.getConn()) {
-//            // 同上，直接呼叫 DAO 進行刪除，依賴 DAO 處理找不到帳號的情況。
-//            accountDAO.deleteByAccount(conn, accountNo);
-//            // DAO 成功執行後，Service 層才記錄日誌。
-//            logger.warn("已成功刪除帳戶 account: {}", accountNo);
-//        } catch (SQLException e) {
-//            logger.error("服務層在取得資料庫連線時發生錯誤", e);
-//            throw new RuntimeException("資料庫操作失敗", e);
-//        }
-//    }
-//
-//
-//    // 提款
-//    public void withdraw(String accountNo, BigDecimal amount) {
-//        // 提款金額必須是正數
-//        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-//            throw new IllegalArgumentException("提款金額必須大於零");
-//        }
-//
-//        try (Connection conn = ConnUtil.getConn()) {
-//            // 開啟手動交易，確保「扣款」和「寫入日誌」這兩個操作要嘛全部成功，要嘛全部失敗。
-//            conn.setAutoCommit(false);
-//
-//            try {
-//                // 1. 鎖定並查詢帳戶，檢查狀態與餘額
-//                AccountEntity accountEntity = accountDAO.findByAccount(conn, accountNo);
-//
-//                // 業務邏輯：凍結的帳戶不能提款
-//                if ("FROZEN".equals(accountEntity.getStatus())) {
-//                    throw new AccountFrozenException("提款失敗，帳戶已凍結");
-//                }
-//                // 業務邏輯：餘額必須足夠
-//                if (accountEntity.getBalance().compareTo(amount) < 0) {
-//                    throw new RuntimeException("提款失敗，餘額不足");
-//                }
-//
-//                // 2. 執行扣款 (傳入負數金額)
-//                accountDAO.updateBalance(conn, accountNo, amount.negate());
-//
-//                // 3. 在 Java 記憶體中計算交易後餘額，準備寫入日誌
-//                BigDecimal balanceAfter = accountEntity.getBalance().subtract(amount);
-//
-//                // 4. 封裝交易紀錄 (TransLog)
-//                TransLogEntity log = new TransLogEntity();
-//                log.setReferenceId(UUID.randomUUID().toString()); // 產生一個唯一的交易參考碼
-//                log.setAmount(amount);
-//                log.setType("WITHDRAW");
-//                log.setOperationAccount(accountNo);
-//                log.setOtherAccount(null); // 提款沒有對象帳號
-//                log.setBalance(balanceAfter);
-//                log.setTransactionTime(LocalDateTime.now());
-//                log.setNote("提款");
-//
-//                // 5. 寫入交易日誌
-//                transLogDAO.insert(conn, log);
-//
-//                // 6. 所有操作都成功，提交交易
-//                conn.commit();
-//                logger.info("提款成功！帳戶: {}, 提款金額: {}, 剩餘餘額: {}", accountNo, amount, balanceAfter);
-//
-//            } catch (Exception e) {
-//                // 如果在 try 區塊中發生任何例外 (例如餘額不足、資料庫錯誤)，就回復所有已做的操作
-//                conn.rollback();
-//                logger.error("提款失敗，執行 Rollback: {}", e.getMessage());
-//                // 將原始例外包裝後向上拋出，讓 Controller 層知道交易失敗
-//                throw new RuntimeException("提款處理異常", e);
-//            } finally {
-//                // 無論成功或失敗，最後都要將連線恢復為自動提交模式
-//                conn.setAutoCommit(true);
-//            }
-//        } catch (SQLException e) {
-//            throw new RuntimeException("資料庫連線異常", e);
-//        }
-//    }
-//
-//    // 存款
-//    public void deposit(String accountNo, BigDecimal amount) {
-//        // 存款金額必須是正數
-//        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-//            throw new IllegalArgumentException("存款金額必須大於零");
-//        }
-//
-//        try (Connection conn = ConnUtil.getConn()) {
-//            conn.setAutoCommit(false); // 開啟手動交易
-//
-//            try {
-//                // 1. 查詢帳戶是否存在、是否被凍結
-//                AccountEntity account = accountDAO.findByAccount(conn, accountNo);
-//                if ("FROZEN".equals(account.getStatus())) {
-//                    throw new AccountFrozenException("存款失敗，帳戶已凍結");
-//                }
-//
-//                // 2. 執行存款 (傳入正數金額)
-//                accountDAO.updateBalance(conn, accountNo, amount);
-//
-//                // 3. 計算交易後餘額
-//                BigDecimal balanceAfter = account.getBalance().add(amount);
-//
-//                // 4. 封裝並寫入交易日誌
-//                TransLogEntity log = new TransLogEntity();
-//                log.setReferenceId(UUID.randomUUID().toString());
-//                log.setAmount(amount);
-//                log.setType("DEPOSIT");
-//                log.setOperationAccount(accountNo);
-//                log.setOtherAccount(null);
-//                log.setBalance(balanceAfter);
-//                log.setTransactionTime(LocalDateTime.now());
-//                log.setNote("現金存款");
-//                transLogDAO.insert(conn, log);
-//
-//                // 5. 提交交易
-//                conn.commit();
-//                logger.info("存款成功！帳戶: {}, 金額: {}, 新餘額: {}", accountNo, amount, balanceAfter);
-//
-//            } catch (Exception e) {
-//                conn.rollback();
-//                logger.error("存款發生異常，執行 Rollback: {}", e.getMessage());
-//                throw new RuntimeException("存款處理失敗", e);
-//            } finally {
-//                conn.setAutoCommit(true);
-//            }
-//        } catch (SQLException e) {
-//            throw new RuntimeException("資料庫連線失敗", e);
-//        }
-//    }
-//
-//    // 轉帳
-//    public void transfer(String fromAccNo, String toAccNo, BigDecimal amount, String note) {
-//        // 基本的參數驗證
-//        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
-//            throw new IllegalArgumentException("轉帳金額必須大於零");
-//        }
-//        if (fromAccNo.equals(toAccNo)) {
-//            throw new IllegalArgumentException("轉出與轉入帳號不可相同");
-//        }
-//
-//        try (Connection conn = ConnUtil.getConn()) {
-//            conn.setAutoCommit(false); // 開啟手動交易，轉帳是 ACID 的經典場景
-//
-//            try {
-//                // 1. 鎖定並檢查轉出帳戶
-//                AccountEntity fromAcc = accountDAO.findByAccount(conn, fromAccNo);
-//                if (fromAcc.getBalance().compareTo(amount) < 0) throw new RuntimeException("餘額不足");
-//                if ("FROZEN".equals(fromAcc.getStatus())) throw new AccountFrozenException("轉出帳戶已凍結");
-//
-//                // 2. 鎖定並檢查轉入帳戶
-//                AccountEntity toAcc = accountDAO.findByAccount(conn, toAccNo);
-//                if ("FROZEN".equals(toAcc.getStatus())) throw new AccountFrozenException("轉入帳戶已凍結");
-//
-//                // 3. 計算更新後餘額，並執行更新
-//                // 這裡先在 Java 中計算好餘額，可以減少兩次不必要的資料庫查詢
-//                BigDecimal fromBalanceAfter = fromAcc.getBalance().subtract(amount);
-//                accountDAO.updateBalance(conn, fromAccNo, amount.negate());
-//
-//                BigDecimal toBalanceAfter = toAcc.getBalance().add(amount);
-//                accountDAO.updateBalance(conn, toAccNo, amount);
-//
-//                // 4. 準備兩筆交易日誌，並使用同一個 Reference ID 進行關聯
-//                String commonRef = UUID.randomUUID().toString();
-//                LocalDateTime now = LocalDateTime.now();
-//
-//                // 4a. 寫入"轉出方"的日誌
-//                TransLogEntity fromLog = new TransLogEntity();
-//                fromLog.setReferenceId(commonRef);
-//                fromLog.setAmount(amount.negate()); // 轉出方的金額紀錄為負數
-//                fromLog.setType("TRANSFER_OUT");
-//                fromLog.setOperationAccount(fromAccNo);
-//                fromLog.setOtherAccount(toAccNo);
-//                fromLog.setBalance(fromBalanceAfter);
-//                fromLog.setTransactionTime(now);
-//                fromLog.setNote(note != null ? note : "" + " (轉給 " + toAccNo + ")");
-//                transLogDAO.insert(conn, fromLog);
-//
-//                // 4b. 寫入"轉入方"的日誌
-//                TransLogEntity toLog = new TransLogEntity();
-//                toLog.setReferenceId(commonRef);
-//                toLog.setAmount(amount); // 轉入方的金額紀錄為正數
-//                toLog.setType("TRANSFER_IN");
-//                toLog.setOperationAccount(toAccNo);
-//                toLog.setOtherAccount(fromAccNo);
-//                toLog.setBalance(toBalanceAfter);
-//                toLog.setTransactionTime(now);
-//                toLog.setNote(note != null ? note : "" + " (來自 " + fromAccNo + ")");
-//                transLogDAO.insert(conn, toLog);
-//
-//                // 5. 所有資料庫操作都成功，正式提交交易
-//                conn.commit();
-//                logger.info("轉帳成功！{} ➡️ {}，金額: {}", fromAccNo, toAccNo, amount);
-//
-//            } catch (Exception e) {
-//                conn.rollback(); // 只要中途發生任何錯誤，就回復所有操作，確保資料一致性
-//                logger.error("轉帳失敗，已執行 Rollback: {}", e.getMessage());
-//                throw new RuntimeException("轉帳交易失敗", e);
-//            } finally {
-//                conn.setAutoCommit(true);
-//            }
-//        } catch (SQLException e) {
-//            throw new RuntimeException("資料庫連線異常", e);
-//        }
-//    }
-//}
+package com.ispan.bankmanagement.account;
+
+import com.ispan.bankmanagement.account.enums.AccountStatus;
+import com.ispan.bankmanagement.account.dto.*;
+import com.ispan.bankmanagement.account.enums.AccountCurrency;
+import com.ispan.bankmanagement.account.enums.TransLogType;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.UUID;
+
+@Slf4j // Lombok 自動產生 logger
+@Service
+@RequiredArgsConstructor // 自動注入帶有 final 的 Repository
+public class AccountService {
+
+    private final AccountRepository accountRepository;
+    private final TransLogRepository transLogRepository;
+
+    // todo:
+    //  1. 前端要移除新增帳號的input部分
+    //  2. 重新安排mock的資料格式
+    /**
+     * 新增帳戶
+     */
+    public void createAcc(AccountCreateRequest request) {
+        if (request == null) {
+            log.warn("新增失敗，請求資料為空。");
+            throw new IllegalArgumentException("帳戶資料不可為空。");
+        }
+
+        Account accountEntity = new Account();
+        accountEntity.setCustomerId(request.customerId());
+        if (request.accountType() != null) {
+            accountEntity.setType(request.accountType());
+        }
+        if (request.accountCurrency() != null) {
+            accountEntity.setCurrency(request.accountCurrency().name());
+        }
+        accountEntity.setBalance(request.balance() != null ? request.balance() : BigDecimal.ZERO);
+        accountEntity.setStatus(AccountStatus.INACTIVE);
+
+        String newAccountNumber;
+
+        // 2. 不斷產生新帳號，直到資料庫裡面找不到為止 (防撞號機制)
+        do {
+            newAccountNumber = generateRandomAccountNumber();
+        } while (accountRepository.existsById(newAccountNumber));
+
+        // 3. 將確認無重複的帳號塞入實體中
+        accountEntity.setAccountNumber(newAccountNumber);
+
+        // 5. 儲存進資料庫
+        accountRepository.save(accountEntity);
+        log.info("帳戶 {} 建立成功。", accountEntity.getAccountNumber());
+    }
+
+    /**
+     * 私有輔助方法：產生 808 開頭的 12 碼隨機帳號
+     */
+    private String generateRandomAccountNumber() {
+        // 銀行代碼 (3碼)
+        String bankCode = "808";
+
+        // 產生 0 ~ 999999999 之間的隨機數 (9碼)
+        // 使用 ThreadLocalRandom 效能比 Math.random() 更好，適合高併發環境
+        long randomNum = java.util.concurrent.ThreadLocalRandom.current().nextLong(1000000000L);
+
+        // 將數字格式化為 9 碼字串，不足 9 碼會在前面自動補零 (例如 123 變成 000000123)
+        String randomStr = String.format("%09d", randomNum);
+
+        return bankCode + randomStr;
+    }
+
+    /**
+     * 透過帳號查詢單筆帳戶資料 (內部實體使用)
+     */
+    private Account getAccountEntity(String accountNo) {
+        // 使用 Optional 的 orElseThrow，一行解決查無資料拋例外的邏輯
+        return accountRepository.findById(accountNo)
+                .orElseThrow(() -> new RuntimeException("查無此帳戶，account: " + accountNo));
+    }
+
+    /**
+     * 透過帳號查詢單筆帳戶資料 (回傳 DTO)
+     */
+    public AccountDetailResponse getAccountDetail(String accountNo) {
+        Account account = getAccountEntity(accountNo);
+        return convertToResponse(account);
+    }
+
+    /**
+     * 查詢所有帳戶 (動態條件查詢)
+     */
+    public List<AccountDetailResponse> getAllAccounts(AccountQueryRequest request) {
+        var spec = AccountSpecification.dynamicQuery(
+                request.type(),
+                request.status(),
+                request.accountNumber()
+        );
+        List<Account> list = accountRepository.findAll(spec);
+        log.info("帳戶條件查詢完成，共找到 {} 筆資料。", list.size());
+        return list.stream().map(this::convertToResponse).toList();
+    }
+
+    /**
+     * 更新帳戶狀態
+     */
+    @Transactional
+    // 這裡將 status 的型別從 String 改為 AccountStatus，確保從 Controller 傳進來的狀態絕對合法
+    public void updateStatus(String accountNo, AccountStatus status) {
+        // 先確認帳號存在 (防呆)
+        if (!accountRepository.existsById(accountNo)) {
+            throw new RuntimeException("更新狀態失敗，帳戶不存在: " + accountNo);
+        }
+        // 呼叫我們自訂的 @Modifying @Query
+        accountRepository.updateStatus(accountNo, status);
+        log.info("狀態更新成功, account: {}, 新狀態: {}", accountNo, status);
+    }
+
+    /**
+     * 刪除帳戶 (Demo 用)
+     */
+    @Transactional
+    public void deleteByAccount(String accountNo) {
+        if (!accountRepository.existsById(accountNo)) {
+            throw new RuntimeException("刪除失敗，帳戶不存在: " + accountNo);
+        }
+        accountRepository.deleteById(accountNo);
+        log.warn("已成功刪除帳戶 account: {}", accountNo);
+    }
+
+    /**
+     * 提款 (ACID 交易展示)
+     */
+    @Transactional
+    public void withdraw(String accountNo, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("提款金額必須大於零");
+        }
+
+        // 1. 查詢帳戶
+        Account account = getAccountEntity(accountNo);
+
+        // 2. 業務邏輯防呆
+        // 新增註解：將字串 equals 判斷改為 Enum 判斷，同時阻擋 FROZEN 與 CLOSED 狀態
+        // 架構建議：由於 Enum 已經擴充至 10 種狀態，繼續使用黑名單阻擋會有漏洞 (例如 INACTIVE 也能提款)。
+        // 建議未來改為白名單機制： if (account.getStatus() != AccountStatus.ACTIVE)
+        if (account.getStatus() == AccountStatus.FROZEN || account.getStatus() == AccountStatus.CLOSED) {
+            throw new RuntimeException("提款失敗，帳戶狀態異常: " + account.getStatus());
+        }
+        if (account.getBalance().compareTo(amount) < 0) {
+            throw new RuntimeException("提款失敗，餘額不足");
+        }
+
+        // 3. 呼叫 @Modifying @Query 執行原子性扣款 (防高併發)
+        int updateRows = accountRepository.updateBalance(accountNo, amount.negate());
+        if (updateRows != 1) {
+            throw new RuntimeException("扣款失敗，帳戶可能不存在");
+        }
+
+        // 4. 計算交易後餘額並寫入 Log
+        BigDecimal balanceAfter = account.getBalance().subtract(amount);
+
+        TransLog logEntity = new TransLog();
+        logEntity.setReferenceId(UUID.randomUUID().toString());
+        logEntity.setAmount(amount);
+        logEntity.setType(TransLogType.WITHDRAW);
+        logEntity.setOperationAccount(accountNo);
+        logEntity.setBalance(balanceAfter);
+        logEntity.setNote("提款");
+        // transactionTime 由 @CreationTimestamp 在 Entity 內自動產生，無需手動 set
+
+        transLogRepository.save(logEntity);
+        log.info("提款成功！帳戶: {}, 提款金額: {}, 剩餘餘額: {}", accountNo, amount, balanceAfter);
+    }
+
+    /**
+     * 存款
+     */
+    @Transactional
+    public void deposit(String accountNo, BigDecimal amount) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("存款金額必須大於零");
+        }
+
+        Account account = getAccountEntity(accountNo);
+
+        // 改用 Enum 判斷，凍結或銷戶皆不可存款
+        // 同上，建議改為白名單機制。
+        if (account.getStatus() == AccountStatus.FROZEN || account.getStatus() == AccountStatus.CLOSED) {
+            throw new RuntimeException("存款失敗，帳戶狀態異常: " + account.getStatus());
+        }
+
+        accountRepository.updateBalance(accountNo, amount);
+
+        BigDecimal balanceAfter = account.getBalance().add(amount);
+
+        TransLog logEntity = new TransLog();
+        logEntity.setReferenceId(UUID.randomUUID().toString());
+        logEntity.setAmount(amount);
+        logEntity.setType(TransLogType.DEPOSIT);
+        logEntity.setOperationAccount(accountNo);
+        logEntity.setBalance(balanceAfter);
+        logEntity.setNote("現金存款");
+
+        transLogRepository.save(logEntity);
+        log.info("存款成功！帳戶: {}, 金額: {}, 新餘額: {}", accountNo, amount, balanceAfter);
+    }
+
+    /**
+     * 轉帳
+     */
+    @Transactional
+    public void transfer(String fromAccNo, String toAccNo, BigDecimal amount, String note) {
+        if (amount == null || amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("轉帳金額必須大於零");
+        }
+        if (fromAccNo.equals(toAccNo)) {
+            throw new IllegalArgumentException("轉出與轉入帳號不可相同");
+        }
+
+        // 1. 鎖定並檢查雙方帳戶狀態
+        Account fromAcc = getAccountEntity(fromAccNo);
+        if (fromAcc.getBalance().compareTo(amount) < 0) throw new RuntimeException("餘額不足");
+
+        if ( fromAcc.getStatus() != AccountStatus.ACTIVE ) {
+            throw new RuntimeException("轉出帳戶狀態異常: " + fromAcc.getStatus());
+        }
+
+        Account toAcc = getAccountEntity(toAccNo);
+
+        if ( toAcc.getStatus() != AccountStatus.ACTIVE ) {
+            throw new RuntimeException("轉入帳戶狀態異常: " + toAcc.getStatus());
+        }
+
+        // 2. 執行原子性餘額更新
+        accountRepository.updateBalance(fromAccNo, amount.negate());
+        accountRepository.updateBalance(toAccNo, amount);
+
+        // 3. 準備日誌寫入
+        BigDecimal fromBalanceAfter = fromAcc.getBalance().subtract(amount);
+        BigDecimal toBalanceAfter = toAcc.getBalance().add(amount);
+        String commonRef = UUID.randomUUID().toString();
+
+        // 轉出紀錄
+        TransLog fromLog = new TransLog();
+        fromLog.setReferenceId(commonRef);
+        fromLog.setAmount(amount.negate());
+        fromLog.setType(TransLogType.TRANSFER_OUT);
+        fromLog.setOperationAccount(fromAccNo);
+        fromLog.setOtherAccount(toAccNo);
+        fromLog.setBalance(fromBalanceAfter);
+        fromLog.setNote(note != null ? note : "轉給 " + toAccNo);
+
+        // 轉入紀錄
+        TransLog toLog = new TransLog();
+        toLog.setReferenceId(commonRef);
+        toLog.setAmount(amount);
+        toLog.setType(TransLogType.TRANSFER_IN);
+        toLog.setOperationAccount(toAccNo);
+        toLog.setOtherAccount(fromAccNo);
+        toLog.setBalance(toBalanceAfter);
+        toLog.setNote(note != null ? note : "來自 " + fromAccNo);
+
+        transLogRepository.saveAll(List.of(fromLog, toLog)); // saveAll 可以一次存入多筆！
+
+        log.info("轉帳成功！轉出帳戶: {} 轉入帳戶: {}，金額: {}", fromAccNo, toAccNo, amount);
+    }
+
+    /**
+     * 輔助方法：將 Account 實體轉為 DetailResponse
+     */
+    private AccountDetailResponse convertToResponse(Account account) {
+        return new AccountDetailResponse(
+                account.getAccountNumber(),
+                account.getCustomerId(),
+                account.getType(),
+                account.getCurrency() != null ? AccountCurrency.valueOf(account.getCurrency()) : null,
+                account.getBalance(),
+                account.getStatus(),
+                account.getCreateAt(),
+                account.getChangeAt()
+        );
+    }
+}
