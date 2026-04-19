@@ -1,4 +1,4 @@
-package com.ispan.bankmanagement.account;
+package com.ispan.bankmanagement.account.enums;
 
 // todo: 要加表把這個拆開來設計
 public enum AccountStatus {

@@ -1,4 +1,4 @@
-package com.ispan.bankmanagement.account;
+package com.ispan.bankmanagement.account.enums;
 
 public enum AccountType {
     CURRENT,    //活期存款
