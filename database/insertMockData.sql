@@ -19,7 +19,8 @@ GO
 PRINT N'開始產生 100 筆測試資料 (具備重複執行防護)...';
 
 DECLARE @i INT = 1;
-DECLARE @custId VARCHAR(20), @accNum VARCHAR(12), @loanId VARCHAR(20), @cardNum VARCHAR(16);
+DECLARE @custId INT;
+DECLARE @accNum VARCHAR(12), @loanId VARCHAR(20), @cardNum VARCHAR(16);
 DECLARE @surnames NVARCHAR(100) = N'陳林黃張李王吳劉蔡楊許鄭謝洪郭邱曾廖賴徐周彭柯蘇盧詹莊侯游';
 DECLARE @chars NVARCHAR(200) = N'家豪雅婷宗翰怡君柏翰佳穎冠霖詩涵哲宇雅雯志偉婷婷建文淑芬明哲佩珊宇翔宜蓁柏宇欣瑜浩宇心怡承恩郁婷宥廷婉婷辰睿靜雯俊傑冠宇建國美麗';
 DECLARE @custName NVARCHAR(50), @randApplyType NVARCHAR(20), @safeTimeStr VARCHAR(14), @rnd INT; 
@@ -30,7 +31,7 @@ DECLARE @defaultPwdHash VARCHAR(255) = 'e10adc3949ba59abbe56e057f20f883e';
 WHILE @i <= 100
 BEGIN
     -- 產生安全的 PK 字串與假時間
-    SET @custId = 'C' + RIGHT('00000' + CAST(@i AS VARCHAR), 5);
+    SET @custId = @i;
     SET @accNum = '808' + RIGHT('000000000' + CAST(@i AS VARCHAR), 9);
     
     -- 時間往前推移，避免超過 GETDATE() 產生未來時間的邏輯 Bug
@@ -78,7 +79,7 @@ BEGIN
         VALUES (
             @accNum, 
             @custId, 
-            CASE WHEN @i % 2 = 0 THEN 'SAVINGS' ELSE 'CHECKING' END, 
+            CASE WHEN @i % 2 = 0 THEN 'FIXED' ELSE 'CURRENT' END, 
             'TWD', 
             @initBalance,     
             'ACTIVE', 
@@ -86,8 +87,9 @@ BEGIN
         );
 
         -- 4. TRANS_LOG 
-        INSERT INTO [TRANS_LOG] ([amount], [type], [operation_account], [balance], [transaction_time], [note])
+        INSERT INTO [TRANS_LOG] ([reference_id], [amount], [type], [operation_account], [balance], [transaction_time], [note])
         VALUES (
+            CAST(NEWID() AS VARCHAR(50)),
             @initBalance,        
             'DEPOSIT',           
             @accNum, 

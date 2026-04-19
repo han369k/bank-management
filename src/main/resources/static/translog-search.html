@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>交易紀錄查詢</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 表格欄位拉伸功能樣式 */
+    .table-resizable {
+      table-layout: fixed;
+      width: 100%;
+      min-width: 1000px; /* 防止螢幕太小導致各欄位擠在一起 */
+    }
+    .table-resizable th {
+      position: relative;
+      white-space: nowrap;
+    }
+    .table-resizable td {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis; /* 文字過長時顯示 ... */
+    }
+    .table-resizable th .resizer {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 6px;
+      cursor: col-resize;
+      user-select: none;
+      height: 100%;
+      z-index: 1;
+    }
+    .table-resizable th .resizer:hover,
+    .table-resizable th .resizing {
+      border-right: 2px solid #0d6efd; /* 滑鼠移上或拖曳時顯示藍色邊框 */
+    }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link" href="account-list.html">帳戶列表</a>
+      <a class="nav-link active" href="account-create.html">新增帳戶</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="page-title">交易紀錄查詢</div>
+
+  <div id="msg"></div>
+
+  <div class="card">
+    <div class="card-header">搜尋條件</div>
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-sm-3">
+          <label>帳號</label>
+          <input id="f-account" class="form-control" type="text" placeholder="留空不篩選">
+        </div>
+        <div class="col-sm-3">
+          <label>客戶 ID</label>
+          <input id="f-customer" class="form-control" type="text" placeholder="留空不篩選">
+        </div>
+        <div class="col-sm-2">
+          <label>開始日期</label>
+          <input id="f-start" class="form-control" type="date">
+        </div>
+        <div class="col-sm-2">
+          <label>結束日期</label>
+          <input id="f-end" class="form-control" type="date">
+        </div>
+        <div class="col-sm-2 d-flex gap-2">
+          <button class="btn btn-primary" onclick="search(1)">
+            <i class="bi bi-search me-1"></i>查詢
+          </button>
+          <button class="btn btn-outline-secondary" onclick="clearForm()">清除</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="d-flex justify-content-between align-items-center px-3 pt-3 pb-2">
+        <span id="total-info" style="font-size:12px;color:#888"></span>
+      </div>
+      <div class="table-wrapper" style="overflow-x: auto;">
+        <table class="table mb-0 table-resizable" id="translog-table">
+          <thead>
+            <tr>
+              <th style="width: 120px;">Reference ID</th>
+              <th style="width: 140px;">時間</th>
+              <th style="width: 80px;">類型</th>
+              <th style="width: 120px;">操作帳號</th>
+              <th style="width: 120px;">對象帳號</th>
+              <th style="width: 110px;" class="text-end pe-4">金額</th>
+              <th style="width: 130px;" class="text-end pe-4">交易後餘額</th>
+              <th style="width: 150px;">備註</th>
+              <th style="width: 60px;"></th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="empty" class="empty-state" style="display:none">
+          <i class="bi bi-inbox me-2"></i>查無資料
+        </div>
+      </div>
+
+      <div class="d-flex justify-content-between align-items-center px-3 py-3">
+        <span id="page-info" style="font-size:12px;color:#888"></span>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item" id="li-prev">
+              <a class="page-link" href="#" onclick="changePage(-1)">
+                <i class="bi bi-chevron-left"></i>
+              </a>
+            </li>
+            <li class="page-item disabled" id="li-page">
+              <span class="page-link" id="page-num">-</span>
+            </li>
+            <li class="page-item" id="li-next">
+              <a class="page-link" href="#" onclick="changePage(1)">
+                <i class="bi bi-chevron-right"></i>
+              </a>
+            </li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const ctx = '/api/translogs';
+const PAGE_SIZE = 50;
+let currentPage = 1;
+let totalCount  = 0;
+
+function showMsg(text, type='danger') {
+  document.getElementById('msg').innerHTML =
+    `<div class="alert alert-${type} alert-dismissible" role="alert">
+       ${text}
+       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+     </div>`;
+}
+
+const v = id => document.getElementById(id).value.trim();
+
+function clearForm() {
+  ['f-account','f-customer','f-start','f-end'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('msg').innerHTML = '';
+  document.getElementById('tbody').innerHTML = '';
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('total-info').textContent = '';
+  document.getElementById('page-info').textContent  = '';
+}
+
+function buildParams(page) {
+  const p = new URLSearchParams();
+  if (v('f-account'))  p.set('account',    v('f-account'));
+  if (v('f-customer')) p.set('customerId', v('f-customer'));
+  if (v('f-start'))    p.set('startDate',  v('f-start'));
+  if (v('f-end'))      p.set('endDate',    v('f-end'));
+  p.set('page', page);
+  p.set('size', PAGE_SIZE);
+  return p;
+}
+
+const typeLabel = t => ({ DEPOSIT:'存款', WITHDRAW:'提款', TRANSFER_OUT:'轉出', TRANSFER_IN:'轉入' }[t] ?? t);
+const typeBadge = t => {
+  const colors = { DEPOSIT:'success', WITHDRAW:'danger', TRANSFER_OUT:'warning', TRANSFER_IN:'info' };
+  return `<span class="badge text-bg-${colors[t] ?? 'secondary'}" style="font-size:11px">${typeLabel(t)}</span>`;
+};
+
+async function search(page) {
+  currentPage = page;
+  document.getElementById('msg').innerHTML = '';
+
+  try {
+    const res = await fetch(`${ctx}?${buildParams(page)}`);
+    const pageData = await res.json();
+
+    if (!res.ok) { showMsg(pageData.error || '查詢失敗'); return; }
+
+    totalCount = pageData.totalElements;
+    const totalPages = pageData.totalPages || 1;
+    const data = pageData.content || [];
+
+    document.getElementById('total-info').textContent = `共 ${totalCount} 筆`;
+    document.getElementById('page-num').textContent   = `${page} / ${totalPages}`;
+    document.getElementById('page-info').textContent  = `第 ${page} 頁，共 ${totalPages} 頁`;
+    document.getElementById('li-prev').classList.toggle('disabled', page <= 1);
+    document.getElementById('li-next').classList.toggle('disabled', page >= totalPages);
+
+    const tbody = document.getElementById('tbody');
+    const empty = document.getElementById('empty');
+    tbody.innerHTML = '';
+
+    if (!data.length) { empty.style.display = ''; return; }
+    empty.style.display = 'none';
+
+    data.forEach(log => {
+      // ✅ 強化日期防護：檢查多種可能的 Key，並確保它是字串才執行 slice
+      const rawTime = log.transactionTime || log.transaction_time || '';
+      let time = '-';
+      if (rawTime && typeof rawTime === 'string') {
+        time = rawTime.replace('T', ' ').slice(0, 16);
+      } else if (rawTime) {
+        // 如果是數字或其他格式，嘗試轉成字串處理
+        time = String(rawTime).slice(0, 16);
+      }
+
+      const amount = Number(log.amount);
+      const amtHtml = `<span class="${amount >= 0 ? 'text-success fw-bold' : 'text-danger fw-bold'}">${amount >= 0 ? '+' : ''}${amount.toLocaleString()}</span>`;
+
+      // ✅ 強化 ID 防護
+      const refId = log.referenceId || log.trans_log_id || 'N/A';
+
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td title="${refId}"><span class="ref-id font-monospace text-muted">${refId}</span></td>
+          <td class="small">${time}</td>
+          <td>${typeBadge(log.type || 'UNKNOWN')}</td>
+          <td><span style="font-family:monospace;font-size:12px">${log.operationAccount || log.operation_account || '-'}</span></td>
+          <td><span style="font-family:monospace;font-size:12px">${log.otherAccount || log.other_account || '-'}</span></td>
+          <td class="text-end pe-4">${amtHtml}</td>
+          <td class="text-end pe-4">${Number(log.balance || 0).toLocaleString()}</td>
+          <td title="${log.note ?? ''}">${log.note ?? '-'}</td>
+          <td class="text-center">
+            <button class="btn btn-sm btn-outline-danger" style="padding: 2px 5px;" onclick="doDelete('${refId}')">
+              <i class="bi bi-trash" style="font-size:12px"></i>
+            </button>
+          </td>
+        </tr>`);
+    });
+  } catch(e) {
+    showMsg('網路錯誤：' + e.message);
+  }
+}
+
+function changePage(delta) {
+  const totalPages = Math.ceil(totalCount / PAGE_SIZE) || 1;
+  const next = currentPage + delta;
+  if (next < 1 || next > totalPages) return;
+  search(next);
+}
+
+async function doDelete(referenceId) {
+  if (!confirm(`確定刪除此筆交易紀錄？\n${referenceId}\n\n⚠ 僅供 Demo 使用。`)) return;
+  try {
+    const res  = await fetch(`${ctx}/${referenceId}`, {
+      method: 'DELETE'
+    });
+    const data = await res.json();
+    if (!res.ok) { showMsg(data.error); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+    search(currentPage);
+  } catch(e) {
+    showMsg('網路錯誤：' + e.message);
+  }
+}
+
+const pre = new URLSearchParams(location.search).get('account');
+if (pre) { document.getElementById('f-account').value = pre; search(1); }
+
+// --- 表格欄位拉伸功能初始化 ---
+document.addEventListener('DOMContentLoaded', function () {
+  const table = document.getElementById('translog-table');
+  const cols = table.querySelectorAll('th');
+  [].forEach.call(cols, function (col) {
+    const resizer = document.createElement('div');
+    resizer.classList.add('resizer');
+    col.appendChild(resizer);
+    createResizableColumn(col, resizer);
+  });
+});
+
+function createResizableColumn(col, resizer) {
+  let x = 0;
+  let w = 0;
+  const mouseDownHandler = function (e) {
+    x = e.clientX;
+    const styles = window.getComputedStyle(col);
+    w = parseInt(styles.width, 10);
+    document.addEventListener('mousemove', mouseMoveHandler);
+    document.addEventListener('mouseup', mouseUpHandler);
+    resizer.classList.add('resizing');
+  };
+  const mouseMoveHandler = function (e) {
+    const dx = e.clientX - x;
+    col.style.width = `${w + dx}px`;
+  };
+  const mouseUpHandler = function () {
+    document.removeEventListener('mousemove', mouseMoveHandler);
+    document.removeEventListener('mouseup', mouseUpHandler);
+    resizer.classList.remove('resizing');
+  };
+  resizer.addEventListener('mousedown', mouseDownHandler);
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

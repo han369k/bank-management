@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>帳戶詳情</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 補回詳情頁專屬的排版設定，解決跑版問題 */
+    .page-wrapper { max-width: 800px; margin: 30px auto; padding: 0 16px; }
+    .card { border: 1px solid #eee; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,.05); margin-bottom: 20px; }
+    .card-header { background-color: #f8f9fa; font-weight: 600; border-bottom: 1px solid #eee; padding: 12px 16px; }
+
+    .info-table { width: 100%; font-size: 14px; }
+    .info-table td { padding: 8px 0; border-bottom: 1px dashed #eee; color: #333; }
+    .info-table td:first-child { width: 120px; color: #888; font-weight: 600; }
+    .info-table tr:last-child td { border-bottom: none; }
+
+    .badge-status { padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: 600; }
+    .badge-active { background-color: #d1e7dd; color: #0f5132; }
+    .badge-frozen { background-color: #fff3cd; color: #856404; }
+    .badge-closed { background-color: #f8d7da; color: #842029; }
+
+    .danger-zone { border: 1px solid #f5c2c7; padding: 16px; border-radius: 8px; background-color: #fff; margin-top: 30px; }
+    .danger-zone .card-header-text { color: #dc3545; font-weight: 600; font-size: 16px; margin-bottom: 8px; border:none; padding:0; background:transparent;}
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link" href="account-list.html">帳戶列表</a>
+      <a class="nav-link" href="account-create.html">新增帳戶</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="d-flex align-items-center gap-3 mb-3">
+    <a href="account-list.html" class="btn btn-sm btn-outline-secondary">
+      <i class="bi bi-arrow-left"></i> 返回列表
+    </a>
+    <h2 class="page-title mb-0" style="font-size: 20px;">帳戶詳情與操作</h2>
+  </div>
+
+  <div id="msg"></div>
+
+  <div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-info-circle me-2"></i>基本資訊</span>
+      <a id="link-translog" href="#" class="btn btn-sm btn-outline-secondary" style="font-size:12px">
+        <i class="bi bi-list-ul me-1"></i>查看交易紀錄
+      </a>
+    </div>
+    <div class="card-body">
+      <div id="info-body" style="color:#aaa; text-align:center; padding: 20px 0;">
+        <div class="spinner-border spinner-border-sm me-2"></div>載入中...
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="card h-100 mb-0">
+        <div class="card-header"><i class="bi bi-box-arrow-in-right me-2"></i>存款 (Deposit)</div>
+        <div class="card-body">
+          <label class="form-label text-muted small fw-bold">金額</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text bg-light">$</span>
+            <input id="dep-amount" class="form-control" type="number" min="1" placeholder="請輸入金額">
+          </div>
+          <button class="btn btn-success w-100" onclick="doDeposit()">
+            <i class="bi bi-plus-circle me-1"></i>確認存款
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="card h-100 mb-0">
+        <div class="card-header"><i class="bi bi-box-arrow-right me-2"></i>提款 (Withdraw)</div>
+        <div class="card-body">
+          <label class="form-label text-muted small fw-bold">金額</label>
+          <div class="input-group mb-3">
+            <span class="input-group-text bg-light">$</span>
+            <input id="wit-amount" class="form-control" type="number" min="1" placeholder="請輸入金額">
+          </div>
+          <button class="btn btn-warning w-100 text-dark" onclick="doWithdraw()">
+            <i class="bi bi-dash-circle me-1"></i>確認提款
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center">
+      <span><i class="bi bi-arrow-left-right me-2"></i>轉帳 (Transfer)</span>
+      <button type="button" class="btn btn-sm btn-outline-info" onclick="fillTransferDemo()">
+        <i class="bi bi-magic me-1"></i>一鍵帶入
+      </button>
+    </div>
+    <div class="card-body">
+      <div class="row g-3 align-items-end">
+        <div class="col-sm-4">
+          <label class="form-label text-muted small fw-bold">轉入目標帳號</label>
+          <input id="tr-to" class="form-control" type="text" placeholder="目標帳號（12碼）" maxlength="12">
+        </div>
+        <div class="col-sm-3">
+          <label class="form-label text-muted small fw-bold">金額</label>
+          <div class="input-group">
+            <span class="input-group-text bg-light">$</span>
+            <input id="tr-amount" class="form-control" type="number" min="1" placeholder="請輸入金額">
+          </div>
+        </div>
+        <div class="col-sm-3">
+          <label class="form-label text-muted small fw-bold">備註</label>
+          <input id="tr-note" class="form-control" type="text" placeholder="選填，預設：轉帳">
+        </div>
+        <div class="col-sm-2">
+          <button class="btn btn-primary w-100" onclick="doTransfer()">
+            <i class="bi bi-send me-1"></i>轉出
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-md-6">
+      <div class="card h-100 mb-0">
+        <div class="card-header"><i class="bi bi-toggle-on me-2"></i>更新帳戶狀態</div>
+        <div class="card-body">
+          <label class="form-label text-muted small fw-bold">設定新狀態</label>
+          <select id="st-status" class="form-select mb-3">
+            <option value="ACTIVE">ACTIVE（正常）</option>
+            <option value="FROZEN">FROZEN（凍結）</option>
+            <option value="CLOSED">CLOSED（註銷）</option>
+          </select>
+          <button class="btn btn-outline-secondary w-100" onclick="doUpdateStatus()">
+            <i class="bi bi-pencil me-1"></i>更新狀態
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-6">
+      <div class="danger-zone h-100 m-0 d-flex flex-column justify-content-center">
+        <div class="card-header-text"><i class="bi bi-exclamation-triangle-fill me-2"></i>危險區域：刪除帳戶</div>
+        <p style="font-size:12px;color:#888;margin-bottom:16px">實務上銀行不應直接刪除帳戶，此按鈕僅供系統 Demo 展示 CRUD 之 Delete 功能使用。</p>
+        <button class="btn btn-danger w-100 mt-auto" onclick="doDelete()">
+          <i class="bi bi-trash3 me-1"></i>實體刪除此帳戶
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const ctx = '/accounts/api';
+  const account = new URLSearchParams(location.search).get('account');
+
+  if (!account) {
+    document.getElementById('msg').innerHTML =
+            '<div class="alert alert-danger mb-4"><i class="bi bi-exclamation-octagon me-2"></i>未指定帳號，請從列表進入此頁。</div>';
+  }
+
+  // fix: 轉向交易紀錄的實體檔案路徑
+  document.getElementById('link-translog').href =
+          `translog-search.html?account=${encodeURIComponent(account ?? '')}`;
+
+  function showMsg(text, type='danger') {
+    document.getElementById('msg').innerHTML =
+            `<div class="alert alert-${type} alert-dismissible shadow-sm mb-4" role="alert">
+       ${text}
+       <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+     </div>`;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function statusBadge(s) {
+    const cls = s === 'ACTIVE' ? 'badge-active' : s === 'FROZEN' ? 'badge-frozen' : 'badge-closed';
+    return `<span class="badge-status ${cls}">${s}</span>`;
+  }
+
+  // 一鍵帶入轉帳 Demo 資料
+  function fillTransferDemo() {
+    // 隨機產生一個 808 開頭的假目標帳號
+    const randomSuffix = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
+    document.getElementById('tr-to').value = '808' + randomSuffix;
+
+    // 隨機產生金額
+    document.getElementById('tr-amount').value = Math.floor(Math.random() * 50 + 1) * 1000;
+
+    document.getElementById('tr-note').value = '房租/水電費轉帳';
+  }
+
+  async function loadAccount() {
+    if (!account) return;
+
+    try {
+      const res  = await fetch(`${ctx}/${encodeURIComponent(account)}`);
+      const data = await res.json();
+
+      if (!res.ok) {
+        document.getElementById('info-body').innerHTML = `<span class="text-danger"><i class="bi bi-x-circle me-1"></i>${data.error || '查無此帳戶資料'}</span>`;
+        return;
+      }
+
+      document.getElementById('st-status').value = data.status;
+      document.getElementById('info-body').innerHTML = `
+      <table class="info-table">
+        <tr><td><i class="bi bi-hash me-1"></i>帳號</td>     <td><span style="font-family:monospace; font-size:16px;">${data.accountNumber}</span></td></tr>
+        <tr><td><i class="bi bi-person me-1"></i>客戶 ID</td>  <td><span class="text-primary fw-bold">${data.customerId}</span></td></tr>
+        <tr><td><i class="bi bi-tags me-1"></i>類型</td>     <td>${data.type ?? '-'}</td></tr>
+        <tr><td><i class="bi bi-cash-coin me-1"></i>幣別</td>     <td>${data.currency ?? '-'}</td></tr>
+        <tr><td><i class="bi bi-wallet2 me-1"></i>餘額</td>     <td><strong style="font-size:24px; color:#198754;">$ ${Number(data.balance).toLocaleString()}</strong></td></tr>
+        <tr><td><i class="bi bi-activity me-1"></i>狀態</td>     <td>${statusBadge(data.status)}</td></tr>
+        <tr><td><i class="bi bi-clock me-1"></i>建立時間</td> <td>${data.createAt ? data.createAt.replace('T',' ').slice(0,16) : '-'}</td></tr>
+      </table>`;
+    } catch (e) {
+      document.getElementById('info-body').innerHTML = `<span class="text-danger"><i class="bi bi-wifi-off me-1"></i>伺服器連線失敗</span>`;
+    }
+  }
+
+  async function doDeposit() {
+    const amount = document.getElementById('dep-amount').value.trim();
+    if (!amount || Number(amount) <= 0) { showMsg('請輸入大於 0 的有效金額'); return; }
+
+    const btn = event.currentTarget;
+    const ogHtml = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>處理中...';
+
+    try {
+      const res = await fetch(`${ctx}/${encodeURIComponent(account)}/deposit`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Number(amount) })
+      });
+      const data = await res.json();
+      const { ok, status } = res;
+
+      if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); }
+      else {
+        showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+        document.getElementById('dep-amount').value = '';
+        loadAccount();
+      }
+    } catch(e) { showMsg('網路連線錯誤'); }
+    finally { btn.disabled = false; btn.innerHTML = ogHtml; }
+  }
+
+  async function doWithdraw() {
+    const amount = document.getElementById('wit-amount').value.trim();
+    if (!amount || Number(amount) <= 0) { showMsg('請輸入大於 0 的有效金額'); return; }
+
+    const btn = event.currentTarget;
+    const ogHtml = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>處理中...';
+
+    try {
+      const res = await fetch(`${ctx}/${encodeURIComponent(account)}/withdraw`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: Number(amount) })
+      });
+      const data = await res.json();
+      const { ok, status } = res;
+
+      if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); }
+      else {
+        showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+        document.getElementById('wit-amount').value = '';
+        loadAccount();
+      }
+    } catch(e) { showMsg('網路連線錯誤'); }
+    finally { btn.disabled = false; btn.innerHTML = ogHtml; }
+  }
+
+  async function doTransfer() {
+    const toAccount = document.getElementById('tr-to').value.trim();
+    const amount    = document.getElementById('tr-amount').value.trim();
+    const note      = document.getElementById('tr-note').value.trim();
+
+    if (!toAccount)                    { showMsg('請填入轉入帳號'); return; }
+    if (!amount || Number(amount) <= 0){ showMsg('請輸入大於 0 的有效金額'); return; }
+
+    const btn = event.currentTarget;
+    const ogHtml = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span>轉帳中...';
+
+    try {
+      const res = await fetch(`${ctx}/transfer`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ fromAccount: account, toAccount, amount: Number(amount), note: note || '轉帳' })
+      });
+      const data = await res.json();
+      const { ok, status } = res;
+
+      if (!ok) { showMsg(`[${status}] ${data.error}`, status === 403 ? 'warning' : 'danger'); }
+      else {
+        showMsg(`<i class="bi bi-check-circle me-1"></i>${data.message}`, 'success');
+        ['tr-to','tr-amount','tr-note'].forEach(id => document.getElementById(id).value = '');
+        loadAccount();
+      }
+    } catch(e) { showMsg('網路連線錯誤'); }
+    finally { btn.disabled = false; btn.innerHTML = ogHtml; }
+  }
+
+  async function doUpdateStatus() {
+    const status = document.getElementById('st-status').value;
+    const res = await fetch(`${ctx}/${encodeURIComponent(account)}/status`, {
+        method: 'PATCH', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ accountStatus: status })
+    });
+    const data = await res.json();
+    if (!res.ok) { showMsg(data.error); return; }
+    showMsg(`<i class="bi bi-check-circle me-1"></i>狀態更新成功`, 'success');
+    loadAccount();
+  }
+
+  async function doDelete() {
+    if (!confirm(`確定要實體刪除帳戶 ${account}？\n警告：此操作不可還原！`)) return;
+    const res = await fetch(`${ctx}/${encodeURIComponent(account)}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (!res.ok) { showMsg(data.error); return; }
+    showMsg(`<i class="bi bi-check-circle-fill me-1"></i>${data.message}　(3秒後返回列表)`, 'success');
+
+    // fix: 修正返回列表路徑
+    setTimeout(() => location.href = 'account-list.html', 3000);
+  }
+
+  loadAccount();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@ package com.ispan.bankmanagement.account;
 import com.ispan.bankmanagement.account.enums.AccountStatus;
 import com.ispan.bankmanagement.account.dto.*;
 import com.ispan.bankmanagement.account.enums.AccountCurrency;
+import com.ispan.bankmanagement.account.enums.TransLogType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,7 +46,7 @@ public class AccountService {
 
         String newAccountNumber;
 
-        // 2. 【核心邏輯】：不斷產生新帳號，直到資料庫裡面找不到為止 (防撞號機制)
+        // 2. 不斷產生新帳號，直到資料庫裡面找不到為止 (防撞號機制)
         do {
             newAccountNumber = generateRandomAccountNumber();
         } while (accountRepository.existsById(newAccountNumber));
@@ -168,7 +169,7 @@ public class AccountService {
         TransLog logEntity = new TransLog();
         logEntity.setReferenceId(UUID.randomUUID().toString());
         logEntity.setAmount(amount);
-        logEntity.setType("WITHDRAW");
+        logEntity.setType(TransLogType.WITHDRAW);
         logEntity.setOperationAccount(accountNo);
         logEntity.setBalance(balanceAfter);
         logEntity.setNote("提款");
@@ -202,7 +203,7 @@ public class AccountService {
         TransLog logEntity = new TransLog();
         logEntity.setReferenceId(UUID.randomUUID().toString());
         logEntity.setAmount(amount);
-        logEntity.setType("DEPOSIT");
+        logEntity.setType(TransLogType.DEPOSIT);
         logEntity.setOperationAccount(accountNo);
         logEntity.setBalance(balanceAfter);
         logEntity.setNote("現金存款");
@@ -250,7 +251,7 @@ public class AccountService {
         TransLog fromLog = new TransLog();
         fromLog.setReferenceId(commonRef);
         fromLog.setAmount(amount.negate());
-        fromLog.setType("TRANSFER_OUT");
+        fromLog.setType(TransLogType.TRANSFER_OUT);
         fromLog.setOperationAccount(fromAccNo);
         fromLog.setOtherAccount(toAccNo);
         fromLog.setBalance(fromBalanceAfter);
@@ -260,7 +261,7 @@ public class AccountService {
         TransLog toLog = new TransLog();
         toLog.setReferenceId(commonRef);
         toLog.setAmount(amount);
-        toLog.setType("TRANSFER_IN");
+        toLog.setType(TransLogType.TRANSFER_IN);
         toLog.setOperationAccount(toAccNo);
         toLog.setOtherAccount(fromAccNo);
         toLog.setBalance(toBalanceAfter);

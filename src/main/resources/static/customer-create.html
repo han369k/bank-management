@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>新增客戶 - Bank Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* 微調錯誤提示訊息的樣式 */
+    .invalid-feedback { font-size: 12px; font-weight: 500; }
+  </style>
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <div class="navbar-nav ms-3">
+      <a class="nav-link" href="index.html">首頁</a>
+      <a class="nav-link" href="account-list.html">帳戶列表</a>
+      <a class="nav-link" href="translog-search.html">交易紀錄</a>
+      <a class="nav-link" href="stock-getall.html">股票</a>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="container-fluid" style="max-width: 800px;"> <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="page-title"><i class="bi bi-person-plus me-2"></i>新增客戶</h2>
+      <p class="text-muted small mb-0">輸入客戶基本資料以建立新檔案</p>
+    </div>
+    <a href="index.html" class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-house me-1"></i>返回首頁
+    </a>
+  </div>
+
+    <div class="card card-custom mb-4 border-0 shadow-sm">
+      <div class="card-body p-4">
+
+        <div id="alertMessage" class="alert d-none" role="alert"></div>
+
+        <form id="cust-insert-form">
+          <input type="hidden" name="action" value="insert">
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="cust-new-id" class="form-label text-muted small">顧客代號 <span class="text-danger">*</span></label>
+              <input type="number" class="form-control" id="cust-new-id" name="customerId" placeholder="例：2026008" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-idno" class="form-label text-muted small">身分證字號 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cust-new-idno" name="idNumber" placeholder="例：A123456789" maxlength="10" oninput="this.value = this.value.toUpperCase()" required>
+              <div class="invalid-feedback" id="err-idno">身分證格式錯誤 (需為1碼英文+9碼數字)</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-name" class="form-label text-muted small">姓名 <span class="text-danger">*</span></label>
+              <input type="text" class="form-control" id="cust-new-name" name="name" placeholder="例：王小明" required>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-dob" class="form-label text-muted small">生日</label>
+              <input type="date" class="form-control" id="cust-new-dob" name="dateOfBirth">
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-phone" class="form-label text-muted small">手機號碼</label>
+              <input type="text" class="form-control" id="cust-new-phone" name="phone" placeholder="例：0912345678" maxlength="10" inputmode="numeric" oninput="this.value = this.value.replace(/\D/g, '')">
+              <div class="invalid-feedback" id="err-phone">手機號碼格式錯誤 (需為09開頭共10碼)</div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-email" class="form-label text-muted small">Email</label>
+              <input type="email" class="form-control" id="cust-new-email" name="email" placeholder="例：test@gmail.com">
+              <div class="invalid-feedback" id="err-email">Email 格式錯誤</div>
+            </div>
+
+            <div class="col-12">
+              <label for="cust-new-addr" class="form-label text-muted small">聯絡地址</label>
+              <input type="text" class="form-control" id="cust-new-addr" name="address" placeholder="例：台北市信義區松智路1號">
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-income" class="form-label text-muted small">月收入 (元)</label>
+              <div class="input-group">
+                <span class="input-group-text bg-light">$</span>
+                <input type="number" class="form-control" id="cust-new-income" name="income" placeholder="例：50000" min="0">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label for="cust-new-credit" class="form-label text-muted small">聯徵信用分數</label>
+              <input type="number" class="form-control" id="cust-new-credit" name="creditScore" placeholder="例：700" min="300" max="850">
+            </div>
+
+            <div class="col-12 mt-4 d-flex align-items-center">
+              <button type="button" class="btn btn-outline-info me-auto" onclick="fillDemoData()">
+                <i class="bi bi-magic me-1"></i>一鍵帶入
+              </button>
+
+              <button type="button" class="btn btn-light me-2" onclick="window.location.href='index.html'">取消</button>
+              <button type="submit" class="btn btn-primary" id="btnSubmit">
+                <i class="bi bi-check-lg me-1"></i>新增顧客
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="resultCard" class="card card-custom mb-4 d-none border-0 shadow-sm">
+      <div class="card-header bg-white" id="resultHeader">
+        <i class="bi bi-info-circle me-2"></i>操作結果
+      </div>
+      <div class="card-body p-4" id="resultBody"></div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  // 正則表達式驗證邏輯 ( mouseleave , blur )
+  const regexPatterns = {
+    idno: /^[A-Z][12]\d{8}$/,                 // 身分證: 大寫英文1碼 + 1或2 + 數字8碼
+    phone: /^09\d{8}$/,                       // 手機: 09 開頭 + 數字8碼
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/       // Email: 基本的 @ 和 . 檢查
+  };
+
+  function validateInput(inputId, errorId, regex) {
+    const input = document.getElementById(inputId);
+    const val = input.value.trim();
+
+    // 如果有輸入值，且不符合正則表達式，就顯示紅框跟錯誤訊息
+    if (val !== '' && !regex.test(val)) {
+      input.classList.add('is-invalid');
+      document.getElementById(errorId).style.display = 'block';
+      return false;
+    } else {
+      input.classList.remove('is-invalid');
+      document.getElementById(errorId).style.display = 'none';
+      return true;
+    }
+  }
+
+  // 綁定事件：依據你的要求使用 mouseleave (也順便綁定 blur 讓體驗更好)
+  ['mouseleave', 'blur'].forEach(evt => {
+    document.getElementById('cust-new-idno').addEventListener(evt, () => validateInput('cust-new-idno', 'err-idno', regexPatterns.idno));
+    document.getElementById('cust-new-phone').addEventListener(evt, () => validateInput('cust-new-phone', 'err-phone', regexPatterns.phone));
+    document.getElementById('cust-new-email').addEventListener(evt, () => validateInput('cust-new-email', 'err-email', regexPatterns.email));
+  });
+
+  // 一鍵帶入Demo假資料
+  function fillDemoData() {
+    // 隨機產生身分證字號
+    const letters = "ABCDEFGHJKLMNPQRSTUVXY";
+    const randLetter = letters.charAt(Math.floor(Math.random() * letters.length));
+    const randGender = Math.floor(Math.random() * 2) + 1; // 1或2
+    const randNums = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+
+    // 隨機產生顧客代號 (避免主鍵重複)
+    document.getElementById('cust-new-id').value = Math.floor(Math.random() * 1000000) + 100;
+    document.getElementById('cust-new-idno').value = randLetter + randGender + randNums;
+    document.getElementById('cust-new-name').value = '測試客戶' + Math.floor(Math.random() * 100);
+    document.getElementById('cust-new-dob').value = '1990-05-15';
+    document.getElementById('cust-new-phone').value = '09' + Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+    document.getElementById('cust-new-email').value = 'demo' + Math.floor(Math.random() * 1000) + '@bank.com.tw';
+    document.getElementById('cust-new-addr').value = '台北市大安區忠孝東路四段 100 號';
+    document.getElementById('cust-new-income').value = '65000';
+    document.getElementById('cust-new-credit').value = '750';
+
+    // 帶入後清除所有紅框錯誤提示
+    document.querySelectorAll('.is-invalid').forEach(el => el.classList.remove('is-invalid'));
+    document.querySelectorAll('.invalid-feedback').forEach(el => el.style.display = 'none');
+  }
+
+  // 表單送出邏輯
+  document.getElementById('cust-insert-form').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    // 送出前最後檢查一次所有格式
+    const isIdnoValid = validateInput('cust-new-idno', 'err-idno', regexPatterns.idno);
+    const isPhoneValid = validateInput('cust-new-phone', 'err-phone', regexPatterns.phone);
+    const isEmailValid = validateInput('cust-new-email', 'err-email', regexPatterns.email);
+
+    if (!isIdnoValid || !isPhoneValid || !isEmailValid) {
+      alert("請修正紅框處的格式錯誤後再送出！");
+      return;
+    }
+
+    const btnSubmit = document.getElementById('btnSubmit');
+    const alertBox = document.getElementById('alertMessage');
+    const resultCard = document.getElementById('resultCard');
+    const resultBody = document.getElementById('resultBody');
+
+    btnSubmit.disabled = true;
+    btnSubmit.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>處理中...';
+
+    const formData = new FormData(this);
+    const searchParams = new URLSearchParams();
+    for (const pair of formData.entries()) {
+      searchParams.append(pair[0], pair[1].toString());
+    }
+
+    try {
+      const response = await fetch('CustomerServlet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+        body: searchParams
+      });
+
+      if (!response.ok) throw new Error('網路回應不成功');
+
+      const htmlString = await response.text();
+      const isSuccess = htmlString.includes("✅ 新增成功");
+      const isError = htmlString.includes("❌ 新增失敗") || htmlString.includes("資料格式有誤");
+
+      if (isSuccess) {
+        alertBox.className = 'alert alert-success d-flex align-items-center mb-3';
+        alertBox.innerHTML = '<i class="bi bi-check-circle-fill me-2"></i><div>新增成功！</div>';
+        alertBox.classList.remove('d-none');
+
+        // document.getElementById('cust-insert-form').reset();
+
+        resultCard.classList.remove('d-none');
+        resultBody.innerHTML = '<p class="text-success mb-0 fw-bold">顧客資料已成功寫入資料庫。</p>';
+      } else if (isError) {
+        alertBox.className = 'alert alert-danger d-flex align-items-center mb-3';
+        alertBox.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><div>新增失敗，請檢查資料或確認代號/身分證是否重複。</div>';
+        alertBox.classList.remove('d-none');
+      } else {
+        resultCard.classList.remove('d-none');
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(htmlString, 'text/html');
+        resultBody.innerHTML = doc.body ? doc.body.innerHTML : htmlString;
+      }
+    } catch (error) {
+      console.error("發生錯誤:", error);
+      alertBox.className = 'alert alert-danger d-flex align-items-center mb-3';
+      alertBox.innerHTML = '<i class="bi bi-exclamation-triangle-fill me-2"></i><div>處理失敗，請檢查網路或聯絡管理員。</div>';
+      alertBox.classList.remove('d-none');
+    } finally {
+      btnSubmit.disabled = false;
+      btnSubmit.innerHTML = '<i class="bi bi-check-lg me-1"></i>新增顧客';
+    }
+  });
+</script>
+</body>
+</html>

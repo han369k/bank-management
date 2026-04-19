@@ -69,7 +69,7 @@ CREATE TABLE [ACCOUNT] (
                            [type] VARCHAR(20),                     -- 帳戶類型 (活存/定存)
                            [currency] VARCHAR(3),                  -- 幣別 (如: TWD)
                            [balance] DECIMAL(19,4),                -- 帳戶餘額
-                           [status] VARCHAR(10),                   -- 狀態：ACTIVE / FROZEN
+                           [status] VARCHAR(20),                   -- 狀態：ACTIVE / FROZEN 等
                            [create_at] DATETIME2,                  -- 開戶時間
                            [change_at] DATETIME2                   -- 最後異動時間
 )

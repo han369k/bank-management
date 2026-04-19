@@ -4,10 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import com.ispan.bankmanagement.account.enums.TransLogType;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "trans_log")
@@ -27,8 +28,9 @@ public class TransLog {
     @Column(nullable = false, precision = 19, scale = 4)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 20)
-    private String type;
+    private TransLogType type;
 
     @Column(name = "operation_account", length = 12, nullable = false)
     private String operationAccount;
@@ -41,9 +43,9 @@ public class TransLog {
 
     @CreationTimestamp
     @Column(name = "transaction_time", nullable = false, updatable = false)
-    private OffsetDateTime transactionTime;
+    private LocalDateTime transactionTime;
 
-    @Column(length = 255)
+    @Column(columnDefinition = "NVARCHAR(255)")
     private String note;
 
     /**
