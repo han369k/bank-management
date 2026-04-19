@@ -75,7 +75,7 @@
           <label class="form-label text-muted small fw-bold">金額</label>
           <div class="input-group mb-3">
             <span class="input-group-text bg-light">$</span>
-            <input id="dep-amount" class="form-control" type="number" min="1" placeholder="請輸入金額">
+            <input id="dep-amount" class="form-control" type="number" min="1" placeholder="請輸入金額" inputmode="numeric">
           </div>
           <button class="btn btn-success w-100" onclick="doDeposit()">
             <i class="bi bi-plus-circle me-1"></i>確認存款
@@ -91,7 +91,7 @@
           <label class="form-label text-muted small fw-bold">金額</label>
           <div class="input-group mb-3">
             <span class="input-group-text bg-light">$</span>
-            <input id="wit-amount" class="form-control" type="number" min="1" placeholder="請輸入金額">
+            <input id="wit-amount" class="form-control" type="number" min="1" placeholder="請輸入金額" inputmode="numeric">
           </div>
           <button class="btn btn-warning w-100 text-dark" onclick="doWithdraw()">
             <i class="bi bi-dash-circle me-1"></i>確認提款
@@ -112,13 +112,13 @@
       <div class="row g-3 align-items-end">
         <div class="col-sm-4">
           <label class="form-label text-muted small fw-bold">轉入目標帳號</label>
-          <input id="tr-to" class="form-control" type="text" placeholder="目標帳號（12碼）" maxlength="12">
+          <input id="tr-to" class="form-control" type="text" placeholder="目標帳號（12碼）" maxlength="12" inputmode="numeric" pattern="[0-9]*">
         </div>
         <div class="col-sm-3">
           <label class="form-label text-muted small fw-bold">金額</label>
           <div class="input-group">
             <span class="input-group-text bg-light">$</span>
-            <input id="tr-amount" class="form-control" type="number" min="1" placeholder="請輸入金額">
+            <input id="tr-amount" class="form-control" type="number" min="1" placeholder="請輸入金額" inputmode="numeric">
           </div>
         </div>
         <div class="col-sm-3">
