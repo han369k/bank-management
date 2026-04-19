@@ -16,9 +16,9 @@ public class CustomerDao {
 
     private final JdbcTemplate jdbcTemplate;
 
-    // ==================== C：新增顧客 ====================
+    // 新增顧客
     public boolean insertCustomer(CustomerVo c) {
-        // ✨ 修正點 1：對齊資料庫真實的「底線命名」欄位名稱
+        // 配合 DB 底線命名
         String sql = "INSERT INTO CUSTOMER "
                    + "(customer_id, id_number, name, date_of_birth, nationality, "
                    + " address, phone, email, password_hash, income, credit_score, status) "
@@ -42,9 +42,9 @@ public class CustomerDao {
         return rows > 0;
     }
 
-    // ==================== R：查詢全部顧客 ====================
+    // 查詢全部
     public List<CustomerVo> findAll() {
-        // ✨ 修正點 2：用 AS 取別名，讓資料庫的底線欄位能完美對應 Java 的駝峰屬性！
+        // 用 AS 將底線轉駝峰
         String sql = "SELECT customer_id AS customerId, id_number AS idNumber, name, date_of_birth AS dateOfBirth, "
                    + "address, phone, email, income, credit_score AS creditScore, status "
                    + "FROM CUSTOMER";
@@ -52,9 +52,9 @@ public class CustomerDao {
         return jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(CustomerVo.class));
     }
 
-    // ==================== R：用身分證字號查詢單一顧客 ====================
+    // 依身分證查詢
     public CustomerVo findByIdNumber(String idNumber) {
-        // ✨ 修正點 3：一樣用 AS 取別名，並且 WHERE 條件要用資料庫真實的底線欄位
+        // 用 AS 轉駝峰
         String sql = "SELECT customer_id AS customerId, id_number AS idNumber, name, date_of_birth AS dateOfBirth, "
                    + "address, phone, email, income, credit_score AS creditScore, status "
                    + "FROM CUSTOMER WHERE id_number = ?";
@@ -66,18 +66,29 @@ public class CustomerDao {
         }
     }
 
-    // ==================== U：修改顧客狀態 ====================
-    public boolean updateStatus(String customerId, String newStatus) {
-        // ✨ 修正點 4：WHERE 條件改為 customer_id
+    // 依 ID 查詢
+    public CustomerVo findById(Integer customerId) {
+        String sql = "SELECT customer_id AS customerId, id_number AS idNumber, name, date_of_birth AS dateOfBirth, "
+                   + "address, phone, email, income, credit_score AS creditScore, status "
+                   + "FROM CUSTOMER WHERE customer_id = ?";
+
+        try {
+            return jdbcTemplate.queryForObject(sql, new BeanPropertyRowMapper<>(CustomerVo.class), customerId);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    // 更新狀態
+    public boolean updateStatus(Integer customerId, String newStatus) {
         String sql = "UPDATE CUSTOMER SET status = ? WHERE customer_id = ?";
 
         int rows = jdbcTemplate.update(sql, newStatus, customerId);
         return rows > 0;
     }
 
-    // ==================== D：刪除顧客 ====================
-    public boolean deleteCustomer(String customerId) {
-        // ✨ 修正點 5：WHERE 條件改為 customer_id
+    // 刪除
+    public boolean deleteCustomer(Integer customerId) {
         String sql = "DELETE FROM CUSTOMER WHERE customer_id = ?";
 
         int rows = jdbcTemplate.update(sql, customerId);

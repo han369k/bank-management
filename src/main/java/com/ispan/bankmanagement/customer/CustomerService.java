@@ -1,55 +1,67 @@
 package com.ispan.bankmanagement.customer;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Random;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * Service 層 — Java Bank 的業務邏輯處理中心
- * 負責處理商業邏輯與資料檢核，並負責 DTO 與 VO 之間的轉換。
+ * 客戶服務邏輯
  */
+@Slf4j
 @Service 
 @RequiredArgsConstructor 
 public class CustomerService {
 
-    // 注入升級版的 Spring Dao
     private final CustomerDao customerDaoSpr;
 
     /**
-     * 查詢全部顧客
+     * 列表
      */
     public List<CustomerVo> findAll() {
-        // 回傳型別已經全面更新為 CustomerVo
         return customerDaoSpr.findAll();
     }
 
     /**
-     * 用身分證查單一顧客
+     * 依身分證查詢
      */
     public CustomerVo findByIdNumber(String idNumber) {
+        if (idNumber == null || idNumber.isBlank()) {
+            throw new IllegalArgumentException("身分證字號不可為空白");
+        }
         return customerDaoSpr.findByIdNumber(idNumber.toUpperCase());
     }
 
     /**
-     * 新增顧客 (完美對接前端傳來的 DTO)
+     * 依 ID 查詢
+     */
+    public CustomerVo findById(Integer customerId) {
+        if (customerId == null) {
+            throw new IllegalArgumentException("顧客代號不可為空");
+        }
+        return customerDaoSpr.findById(customerId);
+    }
+
+    /**
+     * 新增顧客
      */
     @Transactional 
     public boolean insertCustomer(CustomerCreateReq req) {
         
-        // 1. 商業邏輯檢核：檢查身分證是否重複
-        // 前端的 @Valid 已經幫我們擋掉空白格式了，這裡只需專心查資料庫邏輯
+        // 檢查身分證是否重複
         if (customerDaoSpr.findByIdNumber(req.getIdNumber()) != null) {
-            throw new IllegalArgumentException("此身分證字號已經註冊過囉！");
+            log.warn("新增失敗: 身分證 {} 已存在", req.getIdNumber());
+            throw new IllegalArgumentException("身分證字號已存在");
         }
 
-        // 2. 準備一個要寫入 SQL Server 的資料庫實體 (VO)
         CustomerVo vo = new CustomerVo();
 
-        // 3. 執行 DTO 轉 VO (Data Mapping)
         vo.setIdNumber(req.getIdNumber());
         vo.setName(req.getName());
         vo.setDateOfBirth(req.getDateOfBirth());
@@ -58,49 +70,58 @@ public class CustomerService {
         vo.setPhone(req.getPhone());
         vo.setEmail(req.getEmail());
         
-        // 處理金額與分數的預設值
         vo.setIncome(req.getIncome() != null ? req.getIncome() : BigDecimal.ZERO);
         vo.setCreditScore(req.getCreditScore() != null ? req.getCreditScore() : 0);
 
-        // 4. 補齊系統自動產生的內部欄位
-        vo.setCustomerId(generateNextId());                 // 自動產生顧客 ID
-        vo.setPasswordHash("default_hash_value");           // 預設密碼 Hash
-        vo.setFailedLoginAttempts(0);                       // 預設失敗次數
-        vo.setStatus("Active");                             // 預設狀態為啟用
+        // 補齊系統欄位
+        vo.setCustomerId(generateNextId());
+        vo.setPasswordHash("default_hash_value");
+        vo.setFailedLoginAttempts(0);
+        vo.setStatus("Active");
+        vo.setCreatedAt(LocalDateTime.now());
+        vo.setUpdatedAt(LocalDateTime.now());
 
-        // 5. 呼叫 DAO 寫入資料庫
-        return customerDaoSpr.insertCustomer(vo);
+        boolean isInserted = customerDaoSpr.insertCustomer(vo);
+        if (isInserted) {
+            log.info("新增顧客成功, id: {}, name: {}", vo.getCustomerId(), vo.getName());
+        }
+        return isInserted;
     }
 
     /**
-     * 修改顧客狀態
+     * 更新狀態
      */
     @Transactional
-    public boolean updateStatus(String customerId, String newStatus) {
+    public boolean updateStatus(Integer customerId, String newStatus) {
         List<String> validStatuses = List.of("Active", "Inactive", "Suspended");
         if (!validStatuses.contains(newStatus)) {
             throw new IllegalArgumentException("無效的客戶狀態：" + newStatus);
         }
 
-        return customerDaoSpr.updateStatus(customerId, newStatus);
+        boolean isUpdated = customerDaoSpr.updateStatus(customerId, newStatus);
+        if (isUpdated) {
+            log.info("顧客 {} 狀態更新為 {}", customerId, newStatus);
+        }
+        return isUpdated;
     }
 
     /**
-     * 刪除顧客
+     * 刪除
      */
     @Transactional
-    public boolean deleteCustomer(String customerId) {
-        // 實務上在銀行系統，刪除前可能需要呼叫 AccountDao 檢查是否有餘額未結清
-        return customerDaoSpr.deleteCustomer(customerId);
+    public boolean deleteCustomer(Integer customerId) {
+        // TODO: 刪除前需確認帳戶餘額是否結清
+        boolean isDeleted = customerDaoSpr.deleteCustomer(customerId);
+        if (isDeleted) {
+            log.warn("顧客 {} 已被刪除", customerId);
+        }
+        return isDeleted;
     }
 
-    // ==================== 私有輔助方法 ====================
-
     /**
-     * 模擬自動產生顧客代號 (例如：C + 當前時間戳)
-     * 搭配 SQL Server 開發時，未來這段也可以考慮改用 NEWID() 來產生 UUID。
+     * 產生 8 碼隨機 ID
      */
-    private String generateNextId() {
-        return "C" + System.currentTimeMillis(); 
+    private Integer generateNextId() {
+        return 10000000 + new Random().nextInt(90000000); 
     }
 }

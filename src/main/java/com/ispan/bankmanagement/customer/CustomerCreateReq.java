@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 /**
- * Request DTO：專門用來接收「新增顧客表單」的資料
+ * 新增顧客 DTO
  */
 @Data
 public class CustomerCreateReq {
@@ -33,7 +33,7 @@ public class CustomerCreateReq {
     @Email(message = "Email 格式不正確")
     private String email;
 
-    // 假設開戶時要填寫初始收入與信用分數
+    // 開戶預設值
     private BigDecimal income;
     private Integer creditScore;
 }

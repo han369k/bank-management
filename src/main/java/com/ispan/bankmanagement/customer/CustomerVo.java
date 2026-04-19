@@ -14,15 +14,14 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * VO (Value Object) — 顧客資料容器
- * 【Spring 改寫版】引入 Lombok、現代化 Date API 與資料驗證標籤
+ * 顧客 VO
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerVo { // 📍 類別名稱已更新為 CustomerVo
+public class CustomerVo {
 
-    private String customerId;
+    private Integer customerId;
 
     @NotBlank(message = "身分證字號不可為空白")
     @Size(min = 10, max = 10, message = "身分證字號必須為 10 碼")

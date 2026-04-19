@@ -1,136 +1,102 @@
 package com.ispan.bankmanagement.customer;
 
 import java.util.List;
+import java.util.Map;
 
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.bind.annotation.*;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-@Controller
-@RequestMapping("/customer")
-@RequiredArgsConstructor // ✨ Lombok 自動注入 Service
+@RestController
+@RequestMapping("/api/customers")
+@RequiredArgsConstructor
 public class CustomerController {
 
     private final CustomerService service;
 
-    // ==================== GET 請求（畫面與查詢）====================
-
-    /** R - 列出全部顧客 */
+    // 列表
     @GetMapping
-    public String list(Model model) {
-        model.addAttribute("customerList", service.findAll());
-        
-        // ✨ 對應 src/main/resources/templates/customer-list.html
-        return "customer-list"; 
+    public ResponseEntity<List<CustomerVo>> list() {
+        return ResponseEntity.ok(service.findAll());
     }
 
-    /** 🌟 新增的路由：前往「新增顧客」頁面 */
-    @GetMapping("/create")
-    public String showCreateForm() {
-        
-        // ✨ 對應 src/main/resources/templates/customer-create.html
-        return "customer-create"; 
-    }
-
-    /** R - 用身分證查單一顧客 */
-    @GetMapping("/search")
-    public String search(@RequestParam(required = false) String idNumber, Model model) {
-        if (idNumber == null || idNumber.trim().isBlank()) {
-            model.addAttribute("errorMessage", "請輸入身分證字號！");
-            return "customer-list"; 
-        }
-
-        CustomerVo customer = service.findByIdNumber(idNumber.trim());
-        
+    // 依身分證查詢
+    @GetMapping("/{idNumber}")
+    public ResponseEntity<?> search(@PathVariable String idNumber) {
+        CustomerVo customer = service.findByIdNumber(idNumber);
         if (customer != null) {
-            model.addAttribute("customerList", List.of(customer)); 
-            model.addAttribute("actionMessage", "查詢結果：找到顧客「" + customer.getName() + "」");
+            return ResponseEntity.ok(customer);
         } else {
-            model.addAttribute("actionMessage", "查無此身分證字號的顧客：" + idNumber);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "查無此身分證字號的顧客：" + idNumber));
         }
-
-        return "customer-list"; 
     }
 
-    // ==================== POST 請求（新增/修改/刪除）====================
+    // 新增
+    @PostMapping
+    public ResponseEntity<?> save(@Valid @RequestBody CustomerCreateReq req, 
+                                  BindingResult bindingResult) {
 
-    /** C - 新增顧客存檔 */
-    @PostMapping("/save")
-    public String save(@Valid @ModelAttribute CustomerCreateReq req, 
-                       BindingResult bindingResult,                  
-                       RedirectAttributes ra) {
-
-        // 1. 如果表單驗證失敗 (例如沒填姓名)
+        // 檢查表單驗證錯誤
         if (bindingResult.hasErrors()) {
             String errorMsg = bindingResult.getAllErrors().get(0).getDefaultMessage();
-            ra.addFlashAttribute("errorMessage", "表單驗證失敗：" + errorMsg);
-            return "redirect:/customer";
+            return ResponseEntity.badRequest().body(Map.of("error", "表單驗證失敗：" + errorMsg));
         }
 
-        // 2. 驗證通過，交給 Service 處理
         try {
             boolean success = service.insertCustomer(req);
             if (success) {
-                ra.addFlashAttribute("actionMessage", "✅ 新增成功！顧客「" + req.getName() + "」已建檔。");
+                return ResponseEntity.ok(Map.of("message", "新增成功"));
             } else {
-                ra.addFlashAttribute("errorMessage", "❌ 新增失敗，系統異常！");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "系統異常，新增失敗"));
             }
         } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("errorMessage", "❌ " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", "資料格式有誤或發生系統錯誤，請重新確認！");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "資料格式錯誤或系統異常"));
         }
-        
-        return "redirect:/customer"; 
     }
 
-    /** U - 修改顧客狀態 */
-    @PostMapping("/update-status")
-    public String updateStatus(@RequestParam String customerId, 
-                               @RequestParam String newStatus, 
-                               RedirectAttributes ra) {
+    // 更新狀態
+    @PatchMapping("/{customerId}/status")
+    public ResponseEntity<?> updateStatus(@PathVariable Integer customerId, 
+                                          @RequestBody Map<String, String> body) {
                                
-        if (customerId == null || customerId.trim().isBlank()) {
-            ra.addFlashAttribute("errorMessage", "請輸入顧客代號！");
-            return "redirect:/customer";
+        String newStatus = body.get("status");
+        if (newStatus == null || newStatus.trim().isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "請提供要更新的狀態！"));
         }
 
         try {
-            boolean success = service.updateStatus(customerId.trim(), newStatus);
+            boolean success = service.updateStatus(customerId, newStatus);
             if (success) {
-                ra.addFlashAttribute("actionMessage", "✅ 狀態更新成功！");
+                return ResponseEntity.ok(Map.of("message", "狀態更新成功"));
             } else {
-                ra.addFlashAttribute("errorMessage", "❌ 修改失敗，找不到此顧客代號！");
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "修改失敗，查無此人"));
             }
         } catch (IllegalArgumentException e) {
-            ra.addFlashAttribute("errorMessage", "❌ " + e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
-
-        return "redirect:/customer";
     }
 
-    /** D - 刪除顧客 */
-    @GetMapping("/delete/{id}")
-    public String delete(@PathVariable("id") String customerId, RedirectAttributes ra) {
+    // 刪除
+    @DeleteMapping("/{customerId}")
+    public ResponseEntity<?> delete(@PathVariable Integer customerId) {
         
-        boolean success = service.deleteCustomer(customerId.trim());
+        boolean success = service.deleteCustomer(customerId);
 
         if (success) {
-            ra.addFlashAttribute("actionMessage", "✅ 刪除成功！");
+            return ResponseEntity.ok(Map.of("message", "刪除成功"));
         } else {
-            ra.addFlashAttribute("errorMessage", "❌ 刪除失敗，找不到此顧客代號！");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "刪除失敗，查無此人"));
         }
-
-        return "redirect:/customer";
     }
 }
