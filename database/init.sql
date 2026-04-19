@@ -26,6 +26,16 @@ CREATE TABLE [ADMIN_LOG] (
 )
 GO
 
+-- 行員登入 Session 紀錄表 (用於攔截器驗證狀態)
+CREATE TABLE [ADMIN_SESSION] (
+                             [session_id] VARCHAR(100) PRIMARY KEY,      -- Session Token (PK)
+                             [admin_id] INT NOT NULL,                    -- 關聯的行員編號 (FK)
+                             [login_time] DATETIME2 NOT NULL,            -- 登入時間
+                             [expire_time] DATETIME2 NOT NULL,           -- Session 過期時間
+                             [ip_address] VARCHAR(50)                    -- 登入來源 IP
+)
+GO
+
 -- 顧客資料表
 CREATE TABLE [CUSTOMER] (
                             [customer_id] INT PRIMARY KEY,          -- 顧客系統代號 (PK)
@@ -283,6 +293,12 @@ EXEC sp_addextendedproperty @name = N'Column_Description', @value = '詳細內�
 EXEC sp_addextendedproperty @name = N'Column_Description', @value = '操作時間', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_LOG', @level2type = N'Column', @level2name = 'action_timestamp';
 EXEC sp_addextendedproperty @name = N'Column_Description', @value = '操作IP', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_LOG', @level2type = N'Column', @level2name = 'ip_address';
 
+EXEC sp_addextendedproperty @name = N'Column_Description', @value = 'Session Token (PK)', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_SESSION', @level2type = N'Column', @level2name = 'session_id';
+EXEC sp_addextendedproperty @name = N'Column_Description', @value = '行員編號 (FK)', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_SESSION', @level2type = N'Column', @level2name = 'admin_id';
+EXEC sp_addextendedproperty @name = N'Column_Description', @value = '登入時間', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_SESSION', @level2type = N'Column', @level2name = 'login_time';
+EXEC sp_addextendedproperty @name = N'Column_Description', @value = 'Session 過期時間', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_SESSION', @level2type = N'Column', @level2name = 'expire_time';
+EXEC sp_addextendedproperty @name = N'Column_Description', @value = '登入來源 IP', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'ADMIN_SESSION', @level2type = N'Column', @level2name = 'ip_address';
+
 EXEC sp_addextendedproperty @name = N'Column_Description', @value = '顧客系統代號 (PK)', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'CUSTOMER', @level2type = N'Column', @level2name = 'customer_id';
 EXEC sp_addextendedproperty @name = N'Column_Description', @value = '身分證字號', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'CUSTOMER', @level2type = N'Column', @level2name = 'id_number';
 EXEC sp_addextendedproperty @name = N'Column_Description', @value = '顧客姓名', @level0type = N'Schema', @level0name = 'dbo', @level1type = N'Table', @level1name = 'CUSTOMER', @level2type = N'Column', @level2name = 'name';
@@ -412,6 +428,7 @@ GO
 
 -- 外鍵連結
 ALTER TABLE [ADMIN_LOG] ADD FOREIGN KEY ([admin_id]) REFERENCES [ADMINISTRATOR] ([admin_id])
+ALTER TABLE [ADMIN_SESSION] ADD FOREIGN KEY ([admin_id]) REFERENCES [ADMINISTRATOR] ([admin_id])
 ALTER TABLE [KYC_RECORD] ADD FOREIGN KEY ([verified_by_admin]) REFERENCES [ADMINISTRATOR] ([admin_id])
 ALTER TABLE [LOAN_APPLICATION] ADD FOREIGN KEY ([reviewer_id]) REFERENCES [ADMINISTRATOR] ([admin_id])
 ALTER TABLE [KYC_RECORD] ADD FOREIGN KEY ([customer_id]) REFERENCES [CUSTOMER] ([customer_id])
