@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Java Bank - 顧客管理</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+    <h2 class="mb-4">🏦 Java Bank 核心財富管理系統 - 顧客清單</h2>
+
+    <div th:if="${actionMessage}" class="alert alert-success fw-bold" th:text="${actionMessage}"></div>
+    <div th:if="${errorMessage}" class="alert alert-danger fw-bold" th:text="${errorMessage}"></div>
+
+    <div class="d-flex justify-content-between align-items-center mb-3 p-3 bg-light rounded shadow-sm">
+        <form th:action="@{/customer/search}" method="get" class="d-flex">
+            <input type="text" name="idNumber" class="form-control me-2" placeholder="請輸入身分證字號" required>
+            <button type="submit" class="btn btn-primary text-nowrap">🔍 搜尋</button>
+            <a th:href="@{/customer}" class="btn btn-outline-secondary ms-2 text-nowrap">顯示全部</a>
+        </form>
+        <a th:href="@{/customer/create}" class="btn btn-success">➕ 新增顧客</a>
+        <a th:href="@{/logout}" class="btn btn-danger fw-bold ms-2">登出系統</a>
+    </div>
+
+    <table class="table table-bordered table-hover align-middle text-center shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>顧客代號</th>
+                <th>姓名</th>
+                <th>身分證字號</th>
+                <th>狀態</th>
+                <th>操作</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr th:each="cust : ${customerList}">
+                <td th:text="${cust.customerId}">C001</td>
+                <td th:text="${cust.name}">王小明</td>
+                <td th:text="${cust.idNumber}">A123456789</td>
+                <td>
+                    <span th:text="${cust.status}" 
+                          th:classappend="${cust.status == 'Active' ? 'badge bg-success' : 'badge bg-secondary'}">
+                        Active
+                    </span>
+                </td>
+                <td>
+                    <form th:action="@{/customer/update-status}" method="post" class="d-inline">
+                        <input type="hidden" name="customerId" th:value="${cust.customerId}">
+                        <select name="newStatus" class="form-select form-select-sm d-inline w-auto">
+                            <option value="Active" th:selected="${cust.status == 'Active'}">Active</option>
+                            <option value="Inactive" th:selected="${cust.status == 'Inactive'}">Inactive</option>
+                            <option value="Suspended" th:selected="${cust.status == 'Suspended'}">Suspended</option>
+                        </select>
+                        <button type="submit" class="btn btn-sm btn-warning">更新狀態</button>
+                    </form>
+                    <a th:href="@{/customer/delete/{id}(id=${cust.customerId})}" 
+                       class="btn btn-sm btn-danger ms-1" 
+                       onclick="return confirm('確定要刪除這位顧客嗎？此操作無法復原！')">🗑️ 刪除</a>
+                </td>
+            </tr>
+            <tr th:if="${customerList == null or customerList.isEmpty()}">
+                <td colspan="5" class="text-center text-muted">目前沒有顧客資料</td>
+            </tr>
+        </tbody>
+    </table>
+</body>
+</html>
