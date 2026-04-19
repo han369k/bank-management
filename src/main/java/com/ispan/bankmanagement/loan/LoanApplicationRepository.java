@@ -12,6 +12,6 @@ public interface LoanApplicationRepository extends JpaRepository<LoanApplication
 
     // 依照status查詢
     // find By Status + By + Order By CreateTime + Desc
-    List<LoanApplication> findByStatusInOrderByCreateTimeDesc(List<LoanStatus> statusList);
+    List<LoanApplication> findByStatusInOrderByCreateTimeDesc(List<LoanApplicationStatus> statusList);
 
 }

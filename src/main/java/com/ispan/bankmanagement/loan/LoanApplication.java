@@ -19,7 +19,7 @@ public class LoanApplication {
     private String applicationId;
 
     @Column(name = "customer_id", nullable = false, length = 20)
-    private String customerId;
+    private Integer customerId;
 
     @Column(name = "apply_type", nullable = false, length = 20)
     private String applyType;
@@ -35,7 +35,7 @@ public class LoanApplication {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", length = 20)
-    private LoanStatus status;
+    private LoanApplicationStatus status;
 
     @Column(name = "create_time")
     private LocalDateTime createTime;

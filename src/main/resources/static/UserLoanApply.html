@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>貸款申請</title>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f6fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+            padding: 32px;
+            width: 360px;
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 24px;
+            color: #2f3640;
+        }
+
+        .form-row {
+            margin: 12px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        label {
+            display: inline-block;
+            width: 100px;
+            font-size: 14px;
+            color: #555;
+        }
+
+        input, select {
+            flex: 1;
+            padding: 6px 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        input[readonly] {
+            background: #f0f0f0;
+            color: #888;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 10px;
+            margin-top: 20px;
+            background: #0097e6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        .btn-submit:hover {
+            background: #0083c9;
+        }
+
+        .amount-control {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 6px;
+            width: 100%; /* 固定撐滿父層 */
+        }
+
+        .amount-control input {
+            flex: 1;
+            min-width: 0; /* 防止 flex 子項撐爆容器 */
+            width: 0; /* 配合 flex:1 讓寬度完全由容器決定 */
+            text-align: center;
+        }
+
+        .btn-step {
+            width: 36px;
+            height: 32px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f0f0f0;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            color: #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            user-select: none;
+            transition: background 0.15s;
+        }
+
+        .btn-step:hover {
+            background: #ddd;
+        }
+
+        .btn-step:active {
+            background: #ccc;
+        }
+
+        .amount-hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 2px;
+            margin-left: 100px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>貸款申請</h2>
+    <form id="loanForm">
+
+        <div class="form-row">
+            <label>客戶ID</label>
+            <input id="customerId" type="number" required placeholder="請輸入客戶ID">
+        </div>
+
+        <div class="form-row">
+            <label>貸款方案</label>
+            <select name="applyType" id="type" required>
+                <option value="">請選擇貸款種類</option>
+                <option value="PERSONAL">信用貸款</option>
+                <option value="CAR">汽車車貸</option>
+                <option value="MOTOR">機車車貸</option>
+                <option value="STUDENT">就學貸款</option>
+                <option value="BUSINESS">創業貸款</option>
+                <option value="HOUSE">房屋貸款</option>
+                <option value="LAND">土地貸款</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>貸款金額</label>
+            <div class="amount-control">
+                <button type="button" class="btn-step" id="btnMinus">−</button>
+                <input name="applyAmount" id="amount" type="number" min="1000" step="1000" required placeholder="">
+                <button type="button" class="btn-step" id="btnPlus">+</button>
+            </div>
+        </div>
+        <div class="amount-hint" id="amountHint"></div>
+
+        <div class="form-row">
+            <label>期數</label>
+            <select name="applyPeriod" id="term" required>
+                <option value="">請選擇分期期數</option>
+            </select>
+        </div>
+
+        <div class="form-row">
+            <label>利率</label>
+            <input id="rate" readonly placeholder="選擇方案後自動計算">
+        </div>
+
+        <div class="form-row">
+            <label>估計總金額</label>
+            <input id="total" readonly>
+        </div>
+
+        <div class="form-row">
+            <label>每期應繳</label>
+            <input id="avg" readonly>
+        </div>
+
+        <button class="btn-submit" type="submit">送出申請</button>
+    </form>
+
+
+</div>
+
+<script>
+    // ============================================
+    // ⭐ 貸款種類 → 對應期數選項
+    // ============================================
+    const termOptions = {
+        PERSONAL: [12, 24, 36, 48, 60],
+        CAR: [12, 24, 36, 48, 60],
+        MOTOR: [12, 24, 36],
+        STUDENT: [60, 84, 120],
+        BUSINESS: [36, 60, 84],
+        HOUSE: [120, 240, 360, 480],
+        LAND: [120, 180, 240]
+    };
+
+    // ============================================
+    // ⭐ 貸款種類 → 金額上下限（單位：元）
+    // ============================================
+    const loanLimits = {
+        PERSONAL: {min: 50000, max: 3000000, label: '信用貸款'},
+        CAR: {min: 100000, max: 3000000, label: '汽車貸款'},
+        MOTOR: {min: 10000, max: 200000, label: '機車貸款'},
+        STUDENT: {min: 200000, max: 1000000, label: '就學貸款'},
+        BUSINESS: {min: 500000, max: 5000000, label: '創業貸款'},
+        HOUSE: {min: 3000000, max: 30000000, label: '房屋貸款'},
+        LAND: {min: 1000000, max: 20000000, label: '土地貸款'}
+    };
+
+    const baseRate = {
+        PERSONAL: 0.04,
+        CAR: 0.025,
+        MOTOR: 0.045,
+        STUDENT: 0.015,
+        BUSINESS: 0.02,
+        HOUSE: 0.018,
+        LAND: 0.028
+    };
+
+    const termRate = {
+        12: 0, 24: 0.002, 36: 0.005, 48: 0.008, 60: 0.01, 84: 0.015,
+        120: 0, 180: 0.002, 240: 0.004, 360: 0.006, 480: 0.008
+    };
+
+    // 格式化金額為萬元顯示
+    function formatWan(val) {
+        return (val / 10000).toLocaleString() + ' 萬';
+    }
+
+    // 更新金額提示文字
+    function updateAmountHint(plan) {
+        const hint = document.getElementById('amountHint');
+        const amountInput = document.getElementById('amount');
+        if (plan && loanLimits[plan]) {
+            const l = loanLimits[plan];
+            hint.textContent = `${l.label}額度範圍：${formatWan(l.min)} ～ ${formatWan(l.max)}`;
+            amountInput.min = l.min;
+            amountInput.max = l.max;
+            amountInput.placeholder = '';
+        } else {
+            hint.textContent = '';
+            amountInput.min = 1000;
+            amountInput.removeAttribute('max');
+            amountInput.placeholder = '';
+        }
+    }
+
+    // 驗證金額是否在範圍內，超出時警告
+    function validateAmount() {
+        const plan = document.getElementById('type').value;
+        const amountInput = document.getElementById('amount');
+        const val = parseInt(amountInput.value);
+        if (!plan || !loanLimits[plan] || isNaN(val)) return true;
+
+        const l = loanLimits[plan];
+        if (val < l.min) {
+            Swal.fire({
+                icon: 'warning',
+                title: '金額低於下限',
+                text: `${l.label}最低申請金額為 ${formatWan(l.min)}`,
+            });
+            amountInput.value = l.min;
+            return false;
+        }
+        if (val > l.max) {
+            Swal.fire({
+                icon: 'warning',
+                title: '金額超過上限',
+                text: `${l.label}最高申請金額為 ${formatWan(l.max)}`,
+            });
+            amountInput.value = l.max;
+            return false;
+        }
+        return true;
+    }
+
+    // ============================================
+    // ⭐ 增減按鈕（以 1000 為單位）
+    // ============================================
+    document.getElementById('btnPlus').addEventListener('click', function () {
+        const amountInput = document.getElementById('amount');
+        const plan = document.getElementById('type').value;
+        let val = parseInt(amountInput.value) || 0;
+        val += 1000;
+
+        if (plan && loanLimits[plan] && val > loanLimits[plan].max) {
+            Swal.fire({
+                icon: 'warning',
+                title: '已達金額上限',
+                text: `${loanLimits[plan].label}最高申請金額為 ${formatWan(loanLimits[plan].max)}`,
+            });
+            val = loanLimits[plan].max;
+        }
+        amountInput.value = val;
+        recalculate();
+    });
+
+    document.getElementById('btnMinus').addEventListener('click', function () {
+        const amountInput = document.getElementById('amount');
+        const plan = document.getElementById('type').value;
+        let val = parseInt(amountInput.value) || 0;
+        val -= 1000;
+
+        const minVal = (plan && loanLimits[plan]) ? loanLimits[plan].min : 1000;
+        if (val < 1000) val = 1000;
+        amountInput.value = val;
+        recalculate();
+    });
+
+    // 手動輸入金額後失焦時驗證
+    document.getElementById('amount').addEventListener('blur', function () {
+        validateAmount();
+        recalculate();
+    });
+
+    // 切換貸款種類 → 更新期數下拉選單 & 金額提示
+    document.getElementById('type').addEventListener('change', function () {
+        const plan = this.value;
+        const termSelect = document.getElementById('term');
+        termSelect.innerHTML = '<option value="">請選擇分期期數</option>';
+        document.getElementById('rate').value = '';
+        document.getElementById('total').value = '';
+        document.getElementById('avg').value = '';
+
+        // 重設金額
+        const amountInput = document.getElementById('amount');
+        amountInput.value = '';
+        updateAmountHint(plan);
+
+        if (termOptions[plan]) {
+            termOptions[plan].forEach(v => {
+                const opt = document.createElement('option');
+                opt.value = v;
+                opt.textContent = v + '期';
+                termSelect.appendChild(opt);
+            });
+        }
+    });
+
+    // 通用重新計算函式
+    function recalculate() {
+        const plan = document.getElementById('type').value;
+        const term = parseInt(document.getElementById('term').value);
+        const amount = parseFloat(document.getElementById('amount').value);
+
+        if (!plan || !term || !amount || amount <= 0) return;
+
+        const rate = (plan === 'STUDENT')
+            ? 0.015
+            : baseRate[plan] + (termRate[term] || 0);
+
+        const total = amount * (1 + rate * term / 12);
+        const avg = total / term;
+
+        document.getElementById('rate').value = (rate * 100).toFixed(2) + '%';
+        document.getElementById('total').value = total.toFixed(0);
+        document.getElementById('avg').value = avg.toFixed(0);
+    }
+
+    // 切換期數 → 自動計算利率、總金額、每期應繳
+    document.getElementById('term').addEventListener('change', function () {
+        const amount = parseFloat(document.getElementById('amount').value);
+        if (!amount || amount <= 0) {
+            Swal.fire({icon: 'warning', title: '請先輸入正確金額'});
+            return;
+        }
+        recalculate();
+    });
+
+    // ============================================
+    // ⭐ 送出申請（fetch → POST /api/loan）
+    // ============================================
+    document.getElementById('loanForm').addEventListener('submit', async function (e) {
+        e.preventDefault();
+
+        const customerId = parseInt(document.getElementById('customerId').value.trim());
+        const applyType = document.getElementById('type').value;
+        const applyAmount = parseInt(document.getElementById('amount').value);
+        const applyPeriod = parseInt(document.getElementById('term').value);
+
+        if (!customerId || isNaN(customerId) || customerId <= 0) {
+            Swal.fire({icon: 'warning', title: '請輸入客戶ID'});
+            return;
+        }
+        if (!applyType) {
+            Swal.fire({icon: 'warning', title: '請選擇貸款種類'});
+            return;
+        }
+        if (!applyAmount || applyAmount <= 0) {
+            Swal.fire({icon: 'warning', title: '貸款金額需大於0'});
+            return;
+        }
+        if (!applyPeriod) {
+            Swal.fire({icon: 'warning', title: '請選擇期數'});
+            return;
+        }
+
+        // 前台金額範圍驗證
+        if (loanLimits[applyType]) {
+            const l = loanLimits[applyType];
+            if (applyAmount < l.min || applyAmount > l.max) {
+                Swal.fire({
+                    icon: 'error',
+                    title: '金額超出範圍',
+                    text: `${l.label}申請金額須介於 ${formatWan(l.min)} ～ ${formatWan(l.max)} 之間`
+                });
+                return;
+            }
+        }
+
+        // 計算申請利率
+        const rate = (applyType === 'STUDENT')
+            ? 0.015
+            : baseRate[applyType] + (termRate[applyPeriod] || 0);
+
+        try {
+            const res = await fetch('/api/loan', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                // 不傳 rate，由後端 calculateRate() 統一計算
+                body: JSON.stringify({customerId, applyType, applyAmount, applyPeriod})
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: '申請成功！',
+                    html: `申請編號：<b>${data.applicationId}</b><br>您的貸款申請已送出`,
+                }).then(() => {
+                    document.getElementById('loanForm').reset();
+                });
+            } else {
+                Swal.fire({icon: 'error', title: '申請失敗', text: data.message || '請稍後再試'});
+            }
+        } catch (err) {
+            Swal.fire({icon: 'error', title: '連線失敗', text: err.message});
+        }
+    });
+</script>
+
+</body>
+</html>
