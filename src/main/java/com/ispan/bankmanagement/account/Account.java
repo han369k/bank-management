@@ -1,5 +1,7 @@
 package com.ispan.bankmanagement.account;
 
+import com.ispan.bankmanagement.account.enums.AccountStatus;
+import com.ispan.bankmanagement.account.enums.AccountType;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
