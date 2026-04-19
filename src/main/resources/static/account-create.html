@@ -81,10 +81,6 @@
     <div class="card-body">
       <div class="row g-3">
         <div class="col-12">
-          <label>帳號 <span style="color:#aaa;font-weight:400;text-transform:none">（12碼）</span></label>
-          <input id="f-account" class="form-control" type="text" maxlength="12" placeholder="例：000000000001">
-        </div>
-        <div class="col-12">
           <label>客戶 ID</label>
           <input id="f-customer" class="form-control" type="text" placeholder="客戶身分識別碼">
         </div>
@@ -136,7 +132,7 @@
   }
 
   function clearForm() {
-    ['f-account','f-customer','f-balance'].forEach(id => document.getElementById(id).value = '');
+    ['f-customer','f-balance'].forEach(id => document.getElementById(id).value = '');
     document.getElementById('f-type').value     = 'CURRENT';
     document.getElementById('f-currency').value = 'TWD';
     document.getElementById('msg').innerHTML    = '';
@@ -144,10 +140,6 @@
 
   // DEMO隨機生成
   function fillDemoData() {
-    // 隨機產生後 9 碼，加上前面的 '808'，保證每次點擊帳號都不同，避免 PK 重複報錯
-    const randomSuffix = Math.floor(Math.random() * 1000000000).toString().padStart(9, '0');
-
-    document.getElementById('f-account').value = '808' + randomSuffix;
     document.getElementById('f-customer').value = '1';
     document.getElementById('f-type').value = 'FIXED';
     document.getElementById('f-currency').value = 'TWD';
@@ -182,7 +174,7 @@
       if (!res.ok) { showMsg(data.error || '建立失敗'); return; }
 
       // 成功後顯示綠色提示框，但不清除表單，二次確認剛剛建立的內容
-      showMsg(`<i class="bi bi-check-circle me-1"></i>建立成功！帳戶已成功寫入資料庫。`, 'success');
+      showMsg(`<i class="bi bi-check-circle me-1"></i>建立成功！系統已配發新帳號：<strong class="font-monospace fs-6">${data.accountNumber}</strong>`, 'success');
 
     } catch(e) {
       showMsg('網路錯誤：' + e.message);

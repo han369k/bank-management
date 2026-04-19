@@ -21,13 +21,10 @@ public class AccountService {
     private final AccountRepository accountRepository;
     private final TransLogRepository transLogRepository;
 
-    // todo:
-    //  1. 前端要移除新增帳號的input部分
-    //  2. 重新安排mock的資料格式
     /**
      * 新增帳戶
      */
-    public void createAcc(AccountCreateRequest request) {
+    public String createAcc(AccountCreateRequest request) {
         if (request == null) {
             log.warn("新增失敗，請求資料為空。");
             throw new IllegalArgumentException("帳戶資料不可為空。");
@@ -57,6 +54,7 @@ public class AccountService {
         // 5. 儲存進資料庫
         accountRepository.save(accountEntity);
         log.info("帳戶 {} 建立成功。", accountEntity.getAccountNumber());
+        return newAccountNumber;
     }
 
     /**

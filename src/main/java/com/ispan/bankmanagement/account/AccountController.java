@@ -53,9 +53,9 @@ public class AccountController {
      */
     @PostMapping
     public ResponseEntity<Map<String, String>> createAccount(@RequestBody AccountCreateRequest request) {
-        accountService.createAcc(request);
+        String newAccountNo = accountService.createAcc(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Map.of("message", "帳戶建立成功"));
+                .body(Map.of("message", "帳戶建立成功", "accountNumber", newAccountNo));
     }
 
     /**
