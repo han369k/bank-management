@@ -1,5 +1,7 @@
 package com.ispan.bankmanagement.account;
 
+import com.ispan.bankmanagement.account.enums.AccountStatus;
+import com.ispan.bankmanagement.account.enums.AccountType;
 import org.springframework.data.jpa.domain.Specification;
 import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ public class AccountSpecification {
     /**
      * 這裡就等同於以前寫的 query(Connection conn, Account accountEntity)
      */
-    public static Specification<Account> dynamicQuery(String type, String status, String keyword) {
+    public static Specification<Account> dynamicQuery(AccountType type, AccountStatus status, String keyword) {
 
         // root: 代表 FROM Account (你的實體類別)
         // query: 代表 SELECT (通常用不到，除非你要寫 GROUP BY)
@@ -21,13 +23,13 @@ public class AccountSpecification {
             List<Predicate> predicates = new ArrayList<>();
 
             // 1. 如果有傳入 type，就加一個「等於」的條件
-            if (type != null && !type.isBlank()) {
+            if (type != null) {
                 // 等同於：AND type = ?
                 predicates.add(cb.equal(root.get("type"), type));
             }
 
             // 2. 如果有傳入 status，也加進去
-            if (status != null && !status.isBlank()) {
+            if (status != null) {
                 // 等同於：AND status = ?
                 predicates.add(cb.equal(root.get("status"), status));
             }
