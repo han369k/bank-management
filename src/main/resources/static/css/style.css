@@ -190,3 +190,29 @@ label {
 /* 其他輔助樣式 */
 .divider { border-top: 1px solid #f0f0f0; margin: 8px 0; }
 .font-monospace { font-family: monospace !important; font-size: 12px; }
+
+/* Dropdown 選單美化 */
+.dropdown-menu {
+  font-size: 13px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+  box-shadow: 0 4px 12px rgba(0,0,0,.1);
+  padding: 8px 0;
+  margin-top: 8px !important;
+}
+
+.dropdown-item {
+  padding: 8px 16px;
+  color: #333;
+  font-weight: 500;
+  transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+  background-color: #f0f2f5;
+  color: #1a1d23;
+}
+
+.dropdown-item .bi {
+  color: #888;
+}
