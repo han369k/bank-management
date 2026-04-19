@@ -111,7 +111,7 @@ public class AccountService {
      * 更新帳戶狀態
      */
     @Transactional
-    // 新增註解：這裡將 status 的型別從 String 改為 AccountStatus，確保從 Controller 傳進來的狀態絕對合法
+    // 這裡將 status 的型別從 String 改為 AccountStatus，確保從 Controller 傳進來的狀態絕對合法
     public void updateStatus(String accountNo, AccountStatus status) {
         // 先確認帳號存在 (防呆)
         if (!accountRepository.existsById(accountNo)) {
@@ -190,8 +190,8 @@ public class AccountService {
 
         Account account = getAccountEntity(accountNo);
 
-        // 新增註解：改用 Enum 判斷，凍結或銷戶皆不可存款
-        // 架構建議：同上，建議改為白名單機制。
+        // 改用 Enum 判斷，凍結或銷戶皆不可存款
+        // 同上，建議改為白名單機制。
         if (account.getStatus() == AccountStatus.FROZEN || account.getStatus() == AccountStatus.CLOSED) {
             throw new RuntimeException("存款失敗，帳戶狀態異常: " + account.getStatus());
         }
