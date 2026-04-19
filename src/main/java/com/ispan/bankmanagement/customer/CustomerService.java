@@ -14,23 +14,23 @@ import lombok.RequiredArgsConstructor;
  */
 @Service 
 @RequiredArgsConstructor 
-public class CustomerServiceSpr {
+public class CustomerService {
 
     // 注入升級版的 Spring Dao
-    private final CustomerDaoSpr customerDaoSpr;
+    private final CustomerDao customerDaoSpr;
 
     /**
      * 查詢全部顧客
      */
-    public List<CustomerVoSpr> findAll() {
-        // 回傳型別已經全面更新為 CustomerVoSpr
+    public List<CustomerVo> findAll() {
+        // 回傳型別已經全面更新為 CustomerVo
         return customerDaoSpr.findAll();
     }
 
     /**
      * 用身分證查單一顧客
      */
-    public CustomerVoSpr findByIdNumber(String idNumber) {
+    public CustomerVo findByIdNumber(String idNumber) {
         return customerDaoSpr.findByIdNumber(idNumber.toUpperCase());
     }
 
@@ -47,7 +47,7 @@ public class CustomerServiceSpr {
         }
 
         // 2. 準備一個要寫入 SQL Server 的資料庫實體 (VO)
-        CustomerVoSpr vo = new CustomerVoSpr();
+        CustomerVo vo = new CustomerVo();
 
         // 3. 執行 DTO 轉 VO (Data Mapping)
         vo.setIdNumber(req.getIdNumber());

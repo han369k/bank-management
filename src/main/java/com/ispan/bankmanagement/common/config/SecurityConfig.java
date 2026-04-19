@@ -18,7 +18,7 @@ public class SecurityConfig {
 
     /**
      * 手動註冊 JdbcTemplate Bean
-     * 確保 CustomerDaoSpr 能夠順利拿這把「萬能鑰匙」去連資料庫。
+     * 確保 CustomerDao 能夠順利拿這把「萬能鑰匙」去連資料庫。
      */
     @Bean
     public JdbcTemplate jdbcTemplate(DataSource dataSource) {

@@ -20,7 +20,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerVoSpr { // 📍 類別名稱已更新為 CustomerVoSpr
+public class CustomerVo { // 📍 類別名稱已更新為 CustomerVo
 
     private String customerId;
 

@@ -19,9 +19,9 @@ import lombok.RequiredArgsConstructor;
 @Controller
 @RequestMapping("/customer")
 @RequiredArgsConstructor // ✨ Lombok 自動注入 Service
-public class CustomerControllerSpr {
+public class CustomerController {
 
-    private final CustomerServiceSpr service;
+    private final CustomerService service;
 
     // ==================== GET 請求（畫面與查詢）====================
 
@@ -50,7 +50,7 @@ public class CustomerControllerSpr {
             return "customer-list"; 
         }
 
-        CustomerVoSpr customer = service.findByIdNumber(idNumber.trim());
+        CustomerVo customer = service.findByIdNumber(idNumber.trim());
         
         if (customer != null) {
             model.addAttribute("customerList", List.of(customer)); 
