@@ -5,13 +5,11 @@ import java.sql.Date;
 import java.sql.Timestamp;
 
 /**
- * VO (Value Object) — 顧客資料容器
- * 這個 class 是 CUSTOMER 資料表的「影子」，欄位幾乎一模一樣。
- * 每從資料庫撈出一筆顧客，就裝進這個盒子。
+ * 顧客 Entity
  */
 public class Customer {
 
-    private String customerId;       // customer_id (PK)
+    private Integer customerId;      // customer_id (PK)
     private String idNumber;         // 身分證字號
     private String name;             // 姓名
     private Date dateOfBirth;        // 生日
@@ -27,11 +25,9 @@ public class Customer {
     private Timestamp updatedAt;     // 最後更新時間
     private String status;           // 狀態：Active / VIP / Frozen / Blacklist
 
-    // ==================== Getters & Setters ====================
-    // （每個欄位都要有 get 和 set 方法，Servlet 才能塞值/取值）
-
-    public String getCustomerId() { return customerId; }
-    public void setCustomerId(String customerId) { this.customerId = customerId; }
+    // Getters & Setters
+    public Integer getCustomerId() { return customerId; }
+    public void setCustomerId(Integer customerId) { this.customerId = customerId; }
 
     public String getIdNumber() { return idNumber; }
     public void setIdNumber(String idNumber) { this.idNumber = idNumber; }
