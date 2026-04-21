@@ -1,6 +1,7 @@
 package com.ispan.bankmanagement.creditcard.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -18,8 +19,8 @@ public class CardAppService {
 	public List<CardApplication> findAll() {
 		return cardAppRepository.findAll();
 	}
-	public CardApplication findById(Integer id) {
-		return cardAppRepository.findById(id).orElse(null);
+	public Optional<CardApplication> findById(Integer id) {
+		return cardAppRepository.findById(id);
 	}
 	public void save(CardApplication cardApplication) {
 		cardAppRepository.save(cardApplication);

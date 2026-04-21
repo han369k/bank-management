@@ -15,17 +15,21 @@
 
 
 <script>
+    //http://localhost:8080/apply.html
     document.getElementById('form').addEventListener('submit',function(event){
         event.preventDefault();
         const userId = document.getElementById('userId').value;
         const cardType = document.getElementById('cardType').value;
 
-        fetch('/apply', {
+        fetch(`/card/apply`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ userId, cardType })
+            body: JSON.stringify({ customerId: userId,
+            applyDate: new Date().toISOString(),
+            remark: cardType,
+            status: "PENDING" })
         })
         .then(response => response.json())
         .then(data => {

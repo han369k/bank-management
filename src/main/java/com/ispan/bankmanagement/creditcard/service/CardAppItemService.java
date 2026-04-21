@@ -1,5 +1,7 @@
 package com.ispan.bankmanagement.creditcard.service;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
 import com.ispan.bankmanagement.creditcard.entity.CardApplicationItem;
@@ -19,8 +21,8 @@ public class CardAppItemService {
 	public void deleteById(Integer id) {
 		cardAppItemRepository.deleteById(id);
 	}
-	public CardApplicationItem findById(Integer id) {
-		return cardAppItemRepository.findById(id).orElse(null);
+	public Optional<CardApplicationItem> findById(Integer id) {
+		return cardAppItemRepository.findById(id);
 	}
 
 }

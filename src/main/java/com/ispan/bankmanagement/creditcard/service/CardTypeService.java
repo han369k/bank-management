@@ -1,6 +1,7 @@
 package com.ispan.bankmanagement.creditcard.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
@@ -27,8 +28,8 @@ public class CardTypeService {
 	public void deleteById(Integer id) {
 		cardTypeRepository.deleteById(id);
 	}
-	public CardType findById(Integer id) {
-		return cardTypeRepository.findById(id).orElse(null);
+	public Optional<CardType> findById(Integer id) {
+		return cardTypeRepository.findById(id);
 	}
 	public List<CardType> findAll() {
 		return cardTypeRepository.findAll();

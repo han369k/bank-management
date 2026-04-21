@@ -1,11 +1,14 @@
 package com.ispan.bankmanagement.creditcard.controller;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.ispan.bankmanagement.creditcard.entity.CardApplication;
 import com.ispan.bankmanagement.creditcard.entity.CardType;
 import com.ispan.bankmanagement.creditcard.entity.CreditCard;
+import com.ispan.bankmanagement.creditcard.enums.CardApplicationStatus;
 import com.ispan.bankmanagement.creditcard.service.CardAppService;
 import com.ispan.bankmanagement.creditcard.service.CardTypeService;
 import com.ispan.bankmanagement.creditcard.service.CreditCardService;
@@ -32,36 +36,52 @@ public class CardController {
 	
 	//http://localhost:8080/card/types
 	@GetMapping("/types")
-	public List<CardType> getAllCardType() {
-		return cardTypeService.findAll();
+	public ResponseEntity<List<CardType>> getAllCardType() {
+		return ResponseEntity.ok(cardTypeService.findAll());
 	}
 	//卡片詳細
 	//http://localhost:8080/card/types/1
 	@GetMapping("/types/{id}")
-	public CardType getCardTypeDetail(@PathVariable Integer id) {
-		return cardTypeService.findById(id);
+	public ResponseEntity<CardType> getCardTypeDetail(@PathVariable Integer id) {
+		Optional<CardType>op=cardTypeService.findById(id);
+		if (op.isPresent()) {
+			return ResponseEntity.ok(op.get());
+		} else {
+			return ResponseEntity.notFound().build();
+		}
 		
 	}
 	// 申請信用卡
 	//http://localhost:8080/card/apply 此不能透過瀏覽器
 	@PostMapping("/apply")
-	public ResponseEntity<String> applyCard(@RequestBody CardApplication application) {
+	public ResponseEntity<Map<String, String>> applyCard(@RequestBody CardApplication application) {
 		cardAppService.save(application);
-		return ResponseEntity.ok("Application submitted.");
+		return  ResponseEntity.ok(Map.of("message","Application submitted.")) ;
 	}
-	//我的申請
+	//所有申請表
 	//http://localhost:8080/card/my-applications
 	@GetMapping("/my-applications")
-    public List<CardApplication> getMyApplications() {
-         return cardAppService.findAll();
+    public ResponseEntity<List<CardApplication>> getMyApplications() {
+         return ResponseEntity.ok(cardAppService.findAll());
     }
-	// 我的卡片
+	// 卡片列表
 	//http://localhost:8080/card/my-cards
 	@GetMapping("/my-cards")
-    public List<CreditCard> getMyCards() {
-        return creditCardService.findAll();
+    public ResponseEntity<List<CreditCard>> getMyCards() {
+        return ResponseEntity.ok(creditCardService.findAll());
     }
-	
+	//修改申請表狀態列
+	@PutMapping("/application/{id}/status")
+	public ResponseEntity<?> updateStatus(
+	        @PathVariable Integer id,
+	        @RequestBody Map<String, String> body) {
+
+	    String status = body.get("status");
+	    CardApplication app = cardAppService.findById(id).orElseThrow();
+	    app.setStatus(CardApplicationStatus.valueOf(status));
+	    cardAppService.save(app);
+	    return ResponseEntity.ok(Map.of("message", "updated"));
+	}
 	
 
 	

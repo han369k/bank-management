@@ -3,25 +3,110 @@
 <head>
 <meta charset="UTF-8">
 <title>My Applications</title>
+
+<style>
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: left;
+  }
+
+  th {
+    background: #eee;
+  }
+
+  .approved { color: green; }
+  .rejected { color: red; }
+  .pending { color: orange; }
+</style>
+
 </head>
+
 <body>
-    <h2>我的申請</h2>
-    <ul id="list"></ul>
-    <script>
-        fetch('/my-applications')
-        .then(response => response.json())
-        .then(data => {
-            const list = document.getElementById('list');
-            data.forEach(app => {
-                const li = document.createElement('li');
-                li.textContent = `User ID: ${app.userId}, Card Type: ${app.cardType}, Status: ${app.status}`;
-                list.appendChild(li);
-            });
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('無法獲取申請資料');
-        });
-    </script>
+
+<h2>📄 申請表列表</h2>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Remark</th>
+    </tr>
+  </thead>
+  <tbody id="list"></tbody>
+</table>
+
+<script>
+//http://localhost:8080/my-applications.html
+fetch('/card/my-applications')
+  .then(res => res.json())
+  .then(data => {
+    const list = document.getElementById('list');
+
+    data.forEach(app => {
+      const tr = document.createElement('tr');
+
+      const select = document.createElement('select');
+
+      ['PENDING', 'APPROVED', 'REJECTED'].forEach(status => {
+        const option = document.createElement('option');
+        option.value = status;
+        option.textContent = status;
+
+        if (status === app.status) {
+          option.selected = true;
+        }
+
+        select.appendChild(option);
+      });
+
+      //  改變時觸發 API
+      select.addEventListener('change', () => {
+        updateStatus(app.applicationId, select.value);
+      });
+
+      tr.innerHTML = `
+        <td>${app.applicationId}</td>
+        <td>${app.customerId}</td>
+        <td>${app.applyDate}</td>
+        <td></td>
+        <td>${app.remark ?? '無'}</td>
+      `;
+
+      tr.children[3].appendChild(select); // 把 select 放進 status 欄
+
+      list.appendChild(tr);
+    });
+  });
+
+
+// 更新 API 呼叫
+function updateStatus(id, status) {
+  fetch(`/card/application/${id}/status`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ status: status })
+  })
+  .then(res => res.json())
+  .then(data => {
+    alert('更新成功');
+  })
+  .catch(err => {
+    console.error(err);
+    alert('更新失敗');
+  });
+}
+</script>
+
 </body>
 </html>
