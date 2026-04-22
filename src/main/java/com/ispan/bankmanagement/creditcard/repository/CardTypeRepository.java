@@ -6,4 +6,5 @@ import com.ispan.bankmanagement.creditcard.entity.CardType;
 
 public interface CardTypeRepository extends JpaRepository<CardType, Integer> {
 
+	
 }

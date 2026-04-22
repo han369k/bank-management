@@ -1,18 +1,24 @@
 package com.ispan.bankmanagement.creditcard.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.ispan.bankmanagement.creditcard.dto.CardTypeCreateRequest;
 import com.ispan.bankmanagement.creditcard.entity.CardApplication;
 import com.ispan.bankmanagement.creditcard.entity.CardType;
 import com.ispan.bankmanagement.creditcard.entity.CreditCard;
@@ -82,7 +88,31 @@ public class CardController {
 	    cardAppService.save(app);
 	    return ResponseEntity.ok(Map.of("message", "updated"));
 	}
-	
+	//新增卡別
+	@PostMapping("/types")
+	public ResponseEntity<?>create(@ModelAttribute CardTypeCreateRequest req,@RequestParam MultipartFile mf) throws IOException {
+		System.out.println("file = " + mf.getOriginalFilename());
 
-	
+	    cardTypeService.createCardType(req, mf);
+
+	    return ResponseEntity.ok("OK");
+		
+	}
+	//刪除卡別
+	@DeleteMapping("/types/{id}")
+	public ResponseEntity<?> deleteCardType(@PathVariable Integer id) {
+	    cardTypeService.deleteById(id);
+	    return ResponseEntity.ok("deleted");
+	}
+	@PutMapping("/types/{id}")
+	public ResponseEntity<?> updateCardType(
+	        @PathVariable Integer id,
+	        @ModelAttribute CardTypeCreateRequest req,
+	        @RequestParam(required = false) MultipartFile mf
+	) throws IOException {
+
+	    cardTypeService.updateCardType(id, req, mf);
+
+	    return ResponseEntity.ok("updated");
+	}
 }

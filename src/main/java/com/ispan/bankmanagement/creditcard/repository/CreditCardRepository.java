@@ -6,4 +6,5 @@ import com.ispan.bankmanagement.creditcard.entity.CreditCard;
 
 public interface CreditCardRepository extends JpaRepository<CreditCard, Integer> {
 
+	boolean existsByCardType_CardTypeId(Integer cardTypeId);
 }
