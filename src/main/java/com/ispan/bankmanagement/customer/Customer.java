@@ -18,9 +18,9 @@ public class Customer {
     private String phone;            // 電話
     private String email;            // Email
     private String passwordHash;     // 密碼(Hash)
-    private int failedLoginAttempts; // 登入失敗次數
+    private Integer failedLoginAttempts; // 登入失敗次數
     private BigDecimal income;       // 月收入（銀行金額一律用 BigDecimal，不用 double！）
-    private int creditScore;         // 信用分數
+    private Integer creditScore;         // 信用分數
     private Timestamp createdAt;     // 建立時間
     private Timestamp updatedAt;     // 最後更新時間
     private String status;           // 狀態：Active / VIP / Frozen / Blacklist
@@ -53,14 +53,14 @@ public class Customer {
     public String getPasswordHash() { return passwordHash; }
     public void setPasswordHash(String passwordHash) { this.passwordHash = passwordHash; }
 
-    public int getFailedLoginAttempts() { return failedLoginAttempts; }
-    public void setFailedLoginAttempts(int failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
+    public Integer getFailedLoginAttempts() { return failedLoginAttempts; }
+    public void setFailedLoginAttempts(Integer failedLoginAttempts) { this.failedLoginAttempts = failedLoginAttempts; }
 
     public BigDecimal getIncome() { return income; }
     public void setIncome(BigDecimal income) { this.income = income; }
 
-    public int getCreditScore() { return creditScore; }
-    public void setCreditScore(int creditScore) { this.creditScore = creditScore; }
+    public Integer getCreditScore() { return creditScore; }
+    public void setCreditScore(Integer creditScore) { this.creditScore = creditScore; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }

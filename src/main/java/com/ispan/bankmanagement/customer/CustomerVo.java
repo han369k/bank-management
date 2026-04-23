@@ -41,10 +41,10 @@ public class CustomerVo {
     private String email;            
 
     private String passwordHash;     
-    private int failedLoginAttempts; 
+    private Integer failedLoginAttempts;
     
     private BigDecimal income;
-    private int creditScore;         
+    private Integer creditScore;
 
     private LocalDateTime createdAt; 
     private LocalDateTime updatedAt; 

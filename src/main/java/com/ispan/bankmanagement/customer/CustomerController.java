@@ -21,6 +21,7 @@ public class CustomerController {
     // 列表
     @GetMapping
     public ResponseEntity<List<CustomerVo>> list() {
+
         return ResponseEntity.ok(service.findAll());
     }
 
