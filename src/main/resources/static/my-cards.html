@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+<meta charset="UTF-8">
+<title>My Cards</title>
+
+<style>
+  body {
+    font-family: Arial;
+    background: #f5f5f5;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background: #333;
+    color: white;
+  }
+
+  tr:nth-child(even) {
+    background: #f9f9f9;
+  }
+
+  .active {
+    color: green;
+    font-weight: bold;
+  }
+
+  .blocked {
+    color: red;
+    font-weight: bold;
+  }
+
+</style>
+
+</head>
+
+<body>
+
+<h2> 客戶卡片列表</h2>
+//http://localhost:8080/my-cards.html
+<table>
+  <thead>
+    <tr>
+      <th>Card Number</th>
+      <th>Card Type</th>
+      <th>Status</th>
+    </tr>
+  </thead>
+  <tbody id="cards"></tbody>
+</table>
+
+<script>
+//http://localhost:8080/my-cards.html
+fetch('/card/my-cards')
+  .then(response => response.json())
+  .then(data => {
+    const list = document.getElementById('cards');
+
+    data.forEach(card => {
+      const tr = document.createElement('tr');
+
+      let statusClass = '';
+      if (card.status === 'ACTIVE') statusClass = 'active';
+      else statusClass = 'blocked';
+
+      tr.innerHTML = `
+        <td>${card.cardNumber}</td>
+        <td>${card.cardType?.cardTypeName ?? '未知'}</td>
+        <td class="${statusClass}">${card.status}</td>
+      `;
+
+      list.appendChild(tr);
+    });
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    alert('無法獲取卡片資料');
+  });
+</script>
+
+</body>
+
+</html>

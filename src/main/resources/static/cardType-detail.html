@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+  <head>
+  <meta charset="UTF-8">
+  <title>卡片列表</title>
+  <style>
+    .card-box {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      border: 1px solid #ccc;
+      padding: 15px;
+      width: 500px;
+      border-radius: 10px;
+    }
+    
+    .card-box img {
+      width: 120px;
+      border-radius: 8px;
+    }
+    
+    .card-info {
+      flex: 1;
+    }
+    
+    button {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <h1>卡片詳細內容</h1>
+  <div id="detail"></div>
+  
+  <script>
+    //http://localhost:8080/cardType-detail.html
+    const params = new URLSearchParams(window.location.search);
+    const customerId = params.get("customerId") || 1;
+    const id = params.get("id");
+
+    fetch(`/card/types/${id}`)
+    .then(res => res.json())
+      .then(card => {
+        document.getElementById('detail').innerHTML = `
+          <div class="card-box">
+            <img src="${card.cardImageUrl}" alt="card">
+
+            <div class="card-info">
+              <h3>${card.cardTypeName}</h3>
+              <p>${card.brand} ｜ 年費 $${card.annualFee}</p>
+              <p>回饋 ${card.cashbackRate}%</p>
+
+              <button onclick="apply(${card.cardTypeId})">Apply</button>
+            </div>
+          </div>
+        `;
+      });
+
+    function apply(cardTypeId) {
+      fetch(`/card/apply`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          cardType: cardTypeId,
+          customerId: customerId
+        })
+      })
+      .then(res => res.json())
+      .then(data => alert(data.message))
+      .catch(() => alert("申請失敗"));
+    }
+  </script>
+</body>
+</html>

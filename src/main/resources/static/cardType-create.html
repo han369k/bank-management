@@ -1,0 +1,90 @@
+//http://localhost:8080/cardType-create.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>新增 / 修改卡別</title>
+</head>
+
+<body>
+
+<h2 id="title">新增卡別</h2>
+
+<input id="name" placeholder="卡片名稱"><br>
+<input id="brand" placeholder="品牌"><br>
+<input id="fee" type="number" placeholder="年費"><br>
+<input id="cashback" type="number" placeholder="回饋"><br>
+
+<input id="file" type="file"><br>
+<img id="preview" width="150"><br>
+
+<button onclick="submit()">送出</button>
+
+<script>
+
+// 取得 URL id
+const params = new URLSearchParams(window.location.search);
+const id = params.get("id");
+
+// 如果有 id = 編輯模式
+if (id) {
+  document.getElementById("title").innerText = "修改卡別";
+
+  fetch(`/card/types/${id}`)
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("name").value = data.cardTypeName;
+      document.getElementById("brand").value = data.brand;
+      document.getElementById("fee").value = data.annualFee;
+      document.getElementById("cashback").value = data.cashbackRate;
+
+      if (data.cardImageUrl) {
+        document.getElementById("preview").src = data.cardImageUrl;
+      }
+    });
+}
+
+// 圖片預覽
+document.getElementById("file").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (file) {
+    document.getElementById("preview").src = URL.createObjectURL(file);
+  }
+});
+
+
+// 送出
+function submit() {
+
+  const formData = new FormData();
+
+  formData.append("cardTypeName", document.getElementById("name").value);
+  formData.append("brand", document.getElementById("brand").value);
+  formData.append("annualFee", document.getElementById("fee").value);
+  formData.append("cashbackRate", document.getElementById("cashback").value);
+
+  const file = document.getElementById("file").files[0];
+  if (file) {
+    formData.append("mf", file);
+  }
+
+  // 判斷新增 or 修改
+  const url = id ? `/card/types/${id}` : "/card/types";
+  const method = id ? "PUT" : "POST";
+
+  fetch(url, {
+    method: method,
+    body: formData
+  })
+  .then(res => res.text())
+  .then(() => {
+    alert(id ? "修改成功" : "新增成功");
+    window.location.href = "/cardType-list.html";
+  })
+  .catch(() => alert("失敗"));
+}
+
+</script>
+
+</body>
+</html>
