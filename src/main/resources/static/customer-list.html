@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>顧客清單 - Bank Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg">
+  <div class="container-fluid px-4">
+    <a class="navbar-brand" href="index.html"><i class="bi bi-bank me-2"></i>Bank Management</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" style="border-color: rgba(255,255,255,0.5);">
+      <i class="bi bi-list" style="color:#fff; font-size:24px;"></i>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav ms-3 me-auto gap-2">
+        <li class="nav-item"><a class="nav-link" href="index.html">首頁</a></li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">客戶</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="customer-create.html"><i class="bi bi-plus-circle me-2"></i>新增客戶</a></li>
+            <li><a class="dropdown-item" href="customer-list.html"><i class="bi bi-search me-2"></i>查詢/修改/刪除客戶</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">帳戶</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="account-create.html"><i class="bi bi-plus-circle me-2"></i>新增帳戶</a></li>
+            <li><a class="dropdown-item" href="account-list.html"><i class="bi bi-search me-2"></i>查詢帳戶</a></li>
+            <li><a class="dropdown-item" href="account-status.html"><i class="bi bi-toggle-on me-2"></i>修改帳戶狀態</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">交易紀錄</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="translog-search.html"><i class="bi bi-search me-2"></i>查詢交易紀錄</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">信用卡</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="card-form.html"><i class="bi bi-plus-circle me-2"></i>新增信用卡</a></li>
+            <li><a class="dropdown-item" href="card-list.html"><i class="bi bi-card-list me-2"></i>查詢/修改/刪除信用卡</a></li>
+            <li><a class="dropdown-item" href="card-billcurrent.html"><i class="bi bi-receipt me-2"></i>查詢當期帳單</a></li>
+            <li><a class="dropdown-item" href="card-billdetail.html"><i class="bi bi-file-text me-2"></i>查詢帳單明細</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">股票</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="stock-create.html"><i class="bi bi-plus-circle me-2"></i>新增股票</a></li>
+            <li><a class="dropdown-item" href="stock-getall.html"><i class="bi bi-list-ul me-2"></i>股票列表 / 查詢單筆</a></li>
+          </ul>
+        </li>
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">貸款</a>
+          <ul class="dropdown-menu shadow-sm">
+            <li><a class="dropdown-item" href="loan-userloanapply.html"><i class="bi bi-file-earmark-plus me-2"></i>申請貸款</a></li>
+            <li><a class="dropdown-item" href="loan-loanapply.html"><i class="bi bi-check2-circle me-2"></i>審核 / 查詢貸款總表</a></li>
+          </ul>
+        </li>
+      </ul>
+      <div class="navbar-nav ms-auto">
+        <a class="nav-link" href="#" onclick="doLogout()" style="color: #ff6b6b !important;"><i class="bi bi-box-arrow-right me-1"></i>登出系統</a>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="page-title mb-0"><i class="bi bi-people me-2"></i>顧客清單</h2>
+    <a href="customer-create.html" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-lg me-1"></i>新增顧客
+    </a>
+  </div>
+
+  <div id="msg"></div>
+
+  <div class="card mb-4">
+    <div class="card-header">搜尋顧客</div>
+    <div class="card-body">
+      <form id="searchForm" class="row g-2 align-items-end" onsubmit="event.preventDefault(); loadCustomers();">
+        <div class="col-sm-4">
+          <label class="form-label text-muted small fw-bold">身分證字號</label>
+          <input type="text" id="f-idNumber" class="form-control" placeholder="留空查詢全部">
+        </div>
+        <div class="col-sm-auto d-flex gap-2">
+          <button type="submit" class="btn btn-primary"><i class="bi bi-search me-1"></i>搜尋</button>
+          <button type="button" class="btn btn-outline-secondary" onclick="clearFilter()">清除</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-body p-0">
+      <div class="table-responsive table-wrapper">
+        <table class="table table-hover align-middle mb-0">
+          <thead>
+            <tr>
+              <th>顧客代號</th>
+              <th>姓名</th>
+              <th>身分證字號</th>
+              <th>電話</th>
+              <th>信箱</th>
+              <th>狀態</th>
+              <th class="text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <div id="empty" class="empty-state" style="display:none; padding:40px; text-align:center; color:#888;">
+          <i class="bi bi-inbox fs-2 d-block mb-2"></i>目前沒有顧客資料
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const ctx = '/api/customers'; 
+
+  function showMsg(text, type='danger') {
+    document.getElementById('msg').innerHTML =
+      `<div class="alert alert-${type} alert-dismissible shadow-sm" role="alert">
+         ${text}
+         <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+       </div>`;
+  }
+
+  function statusBadge(s) {
+    const val = (s || 'Active').toUpperCase();
+    const cls = val === 'ACTIVE' ? 'badge-active' : val === 'SUSPENDED' ? 'badge-closed' : 'badge-frozen';
+    return `<span class="badge-status ${cls}">${s}</span>`;
+  }
+
+  function clearFilter() {
+    document.getElementById('f-idNumber').value = '';
+    loadCustomers();
+  }
+
+  async function loadCustomers() {
+    const idNumber = document.getElementById('f-idNumber').value.trim();
+    let url = ctx;
+    if (idNumber) {
+      url = `${ctx}/${encodeURIComponent(idNumber)}`;
+    }
+    
+    try {
+      const res = await fetch(url);
+      if (res.status === 401) { window.location.href = 'login.html'; return; }
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showMsg(err.error || '查詢失敗');
+        renderTable([]);
+        return;
+      }
+
+      let data = await res.json();
+      if (!Array.isArray(data)) { data = data.customerId ? [data] : []; }
+      renderTable(data);
+    } catch (e) {
+      showMsg('網路錯誤：' + e.message);
+      renderTable([]);
+    }
+  }
+
+  function renderTable(data) {
+    const tbody = document.getElementById('tbody');
+    const empty = document.getElementById('empty');
+    tbody.innerHTML = '';
+
+    if (!data || data.length === 0) {
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    data.forEach(c => {
+      tbody.insertAdjacentHTML('beforeend', `
+        <tr>
+          <td class="font-monospace text-muted">${c.customerId || '-'}</td>
+          <td class="fw-bold">${c.name || '-'}</td>
+          <td class="font-monospace">${c.idNumber || '-'}</td>
+          <td>${c.phone || '-'}</td>
+          <td>${c.email || '-'}</td>
+          <td>${statusBadge(c.status || 'Active')}</td>
+          <td class="text-center">
+            <div class="d-flex justify-content-center gap-1">
+              <select class="form-select form-select-sm w-auto" id="status-${c.customerId}">
+                <option value="Active" ${(c.status || 'Active').toUpperCase() === 'ACTIVE' ? 'selected' : ''}>Active</option>
+                <option value="Inactive" ${(c.status || '').toUpperCase() === 'INACTIVE' ? 'selected' : ''}>Inactive</option>
+                <option value="Suspended" ${(c.status || '').toUpperCase() === 'SUSPENDED' ? 'selected' : ''}>Suspended</option>
+              </select>
+              <button class="btn btn-sm btn-warning text-dark" onclick="updateStatus('${c.customerId}')" title="更新狀態"><i class="bi bi-arrow-repeat"></i></button>
+              <button class="btn btn-sm btn-outline-danger" onclick="deleteCustomer('${c.customerId}')" title="刪除"><i class="bi bi-trash"></i></button>
+            </div>
+          </td>
+        </tr>
+      `);
+    });
+  }
+
+  async function updateStatus(customerId) {
+    const newStatus = document.getElementById(`status-${customerId}`).value;
+    try {
+      const res = await fetch(`${ctx}/${encodeURIComponent(customerId)}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus })
+      });
+      if (res.status === 401) { window.location.href = 'login.html'; return; }
+      const result = await res.json().catch(() => ({}));
+      if (!res.ok) { showMsg(result.error || '更新狀態失敗'); return; }
+      showMsg(`<i class="bi bi-check-circle me-1"></i>顧客 ${customerId} 狀態已更新為 ${newStatus}`, 'success');
+      loadCustomers();
+    } catch (e) { showMsg('網路連線錯誤'); }
+  }
+
+  async function deleteCustomer(customerId) {
+    if (!confirm('確定要刪除這名顧客嗎？此操作無法復原！')) return;
+    try {
+      const res = await fetch(`${ctx}/${encodeURIComponent(customerId)}`, { method: 'DELETE' });
+      if (res.status === 401) { window.location.href = 'login.html'; return; }
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        showMsg(err.error || '刪除失敗'); return; 
+      }
+      showMsg(`<i class="bi bi-check-circle me-1"></i>顧客 ${customerId} 已成功刪除`, 'success');
+      loadCustomers();
+    } catch (e) { showMsg('網路連線錯誤'); }
+  }
+
+  async function doLogout() {
+    if(!confirm('確定要登出系統嗎？')) return;
+    try {
+      await fetch('/api/auth/logout', { method: 'POST' });
+      window.location.href = 'login.html';
+    } catch (e) { console.error('登出發生錯誤', e); }
+  }
+
+  // 初始化時自動載入清單 (若後端 API 未準備好，請先回傳空陣列避免報錯)
+  loadCustomers();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
