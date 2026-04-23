@@ -14,6 +14,13 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/*
+ * 負責處理所有貸款申請相關的核心業務，包含：
+ *   - 客戶送件、確認、拒絕
+ *   - 銀行審核、核准、拒絕
+ *   - 利率計算與期數驗證
+ */
+
 @Service
 @Transactional
 public class LoanApplicationService {
@@ -21,15 +28,14 @@ public class LoanApplicationService {
     @Autowired
     private LoanApplicationRepository LARepo;
 
-    // ===============================
-    // 📌 查詢
-    // ===============================
-
-    // 🔹 1. 查全部申請
+    // 查全部申請
     public List<LoanApplicationResponseDTO> getAll() {
         return LARepo.findAllByOrderByCreateTimeDesc()
+                // 轉成 Stream
                 .stream()
+                // 將每一筆 Entity 轉成 Response DTO
                 .map(this::toResponseDTO)
+                // 收集成 List 回傳
                 .collect(Collectors.toList());
     }
 
@@ -52,7 +58,7 @@ public class LoanApplicationService {
 
         // 自動產生 applicationId：LA + yyyyMMddHHmmss + 4碼隨機數
         String timeStr = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"));
-        String randomSuffix = String.format("%04d", (int)(Math.random() * 10000));
+        String randomSuffix = String.format("%04d", (int) (Math.random() * 10000));
         loan.setApplicationId("LA" + timeStr + randomSuffix);
 
         // 從 DTO 填入客戶申請資料
@@ -199,18 +205,41 @@ public class LoanApplicationService {
 
         BigDecimal termRate;
         switch (term) {
-            case 12:  termRate = BigDecimal.ZERO; break;
-            case 24:  termRate = new BigDecimal("0.002"); break;
-            case 36:  termRate = new BigDecimal("0.005"); break;
-            case 48:  termRate = new BigDecimal("0.008"); break;
-            case 60:  termRate = new BigDecimal("0.01");  break;
-            case 84:  termRate = new BigDecimal("0.015"); break;
-            case 120: termRate = BigDecimal.ZERO; break;
-            case 180: termRate = new BigDecimal("0.002"); break;
-            case 240: termRate = new BigDecimal("0.004"); break;
-            case 360: termRate = new BigDecimal("0.006"); break;
-            case 480: termRate = new BigDecimal("0.008"); break;
-            default:  termRate = BigDecimal.ZERO;
+            case 12:
+                termRate = BigDecimal.ZERO;
+                break;
+            case 24:
+                termRate = new BigDecimal("0.002");
+                break;
+            case 36:
+                termRate = new BigDecimal("0.005");
+                break;
+            case 48:
+                termRate = new BigDecimal("0.008");
+                break;
+            case 60:
+                termRate = new BigDecimal("0.01");
+                break;
+            case 84:
+                termRate = new BigDecimal("0.015");
+                break;
+            case 120:
+                termRate = BigDecimal.ZERO;
+                break;
+            case 180:
+                termRate = new BigDecimal("0.002");
+                break;
+            case 240:
+                termRate = new BigDecimal("0.004");
+                break;
+            case 360:
+                termRate = new BigDecimal("0.006");
+                break;
+            case 480:
+                termRate = new BigDecimal("0.008");
+                break;
+            default:
+                termRate = BigDecimal.ZERO;
         }
 
         return baseRate.add(termRate);
