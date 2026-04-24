@@ -1,0 +1,197 @@
+//http://localhost:8080/my-applications.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>My Applications</title>
+
+<style>
+  body {
+    font-family: Arial;
+    padding: 20px;
+  }
+
+  table {
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  th, td {
+    border: 1px solid #ccc;
+    padding: 10px;
+    text-align: center;
+  }
+
+  th {
+    background: #eee;
+  }
+
+  .approved { color: green; font-weight: bold; }
+  .rejected { color: red; font-weight: bold; }
+  .pending { color: orange; font-weight: bold; }
+
+  .loading {
+    margin-bottom: 10px;
+    color: gray;
+  }
+
+  .error {
+    color: red;
+    margin-bottom: 10px;
+  }
+</style>
+</head>
+
+<body>
+
+<h2>📄 申請表列表</h2>
+
+<div id="loading" class="loading">載入中...</div>
+<div id="error" class="error"></div>
+
+<table>
+  <thead>
+    <tr>
+      <th>ID</th>
+      <th>User</th>
+      <th>Date</th>
+      <th>Status</th>
+      <th>Remark</th>
+    </tr>
+  </thead>
+  <tbody id="list"></tbody>
+</table>
+
+<script>
+const API_BASE = 'http://localhost:8080';
+
+const list = document.getElementById('list');
+const loading = document.getElementById('loading');
+const errorDiv = document.getElementById('error');
+
+// 日期格式化
+function formatDate(dateStr) {
+  if (!dateStr) return '-';
+  return new Date(dateStr).toLocaleString();
+}
+
+// 狀態顏色
+function getStatusClass(status) {
+  if (!status) return '';
+  return status.toLowerCase();
+}
+
+// 建立 select
+function createStatusSelect(app, statusTd) {
+  const select = document.createElement('select');
+
+  const statuses = ['PENDING', 'APPROVED', 'REJECTED'];
+
+  statuses.forEach(status => {
+    const option = document.createElement('option');
+    option.value = status;
+    option.textContent = status;
+
+    if (status === app.status) {
+      option.selected = true;
+    }
+
+    select.appendChild(option);
+  });
+
+  select.addEventListener('change', async function () {
+    const oldStatus = app.status;
+
+    try {
+      const res = await fetch(`${API_BASE}/card/application/${app.applicationId}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          status: select.value
+        })
+      });
+
+      if (!res.ok) throw new Error('Update failed');
+
+      // 更新本地資料（⭐重要）
+      app.status = select.value;
+
+      statusTd.className = getStatusClass(app.status);
+
+      alert('更新成功');
+
+    } catch (err) {
+      console.error(err);
+      alert('更新失敗');
+
+      // 還原
+      select.value = oldStatus;
+    }
+  });
+
+  return select;
+}
+
+// 渲染資料
+function render(data) {
+  list.innerHTML = '';
+
+  if (!data || data.length === 0) {
+    list.innerHTML = `<tr><td colspan="5">沒有資料</td></tr>`;
+    return;
+  }
+
+  data.forEach(app => {
+    const tr = document.createElement('tr');
+
+    // status td
+    const statusTd = document.createElement('td');
+    statusTd.className = getStatusClass(app.status);
+
+    const select = createStatusSelect(app, statusTd);
+    statusTd.appendChild(select);
+
+    tr.innerHTML = `
+      <td>${app.applicationId ?? '-'}</td>
+      <td>${app.customerId ?? '-'}</td>
+      <td>${formatDate(app.applyDate)}</td>
+      <td></td>
+      <td>${app.remark ?? '無'}</td>
+    `;
+
+    tr.children[3].replaceWith(statusTd);
+
+    list.appendChild(tr);
+  });
+}
+
+// 載入資料
+async function loadData() {
+  loading.style.display = 'block';
+  errorDiv.innerText = '';
+
+  try {
+    const res = await fetch(`${API_BASE}/card/my-applications`);
+
+    if (!res.ok) throw new Error('API 錯誤');
+
+    const data = await res.json();
+
+    render(data);
+
+  } catch (err) {
+    console.error(err);
+    errorDiv.innerText = '載入失敗，請確認後端是否啟動';
+  } finally {
+    loading.style.display = 'none';
+  }
+}
+
+// 啟動
+loadData();
+</script>
+
+</body>
+</html>

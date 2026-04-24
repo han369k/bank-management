@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>stock-info</title>
+</head>
+<body>
+<div>
+    <div>
+        單筆查詢
+    </div>
+    <div>
+        <input type="text" id="stockIdInput" placeholder="輸入股號"/>
+        <button type="button" onclick="searchStock()">查詢</button>
+        <button type="button" onclick="Stocks()"
+                title="清除搜尋並顯示全部">重新整理
+        </button>
+    </div>
+    <div id="searchMessage"></div>
+</div>
+
+<div>
+    新增股票
+</div>
+<div>
+    <label>
+        <input type="text" placeholder="輸入股號" id="updStockId"/>
+    </label>
+    <label>
+        <input type="text" placeholder="輸入股名" id="updStockName"/>
+    </label>
+    <button type="button">送出</button>
+</div>
+
+<table>
+    <thead>
+    <tr>
+        <th>股號</th>
+        <th>股名</th>
+        <th>狀態</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody id="stockTableBody">
+    <tr>
+        <td></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+<script>
+    window.onload = () => {
+        Stocks();
+
+        async function Stocks() {
+            const response = await fetch("/api/stocks");
+            const stocks = await response.json();
+
+            const tbody = document.getElementById('stockTableBody');
+            tbody.innerHTML = ''; // 清空舊資料
+
+            stocks.forEach(s => {
+                // 1. 建立 tr 元素
+                const tr = document.createElement('tr');
+
+                // 2. 建立各個 td 欄位
+                const tdId = document.createElement('td');
+                tdId.textContent = s.stockId;
+
+                const tdName = document.createElement('td');
+                tdName.textContent = s.stockName;
+
+                const tdStatus = document.createElement('td');
+                tdStatus.textContent = s.status;
+
+                const tdAction = document.createElement('td');
+
+                const delBtn = document.createElement('button');
+                delBtn.textContent = '刪除';
+                delBtn.onclick = () => {
+                    deleteStock(s.stockId);
+                };
+
+                const updBtn = document.createElement('button');
+                updBtn.textContent = '更新';
+                updBtn.onclick = () => {
+                    updateStock()
+                }
+
+                tdAction.appendChild(delBtn);
+                tdStatus.appendChild(updBtn);
+
+                tr.appendChild(tdId);
+                tr.appendChild(tdName);
+                tr.appendChild(tdStatus);
+                tr.appendChild(tdAction);
+
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function searchStock() {
+            const response = await fetch("/api/stocks/{stockId}");
+            const stock = await response.json();
+        }
+
+        async function deleteStock(id) {
+            if (!confirm(`確定要刪除 ID 為 ${id} 的股票嗎？`)) {
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/stocks/${id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    alert('刪除成功！');
+                    await Stocks(); // 呼叫你原本寫好的查詢函式，重新整理畫面
+                } else {
+                    alert('刪除失敗，請檢查後端日誌');
+                }
+            } catch (error) {
+                console.error('請求發生錯誤:', error);
+            }
+        }
+
+        async function updateStock(s) {
+
+        }
+    }
+</script>
+</html>
