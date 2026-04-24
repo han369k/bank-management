@@ -82,10 +82,28 @@ public class CardController {
 	        @PathVariable Integer id,
 	        @RequestBody Map<String, String> body) {
 
+	    Optional<CardApplication> optional = cardAppService.findById(id);
+	    if (optional.isEmpty()) {
+	        return ResponseEntity.notFound().build();
+	    }
+
 	    String status = body.get("status");
-	    CardApplication app = cardAppService.findById(id).orElseThrow();
-	    app.setStatus(CardApplicationStatus.valueOf(status));
+
+	    // ⭐ 防呆（關鍵）
+	    if (status == null || status.isBlank()) {
+	        return ResponseEntity.badRequest().body("Status is required");
+	    }
+
+	    CardApplication app = optional.get();
+
+	    try {
+	        app.setStatus(CardApplicationStatus.valueOf(status.toUpperCase()));
+	    } catch (IllegalArgumentException e) {
+	        return ResponseEntity.badRequest().body("Invalid status value");
+	    }
+
 	    cardAppService.save(app);
+
 	    return ResponseEntity.ok(Map.of("message", "updated"));
 	}
 	//新增卡別

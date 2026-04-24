@@ -111,6 +111,20 @@ BEGIN
     SET @i = @i + 1;
 END
 
+-- 1. CUSTOMER
+INSERT INTO CUSTOMER (customer_id, name) VALUES
+(1, 'John Wang'),
+(2, 'Mary Lee'),
+(3, 'David Chen'),
+(4, 'Lisa Lin'),
+(5, 'Tom Chang'),
+(6, 'Amy Tsai'),
+(7, 'Jay Chou'),
+(8, 'Jack Wu'),
+(9, 'Ryan Hsu'),
+(10, 'Eddie Peng');
+
+
 -- 2. CARD_TYPE
 INSERT INTO CARD_TYPE (card_type_name, brand, annual_fee, cashback_rate, card_image_url) VALUES
 ('Cashback Card', 'VISA', 1000, 1.5, 'img/cashback1.png'),
